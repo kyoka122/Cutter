@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "CircleExpandDownCutter.generated.h"
+#include "CircleExpandCutter.generated.h"
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class CUTTER_API UCircleExpandDownCutter : public UActorComponent
+class CUTTER_API UCircleExpandCutter : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UCircleExpandDownCutter();
+	UCircleExpandCutter();
 
 protected:
 	// Called when the game starts
@@ -43,9 +43,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "移動パラメータ", meta = (AllowPrivateAccess = "true"))
 	float _pitch = 10.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "移動パラメータ", meta = (AllowPrivateAccess = "true"))
-	float _downSpeed = 1.f;
 
 	AActor* _ownerActor = nullptr;
 	float _currentAngle = 0.0f;
