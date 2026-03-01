@@ -1,27 +1,24 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CircleMoveCutter.generated.h"
 
-
+/**
+ * 円形ステージを円周上に周るカッタークラス
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CUTTER_API UCircleMoveCutter : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UCircleMoveCutter();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
@@ -47,7 +44,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "回転パラメータ", meta = (AllowPrivateAccess = "true"))
 	float _rotateRate = 10.f;
 
-	AActor* _ownerActor = nullptr;
+	TObjectPtr<AActor> _ownerActor = nullptr;
 	float _rotateRadius = 0.0f;
 	float _currentAngle = 0.0f;
 };

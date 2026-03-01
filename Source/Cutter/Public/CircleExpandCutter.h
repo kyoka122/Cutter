@@ -1,27 +1,24 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CircleExpandCutter.generated.h"
 
-
+/**
+ * 円形ステージを円を描くように回りながら、中心から徐々に外に向かって円が広がっていくカッタークラス
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CUTTER_API UCircleExpandCutter : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UCircleExpandCutter();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 	void Init();
@@ -44,6 +41,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "移動パラメータ", meta = (AllowPrivateAccess = "true"))
 	float _pitch = 10.f;
 
-	AActor* _ownerActor = nullptr;
+	TObjectPtr<AActor> _ownerActor = {};
 	float _currentAngle = 0.0f;
 };
