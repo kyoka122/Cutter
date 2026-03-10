@@ -13,7 +13,6 @@ void UCutterWorldSubsystem::MoveToStage(const LevelMoveContext& context)
 		return;
 	}
 	
-	UE_LOG(LogTemp, Log, TEXT("context.moveOption: %s"), *context.moveOption);
 	if (context.moveOption.IsEmpty())
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), context.sceneName, true);
@@ -21,7 +20,7 @@ void UCutterWorldSubsystem::MoveToStage(const LevelMoveContext& context)
 	else
 	{
 		FString optionString = CutterFormat::ConvertOpenLevelOption(LevelMoveOptionDefine::SceneKey, context.moveOption);
-		UGameplayStatics::OpenLevel(GetWorld(), context.sceneName, true, optionString);
+		UGameplayStatics::OpenLevel(GetWorld(), context.levelName, true, optionString);
 	}
 	
 }

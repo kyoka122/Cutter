@@ -28,5 +28,5 @@ FText CutterFormat::ConvertScoreText(int score)
 
 FString CutterFormat::ConvertOpenLevelOption(FString key, FString value)
 {
-	return "?" + key + "=" + value;
+	return key + '=' + value + '?';
 }

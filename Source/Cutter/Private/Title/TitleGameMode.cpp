@@ -8,10 +8,9 @@
 void ATitleGameMode::SetScene(UTitleMenu* titleMenu)
 {
 	FName sceneName = FName(UGameplayStatics::ParseOption(OptionsString, LevelMoveOptionDefine::SceneKey));
-	UE_LOG(LogTemp, Log, TEXT("sceneName: %s"), *sceneName.ToString());
+	UE_LOG(LogTemp, Log, TEXT("遷移先シーン: %s"), *sceneName.ToString());
 	if (sceneName == SceneDefine::StageSelect)
 	{
-		UE_LOG(LogTemp, Log, TEXT("TODO:StageSelectを表示する"));
 		titleMenu->SetStageSelectView();
 	}
 }
