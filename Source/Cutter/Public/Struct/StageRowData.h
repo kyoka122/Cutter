@@ -5,7 +5,7 @@
 #include "StageRowData.generated.h"
 
 /**
- * 
+ * ステージ情報
  */
 USTRUCT(BlueprintType)
 struct FStageRowData : public FTableRowBase

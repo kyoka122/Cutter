@@ -24,11 +24,7 @@ void UCircleMoveCutter::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UCircleMoveCutter::Init()
 {
 	_ownerActor = GetOwner();
-	if (!_ownerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No ownerActor"));
-		return;
-	}
+	check(IsValid(_ownerActor));
 
 	FVector currentPos = _ownerActor->GetActorLocation();
 	float radius = _stageSize / 2.f - FMath::Abs(currentPos.X / 2);

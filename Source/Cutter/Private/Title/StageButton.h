@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Components/Button.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Struct/StageRowData.h"
 #include "StageButton.generated.h"
 
 /**
- * タイトル画面の各ステージボタンの実態。
+ * タイトル画面の各ステージ単位のUI。
  */
 UCLASS()
 class UStageButton : public UUserWidget
@@ -15,16 +15,17 @@ class UStageButton : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void CreateButton(const FStageRowData& data);
+	void Init(const FStageRowData& data);
+	FName GetStageName() const { return _stageName; }
 	
 	UFUNCTION(BlueprintCallable, Category = "Title")
-	FName GetStageName() const { return _stageName; }
+	void MoveToStage();
 
 protected:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UImage> _stageImage;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> _stageText;
 
 private:

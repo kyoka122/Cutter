@@ -1,19 +1,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Application/LevelMoveContext.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "TitleWorldSubsystem.generated.h"
+#include "CutterWorldSubsystem.generated.h"
 
 /**
  * タイトル画面のサブシステム。
  * レベル遷移等の管理を行う。
  */
 UCLASS()
-class UTitleWorldSubsystem : public UWorldSubsystem
+class UCutterWorldSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Title")
-	void MoveToStage(FName stageName);
+	void MoveToStage(const LevelMoveContext& context);
 };

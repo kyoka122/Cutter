@@ -14,14 +14,11 @@ class CUTTER_API UCircleExpandCutter : public UActorComponent
 
 public:
 	UCircleExpandCutter();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
+	void Init();
 
 protected:
 	virtual void BeginPlay() override;
-
-public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
-	void Init();
 
 private:
 	void Translate(float DeltaTime);

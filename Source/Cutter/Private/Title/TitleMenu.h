@@ -15,20 +15,23 @@ class UTitleMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Title")
+	void SetStageSelectView();
+	
 protected:
-	//virtual void NativeConstruct() override;
 	UFUNCTION(BlueprintCallable, Category = "Title")
 	void CreateStageList();
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UScrollBox* _stageListScrollBox;
+	TObjectPtr<UScrollBox> _stageListScrollBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "参照設定")
 	TSubclassOf<class UStageButton> _stageButtonClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "参照設定")
-	UDataTable* _stageDataTable;
+	TObjectPtr<UDataTable> _stageDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI設定")
 	FMargin _scrollBoxMargin;

@@ -2,8 +2,6 @@
 
 UCircleExpandCutter::UCircleExpandCutter()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
@@ -23,11 +21,7 @@ void UCircleExpandCutter::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UCircleExpandCutter::Init()
 {
 	_ownerActor = GetOwner();
-	if (!_ownerActor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No ownerActor"));
-		return;
-	}
+	check(IsValid(_ownerActor));
 	FVector currentPos = _ownerActor->GetActorLocation();
 	_rotateCenterPos = currentPos;
 }

@@ -14,19 +14,16 @@ class CUTTER_API UCircleMoveCutter : public UActorComponent
 
 public:
 	UCircleMoveCutter();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	virtual void BeginPlay() override;
-
-public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	void Init();
 	void Translate(float DeltaTime);
 	FVector CalcPosition(float DeltaTime);
 	FQuat CalcRotation(float DeltaTime);
-
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "ステージパラメータ", meta = (AllowPrivateAccess = "true"))
