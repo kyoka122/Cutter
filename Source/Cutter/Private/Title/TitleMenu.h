@@ -27,12 +27,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UScrollBox> _stageListScrollBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "参照設定")
+	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<class UStageButton> _stageButtonClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "参照設定")
+	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UDataTable> _stageDataTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI設定")
+	UPROPERTY(EditAnywhere, Category = "UI設定")
 	FMargin _scrollBoxMargin;
 };

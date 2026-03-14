@@ -22,6 +22,7 @@ public class Cutter : ModuleRules
 			"UMG",
 			"Slate",
 			"SlateCore",
+			"GameplayTags"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

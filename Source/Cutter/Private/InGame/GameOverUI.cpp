@@ -22,7 +22,7 @@ void UGameOverUI::Retry()
 {
 	UE_LOG(LogTemp, Log, TEXT("リトライします"));
 	TObjectPtr<UCutterWorldSubsystem> titleWorldSubsystem = GetWorld()->GetSubsystem<UCutterWorldSubsystem>();
-	FName currentLevel = FName(UKismetSystemLibrary::GetDisplayName(GetWorld()));
-	LevelMoveContext context = SceneDefine::GetStageContexts(currentLevel);
+	FName currentLevelName = FName(UKismetSystemLibrary::GetDisplayName(GetWorld()));
+	LevelMoveContext context = SceneDefine::GetStageContexts(currentLevelName);
 	titleWorldSubsystem->MoveToStage(context);
 }

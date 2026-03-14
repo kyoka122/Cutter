@@ -31,7 +31,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> _timeText = {};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI設定")
+	UPROPERTY(EditAnywhere, Category = "UI設定")
 	int _countUpSpeed = 0;
 
 private:

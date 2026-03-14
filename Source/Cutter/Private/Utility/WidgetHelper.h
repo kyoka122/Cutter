@@ -16,7 +16,7 @@ public:
 	/**
 	 * ウィジェットを表示する
 	 */
-	template <typename WidgetT = UUserWidget> //MEMO: テンプレートなので実装もheaderに定義する
+	template <typename WidgetT = UUserWidget> //MEMO: テンプレートなので実装もheaderファイルに定義する
 	WidgetT* View(TSubclassOf<UUserWidget> userWidgetClass = WidgetT::StaticClass())
 	{
 		static_assert(TIsDerivedFrom<WidgetT, UUserWidget>::IsDerived, "テンプレートにはUUserWidgetのサブクラスを指定してください");

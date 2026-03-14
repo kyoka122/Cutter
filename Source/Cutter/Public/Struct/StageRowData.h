@@ -14,11 +14,17 @@ struct FStageRowData : public FTableRowBase
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FName levelName;
+	FName levelName = {};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FText text;
+	FText text = {};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UTexture2D* image;
+	TObjectPtr<UTexture2D> image = {};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float limitTime = {};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UDataTable* obstacleSpawnData = {};
 };
