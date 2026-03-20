@@ -1,0 +1,30 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/Object.h"
+#include "StageRowData.generated.h"
+
+/**
+ * ステージ情報
+ */
+USTRUCT(BlueprintType)
+struct FStageRowData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName levelName = {};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText text = {};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> image = {};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float limitTime = {};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UDataTable* obstacleSpawnData = {};
+};
