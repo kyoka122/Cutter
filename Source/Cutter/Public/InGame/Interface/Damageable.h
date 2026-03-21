@@ -18,6 +18,6 @@ class CUTTER_API IDamageable
 	
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	void Damage(int value);
+	void Damage(int value, FVector damageActorPosition);
 	
 };

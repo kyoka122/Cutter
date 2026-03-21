@@ -43,7 +43,6 @@ class ACutterCharacter : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
-
 public:
 	ACutterCharacter();
 	
@@ -52,11 +51,25 @@ protected:
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+	
+	void Jump(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
-
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	bool IsPlayingThrowAnimation();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetIsEndThrowAnimation();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	bool IsPlayingThrowStartAnimation();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	bool IsPlayingDamageAnimation();
+	
 protected:
 
 	virtual void NotifyControllerChanged() override;

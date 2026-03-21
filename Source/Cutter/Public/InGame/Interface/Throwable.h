@@ -17,6 +17,11 @@ class CUTTER_API IThrowable
 	GENERATED_BODY()
 	
 public:
-	virtual void OnStartTargeting() = 0;
-	virtual void Throw() = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
+	void StartTargeting();
+	virtual void StartTargeting_Implementation() = 0;
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
+	void Throw();
+	virtual void Throw_Implementation() = 0;
 };

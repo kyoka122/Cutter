@@ -26,6 +26,7 @@ void ACircleExpandCutter::Init()
 	{
 		OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
 	});
 }
 
@@ -83,19 +84,30 @@ void ACircleExpandCutter::OnOverlapBreakableActor(AActor* otherActor)
 
 void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 {
-	if (this < otherActor)//MEMO:衝突した際片方が判定するため
-	{
-		return;
-	}
-	
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
 		ECutterMode otherMode = otherScoreTarget->GetCurrentMode();
 		if (currentMode == ECutterMode::Break && otherMode == ECutterMode::Sphere)//もし自分がCutterModeじゃないなら
 		{
 			UE_LOG(LogTemp, Log, TEXT("AddScore"));
-			int score = otherScoreTarget->RobbedScore_Implementation();
-			_scoreAddFunc(score);
+			int score = otherScoreTarget->RobbedScore_Implementation(false);
+			if (_scoreAddFunc)
+			{
+				_scoreAddFunc(score);
+			}
+			//演出実行
+		}
+	}
+}
+
+void ACircleExpandCutter::OnOverlapDamageableActor(AActor* otherActor)
+{
+	if (IDamageable* otherDamageable = Cast<IDamageable>(otherActor))
+	{
+		if (currentMode == ECutterMode::Break)
+		{
+			UE_LOG(LogTemp, Log, TEXT("AddDamage"));
+			otherDamageable->Damage(_param.Damage, GetActorLocation());
 			//演出実行
 		}
 	}
@@ -110,8 +122,12 @@ void ACircleExpandCutter::Break()
 	}
 }
 
-int ACircleExpandCutter::RobbedScore_Implementation()
+int ACircleExpandCutter::RobbedScore_Implementation(bool isExecPlayer)
 {
+	if (isExecPlayer)
+	{
+		return 0;
+	}
 	//演出実行
 	if (currentMode == ECutterMode::Sphere)
 	{

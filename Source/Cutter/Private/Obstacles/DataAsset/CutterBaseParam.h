@@ -14,5 +14,8 @@ public:
 	int Score = {};
 	
 	UPROPERTY(EditAnywhere, Category = "共通設定", meta = (DisplayPriority=1))
+	int Damage = {};
+	
+	UPROPERTY(EditAnywhere, Category = "共通設定", meta = (DisplayPriority=1))
 	int cutterPenalty = {};
 };

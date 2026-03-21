@@ -6,6 +6,7 @@
 //#include "InGame/EventRegistrants/BreakEventHelperOnBeginOverlap.h"
 #include "InGame/EventRegistrants/OnBeginOverlapEventRegistrantBase.h"
 #include "InGame/Interface/Breakable.h"
+#include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "CircleExpandCutter.generated.h"
 
@@ -23,8 +24,8 @@ public:
 	virtual FCutterBaseParam GetBaseParam() const override { return FCutterBaseParam(_param);}
 	virtual void Break() override;
 	virtual ECutterMode GetCurrentMode() override {return currentMode;}
-	virtual int RobbedScore_Implementation() override;
-	virtual bool IsPlayerInteractable_Implementation() override {return _param.isPlayerInteractable;}
+	virtual int RobbedScore_Implementation(bool isExecPlayer) override;
+	//virtual bool IsPlayerInteractable_Implementation() override {return _param.isPlayerInteractable;}
 	
 protected:
 	virtual void BeginPlay() override;
@@ -40,7 +41,8 @@ private:
 	FQuat CalcRotation(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
-	
+	void OnOverlapDamageableActor(AActor* otherActor);
+
 private:
 	float _currentAngle = 0.0f;
 	ECutterMode currentMode = {};

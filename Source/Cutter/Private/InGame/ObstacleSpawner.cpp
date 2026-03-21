@@ -52,10 +52,11 @@ void AObstacleSpawner::Spawn(const FObstacleSpawnData* nextObstacleSpawnData, TF
 {
 	TSubclassOf<ACutterBase> cutterPrefab = *_obstacleListDataAsset->prefabs.Find(nextObstacleSpawnData->type);
 	check(IsValid(cutterPrefab));
-	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(cutterPrefab);
+	FTransform transform;
+	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
+	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(cutterPrefab, transform);
 	//FVector spawnPosition = nextObstacleSpawnData->spawnPosition;
 	//obstacle->SetActorLocation(FVector(spawnPosition.X, spawnPosition.Y, _stageBaseHeight + spawnPosition.Z));
-	cutter->SetActorLocation(nextObstacleSpawnData->spawnPosition);
 	cutter->RegisterAddScoreFunc(scoreAddFunc);
 }
 

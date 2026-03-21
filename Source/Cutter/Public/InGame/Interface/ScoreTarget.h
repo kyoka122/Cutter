@@ -19,13 +19,13 @@ class CUTTER_API IScoreTarget
 	
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	int RobbedScore();
-	virtual int RobbedScore_Implementation() = 0;
+	int RobbedScore(bool isExecPlayer);
+	virtual int RobbedScore_Implementation(bool isExecPlayer) = 0;
 	
 	virtual ECutterMode GetCurrentMode() = 0;
 	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	bool IsPlayerInteractable();
-	
-	virtual bool IsPlayerInteractable_Implementation() = 0;
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
+	// bool IsPlayerInteractable();
+	//
+	// virtual bool IsPlayerInteractable_Implementation() = 0;
 };

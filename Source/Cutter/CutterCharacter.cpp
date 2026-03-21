@@ -94,6 +94,10 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void ACutterCharacter::Move(const FInputActionValue& Value)
 {
+	if (IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation())
+	{
+		return;
+	}
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -113,6 +117,15 @@ void ACutterCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+}
+
+void ACutterCharacter::Jump(const FInputActionValue& Value)
+{
+	if (IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation())
+	{
+		return;
+	}
+	Super::Jump();
 }
 
 void ACutterCharacter::Look(const FInputActionValue& Value)

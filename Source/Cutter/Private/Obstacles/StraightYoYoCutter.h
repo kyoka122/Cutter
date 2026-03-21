@@ -5,6 +5,7 @@
 #include "DataAsset/StraightRoundTripCutterDataAsset.h"
 #include "GameFramework/Actor.h"
 #include "InGame/Interface/Breakable.h"
+#include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Interface/Throwable.h"
 #include "StraightYoYoCutter.generated.h"
@@ -19,11 +20,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual FCutterBaseParam GetBaseParam() const override { return _param;}
 	virtual void Break() override;
-	virtual void OnStartTargeting() override;
-	virtual void Throw() override;
+	virtual void StartTargeting_Implementation() override;
+	virtual void Throw_Implementation() override;
 	virtual ECutterMode GetCurrentMode() override {return currentMode;}
-	virtual int RobbedScore_Implementation() override;
-	virtual bool IsPlayerInteractable_Implementation() override {return _param.isPlayerInteractable;}
+	virtual int RobbedScore_Implementation(bool isExecPlayer) override;
+	//virtual bool IsPlayerInteractable_Implementation() override {return _param.isPlayerInteractable;}
 	
 protected:
 	virtual void BeginPlay() override;
@@ -37,6 +38,7 @@ private:
 	void Translate(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
+	void OnOverlapDamageableActor(AActor* otherActor);
 	
 private:
 	UPROPERTY()

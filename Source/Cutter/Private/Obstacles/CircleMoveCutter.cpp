@@ -24,6 +24,7 @@ void ACircleMoveCutter::Init()
 	{
 		OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
 	});
 	
 	FVector currentPos = GetActorLocation();
@@ -87,32 +88,46 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 			otherBreakable->Break();
 			Destroy();
 		}
-		else if (currentMode == ECutterMode::Sphere && otherMode == ECutterMode::Break)//もし自分がCutterModeじゃないなら
-		{
-			UE_LOG(LogTemp, Log, TEXT("OwnBreak"));
-			currentMode = ECutterMode::Break;
-			//演出実行(変身も)
-		}
+		// else if (currentMode == ECutterMode::Sphere && otherMode == ECutterMode::Break)//もし自分がCutterModeじゃないなら
+		// {
+		// 	UE_LOG(LogTemp, Log, TEXT("OwnBreak"));
+		// 	currentMode = ECutterMode::Break;
+		// 	//演出実行(変身も)
+		// }
 	}
 }
 
 void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 {
-	if (this < otherActor)//MEMO:衝突した際片方が判定するため
-	{
-		return;
-	}
-	
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
 		ECutterMode otherMode = otherScoreTarget->GetCurrentMode();
 		if (currentMode == ECutterMode::Break && otherMode == ECutterMode::Sphere)//もし自分がCutterModeじゃないなら
 		{
 			UE_LOG(LogTemp, Log, TEXT("AddScore"));
-			int score = otherScoreTarget->RobbedScore_Implementation();
-			_scoreAddFunc(score);
+			int score = otherScoreTarget->RobbedScore_Implementation(false);
+			if (_scoreAddFunc)
+			{
+				_scoreAddFunc(score);
+			}
 			//演出実行
 		}
+	}
+}
+
+void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor)
+{
+	if (currentMode != ECutterMode::Break)
+	{
+		return;
+	}
+	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+	{
+		UE_LOG(LogTemp, Log, TEXT("AddDamage"));
+		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
+	}else
+	{
+		UE_LOG(LogTemp, Log, TEXT("MissDamage"));
 	}
 }
 
@@ -125,22 +140,24 @@ void ACircleMoveCutter::Break()
 	}
 }
 
-void ACircleMoveCutter::OnStartTargeting()
+void ACircleMoveCutter::StartTargeting_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("PrepareThrow"));
 }
 
-void ACircleMoveCutter::Throw()
+void ACircleMoveCutter::Throw_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("Throw"));
+	
+	currentMode = ECutterMode::Break;
 }
 
-int ACircleMoveCutter::RobbedScore_Implementation()
+int ACircleMoveCutter::RobbedScore_Implementation(bool isExecPlayer)
 {
 	//演出実行
 	if (currentMode == ECutterMode::Sphere)
 	{
-		currentMode = ECutterMode::Break;
+		currentMode = ECutterMode::Translating;
 		return _param.Score;
 	} 
 	return 0;

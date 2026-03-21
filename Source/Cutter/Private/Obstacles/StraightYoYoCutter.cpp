@@ -1,6 +1,5 @@
 ﻿#include "StraightYoYoCutter.h"
 
-
 // Called when the game starts or when spawned
 void AStraightYoYoCutter::BeginPlay()
 {
@@ -25,6 +24,7 @@ void AStraightYoYoCutter::Init()
 	{
 		OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
 	});
 }
 
@@ -50,30 +50,35 @@ void AStraightYoYoCutter::OnOverlapBreakableActor(AActor* otherActor)
 			otherBreakable->Break();
 			Destroy();
 		}
-		else if (currentMode == ECutterMode::Sphere && otherMode == ECutterMode::Break)//もし自分がCutterModeじゃないなら
-		{
-			UE_LOG(LogTemp, Log, TEXT("OwnBreak"));
-			currentMode = ECutterMode::Break;
-			//演出実行(変身も)
-		}
 	}
 }
 
 void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 {
-	if (this < otherActor)//MEMO:衝突した際片方が判定するため
-	{
-		return;
-	}
-	
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
 		ECutterMode otherMode = otherScoreTarget->GetCurrentMode();
-		if (currentMode == ECutterMode::Break && otherMode == ECutterMode::Sphere)//もし自分がCutterModeじゃないなら
+		if (currentMode == ECutterMode::Break && otherMode == ECutterMode::Sphere)
 		{
 			UE_LOG(LogTemp, Log, TEXT("AddScore"));
-			int score = otherScoreTarget->RobbedScore_Implementation();
-			_scoreAddFunc(score);
+			int score = otherScoreTarget->RobbedScore_Implementation(false);
+			if (_scoreAddFunc)
+			{
+				_scoreAddFunc(score);
+			}
+			//演出実行
+		}
+	}
+}
+
+void AStraightYoYoCutter::OnOverlapDamageableActor(AActor* otherActor)
+{
+	if (IDamageable* otherDamageable = Cast<IDamageable>(otherActor))
+	{
+		if (currentMode == ECutterMode::Break)
+		{
+			UE_LOG(LogTemp, Log, TEXT("AddDamage"));
+			otherDamageable->Damage(_param.Damage, GetActorLocation());
 			//演出実行
 		}
 	}
@@ -88,22 +93,23 @@ void AStraightYoYoCutter::Break()
 	}
 }
 
-void AStraightYoYoCutter::OnStartTargeting()
+void AStraightYoYoCutter::StartTargeting_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("PrepareThrow"));
 }
 
-void AStraightYoYoCutter::Throw()
+void AStraightYoYoCutter::Throw_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("Throw"));
+	currentMode = ECutterMode::Break;
 }
 
-int AStraightYoYoCutter::RobbedScore_Implementation()
+int AStraightYoYoCutter::RobbedScore_Implementation(bool isExecPlayer)
 {
 	//演出実行
 	if (currentMode == ECutterMode::Sphere)
 	{
-		currentMode = ECutterMode::Break;
+		currentMode = ECutterMode::Translating;
 		return _param.Score;
 	} 
 	return 0;
