@@ -3,7 +3,7 @@
 UENUM(BlueprintType)
 enum class ECutterMode : uint8
 {
-	Sphere,
+	Sealed,
 	Translating,
 	Break,
 };

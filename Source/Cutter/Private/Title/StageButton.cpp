@@ -1,7 +1,7 @@
 #include "StageButton.h"
 #include "System/CutterWorldSubsystem.h"
 #include "Application/SceneDefine.h"
-#include "Struct/StageRowData.h"
+#include "TableRow/StageRowData.h"
 
 void UStageButton::Init(const FStageRowData& data)
 {

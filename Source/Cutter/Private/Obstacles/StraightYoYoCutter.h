@@ -2,29 +2,26 @@
 
 #include "CoreMinimal.h"
 #include "CutterBase.h"
-#include "DataAsset/StraightRoundTripCutterDataAsset.h"
 #include "GameFramework/Actor.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Interface/Throwable.h"
+#include "Struct/StraightRoundTripCutterParam.h"
 #include "StraightYoYoCutter.generated.h"
 
 UCLASS()
-class CUTTER_API AStraightYoYoCutter : public ACutterBase, public IThrowable, public IBreakable, public IScoreTarget
+class CUTTER_API AStraightYoYoCutter : public ACutterBase, public IThrowable, public IBreakable
 {
 	GENERATED_BODY()
 
 public:
 	AStraightYoYoCutter(){}
 	virtual void Tick(float DeltaTime) override;
-	virtual FCutterBaseParam GetBaseParam() const override { return _param;}
 	virtual void Break() override;
 	virtual void StartTargeting_Implementation() override;
 	virtual void Throw_Implementation() override;
-	virtual ECutterMode GetCurrentMode() override {return currentMode;}
-	virtual int RobbedScore_Implementation(bool isExecPlayer) override;
-	//virtual bool IsPlayerInteractable_Implementation() override {return _param.isPlayerInteractable;}
+	virtual void Init(ScoreAddFunc* scoreAddFunc);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -34,13 +31,12 @@ protected:
 	FStraightRoundTripCutterParam _param = {};
 	
 private:
-	void Init();
 	void Translate(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
 	
 private:
-	UPROPERTY()
+	bool hadThrew = false;
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 };

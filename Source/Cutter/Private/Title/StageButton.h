@@ -3,7 +3,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "Struct/StageRowData.h"
+#include "TableRow/StageRowData.h"
 #include "StageButton.generated.h"
 
 /**

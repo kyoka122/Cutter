@@ -2,7 +2,7 @@
 #include "StageButton.h"
 #include "Components/ScrollBoxSlot.h"
 #include "Layout/Margin.h"
-#include "Struct/StageRowData.h"
+#include "TableRow/StageRowData.h"
 
 void UTitleMenu::CreateStageList()
 {

@@ -1,13 +1,12 @@
 #pragma once
 
 #include "InGame/InGameMode.h"
-//#include "ObstacleManager.h"
 #include "InGame/GameOverUI.h"
 #include "InGame/InGameState.h"
 #include "InGame/InGameUI.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Struct/StageRowData.h"
+#include "TableRow/StageRowData.h"
 #include "Utility/WidgetHelper.h"
 
 AInGameMode::AInGameMode()
@@ -28,7 +27,6 @@ void AInGameMode::InstanceMember()
 	check(IsValid(_widgetHelper));
 	_inGameState = GetGameState<AInGameState>();
 	check(IsValid(_inGameState));
-	//_obstacleManager = GetWorld()->SpawnActor<AObstacleManager>(AObstacleManager::StaticClass());
 	_obstacleSpawner = GetWorld()->SpawnActor<AObstacleSpawner>(_obstacleSpawnerClass);
 	check(IsValid(_obstacleSpawner));
 	
@@ -41,7 +39,10 @@ void AInGameMode::InitParam()
 	FStageRowData* row = GetStageData(currentLevel);
 	check(row);
 	
-	_obstacleSpawner->Init(row->obstacleSpawnData);
+	_obstacleSpawner->Init(row->obstacleSpawnData, [this](int score)
+	{
+		AddScore(score);
+	});
 	_inGameState->SetInitLimitTime(row->limitTime);
 	_inGameState->SetLimitTime(row->limitTime);
 	//スコアの追加処理（プレイヤーが出来たらこっちも追加）
@@ -88,10 +89,7 @@ void AInGameMode::Tick(const float deltaTime)
 	
 	_inGameState->ConsumeLimitTime(deltaTime);
 	_inGameUI->UpdateUI(_inGameState, deltaTime);
-	_obstacleSpawner->Update(_inGameState, [this](int score)
-	{
-		AddScore(score);
-	});
+	_obstacleSpawner->Update(_inGameState);
 	
 	if (!_isActiveGameOverUI && _inGameState->IsTimeOver())
 	{

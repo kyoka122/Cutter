@@ -1,19 +1,36 @@
 ﻿#include "CutterBase.h"
-#include "InGame/Interface/Breakable.h"
 
 ACutterBase::ACutterBase()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ACutterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	currentMode = ECutterMode::Sphere;
 }
 
-void ACutterBase::RegisterAddScoreFunc(TFunction<void(int)> scoreAddFunc)
+void ACutterBase::RegisterScoreAddFunc(ScoreAddFunc func)
 {
-	_scoreAddFunc = scoreAddFunc;
+	_scoreAddFunc = func;
 }
+
+void ACutterBase::RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func)
+{
+	check(IsValid(staticMeshComponent));
+	_overlapFunc.Add(func);
+	staticMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACutterBase::OnBeginOverlapEvent);
+}
+
+void ACutterBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (_overlapFunc.IsEmpty())
+	{
+		UE_LOG(LogTemp, Log, TEXT("実行する関数がnullです:"));
+	}
+	for (auto& overlapFunc : _overlapFunc)
+	{
+		overlapFunc(OtherActor);
+	}
+};

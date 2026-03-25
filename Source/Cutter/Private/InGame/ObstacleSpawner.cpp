@@ -1,21 +1,18 @@
 ﻿#include "ObstacleSpawner.h"
-
-#include "InGameMode.h"
-#include "Obstacles/CutterBase.h"
-#include "Struct/ObstacleSpawnData.h"
+#include "TableRow/ObstacleSpawnData.h"
 
 AObstacleSpawner::AObstacleSpawner()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable)
+void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc)
 {
-	RegisterSpawnData(obstacleSpawnTable);
+	//_cutterSpawner = GetWorld()->SpawnActor<ACutterSpawner>(ACutterSpawner::StaticClass());
+	RegisterSpawnData(obstacleSpawnTable, scoreAddFunc);
 }
 
-void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable)
+void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc)
 {
 	static const FString contextString = FString::Printf(TEXT("オブジェクト生成リスト読み込み失敗: "));
 	TArray<FObstacleSpawnData*> obstacleSpawnData;
@@ -31,7 +28,7 @@ void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTab
 	}
 }
 
-void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState, TFunction<void(int)> scoreAddFunc)
+void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState)
 {
 	float leftTime = inGameState->GetInitLimitTime()-inGameState->GetLimitTime();
 	if (_obstacleSpawnQueue.IsEmpty())
@@ -44,19 +41,51 @@ void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState, TFunct
 	{
 		FObstacleSpawnData* tmp;
 		_obstacleSpawnQueue.Dequeue(tmp);
-		Spawn(nextObstacleSpawnData, scoreAddFunc);
+		Spawn(nextObstacleSpawnData);
 	}
 }
 
-void AObstacleSpawner::Spawn(const FObstacleSpawnData* nextObstacleSpawnData, TFunction<void(int)> scoreAddFunc)
+void AObstacleSpawner::Spawn(const FObstacleSpawnData* nextObstacleSpawnData)
 {
-	TSubclassOf<ACutterBase> cutterPrefab = *_obstacleListDataAsset->prefabs.Find(nextObstacleSpawnData->type);
-	check(IsValid(cutterPrefab));
-	FTransform transform;
-	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
-	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(cutterPrefab, transform);
-	//FVector spawnPosition = nextObstacleSpawnData->spawnPosition;
-	//obstacle->SetActorLocation(FVector(spawnPosition.X, spawnPosition.Y, _stageBaseHeight + spawnPosition.Z));
-	cutter->RegisterAddScoreFunc(scoreAddFunc);
+	if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(FName("CutterType"))))
+	{
+		SpawnSealed(nextObstacleSpawnData);
+	}
+	else
+	{
+		//TODO: 他のオブジェクトを作り始めたら追加
+	}
 }
 
+void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData)
+{
+	const auto* prefabSet = _cutterListDataAsset->prefabs.FindByPredicate([this, nextObstacleSpawnData](const FCutterSetData& cutterSet)
+	{
+		return cutterSet.type == nextObstacleSpawnData->type;
+	});
+	check(prefabSet);
+	
+	FTransform transform;
+	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
+	
+	TObjectPtr<ASealedBase> sealed = GetWorld()->SpawnActor<ASealedBase>(prefabSet->sealedModeActor, transform);
+	
+	sealed->InitCutterSpawnData(prefabSet->score, nextObstacleSpawnData->type, [this](FGameplayTag type, FTransform transform)
+	{
+		SpawnCutter(type, transform);
+	});
+}
+
+void AObstacleSpawner::SpawnCutter(FGameplayTag type, FTransform transform)
+{
+	auto spawnCutter = _cutterListDataAsset->prefabs.FindByPredicate([type](FCutterSetData& cutterSet)
+	{
+		return cutterSet.type == type;
+	});
+	check(spawnCutter);
+	UE_LOG(LogTemp, Log, TEXT("spawnCutter->type: %s"), *spawnCutter->type.ToString());
+	check(spawnCutter->breakModeActor);
+	
+	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(spawnCutter->breakModeActor, transform);
+	cutter->RegisterScoreAddFunc(_scoreAddFunc);
+}

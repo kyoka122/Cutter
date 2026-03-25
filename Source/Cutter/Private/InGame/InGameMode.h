@@ -5,7 +5,7 @@
 #include "InGame/InGameState.h"
 #include "InGame/InGameUI.h"
 #include "GameFramework/GameModeBase.h"
-#include "Struct/StageRowData.h"
+#include "TableRow/StageRowData.h"
 #include "Utility/WidgetHelper.h"
 #include "InGameMode.generated.h"
 
