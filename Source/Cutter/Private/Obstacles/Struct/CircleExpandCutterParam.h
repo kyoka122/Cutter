@@ -27,14 +27,3 @@ public:
 	UPROPERTY(EditAnywhere, Category = "移動パラメータ", meta = (DisplayPriority=2))
 	float pitch = 10.f;
 };
-
-//MEMO: 使用中止
-// UCLASS(BlueprintType, Blueprintable)
-// class CUTTER_API UCircleExpandCutterDataAsset : public UPrimaryDataAsset
-// {
-// 	GENERATED_BODY()
-// 	
-// public:
-// 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
-// 	FCircleExpandCutterParam param;
-// };

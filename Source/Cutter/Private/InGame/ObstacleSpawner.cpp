@@ -65,11 +65,11 @@ void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState)
 	{
 		FObstacleSpawnData* tmp;
 		_obstacleSpawnQueue.Dequeue(tmp);
-		Spawn(nextObstacleSpawnData);
+		SpawnInOrder(nextObstacleSpawnData);
 	}
 }
 
-void AObstacleSpawner::Spawn(const FObstacleSpawnData* nextObstacleSpawnData)
+void AObstacleSpawner::SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData)
 {
 	if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(FName("CutterType"))))
 	{
@@ -98,11 +98,12 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	sealed->RegisterTransformCutterData(spawnPrefabSet->score, nextObstacleSpawnData->type,[this, sealed, sealedPool](FGameplayTag type, FTransform transform)
 	{
 		sealedPool->Release(sealed);
-		SpawnCutter(type, transform);
+		return SpawnCutter(type, transform);
 	});
+	sealed->ReStart();
 }
 
-void AObstacleSpawner::SpawnCutter(FGameplayTag type, const FTransform& transform)
+TObjectPtr<ACutterBase> AObstacleSpawner::SpawnCutter(FGameplayTag type, const FTransform& transform)
 {
 	FCutterSetData* spawnPrefabSet = _cutterListDataAsset->prefabs.FindByPredicate([type](const FCutterSetData& cutterSet)
 	{
@@ -116,4 +117,5 @@ void AObstacleSpawner::SpawnCutter(FGameplayTag type, const FTransform& transfor
 	cutter->RegisterScoreAddFunc(_scoreAddFunc);
 	cutter->RegisterDeActiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});
 	cutter->ReStart();
+	return cutter;
 }

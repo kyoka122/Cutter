@@ -19,6 +19,7 @@ void AInGameMode::BeginPlay()
 	Super::BeginPlay();
 	InstanceMember();
 	InitParam();
+	SetCursor();
 }
 
 void AInGameMode::InstanceMember()

@@ -1,22 +1,35 @@
 ﻿#include "BambooSealed.h"
 
+#include "Struct/ScoreRobbedParam.h"
+
 ABambooSealed::ABambooSealed()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-int ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
+void ABambooSealed::ReStart()
 {
+	Super::ReStart();
+	SetActorEnableCollision(true);
+}
+
+FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
+{
+	FScoreRobbedParam param = {};
 	if (isExecPlayer)
 	{
-		return 0;
+		param.canRobScore = false;
+		return param;
 	}
 	if (_transformCutterFunc)
 	{
-		//当たり判定消す
+		SetActorEnableCollision(false);
+		param.canRobScore = true;
+		param.score = _score;
 		_transformCutterFunc(_type, GetActorTransform());
-		//演出実行
-		return _score;
+		return param;
 	}
-	return 0;
+	
+	param.canRobScore = false;
+	return param;
 }

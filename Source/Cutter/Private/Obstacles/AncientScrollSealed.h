@@ -13,16 +13,6 @@ class CUTTER_API AAncientScrollSealed : public ASealedBase, public IScoreTarget
 
 public:
 	AAncientScrollSealed();
-	virtual int RobbedScore_Implementation(bool isExecPlayer) override;
-	
-
-protected:
-	//void RegisterEvent(UStaticMeshComponent* staticMeshComponent,OverlapFunc func);
-	//void RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func);
-
-private:
-	
-	// UFUNCTION()
-	// virtual void OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	// 	UPrimitiveComponent* OtherComp, int32 Ot
+	virtual void ReStart() override;
+	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
 };

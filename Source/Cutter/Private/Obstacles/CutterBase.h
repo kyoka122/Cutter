@@ -22,7 +22,6 @@ public:
 protected:
 	typedef TFunction<void(AActor*)> OverlapFunc;
 	void RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func);
-	void ReleaseStaticMeshEvent(UStaticMeshComponent* staticMeshComponent);
 
 protected:
 	OverlapFunc _overlapFunc = {};

@@ -38,10 +38,12 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
+	void LazyActiveStaticMeshEvent();
 	void OnBreak();
 	
 private:
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
+	FTimerHandle _overlapActiveTimerHandle = {};
 	float _rotateRadius = 0.0f;
 	float _currentAngle = 0.0f;
 	FVector _rotateCenterPos = {};

@@ -19,7 +19,7 @@ public:
 	virtual void Break() override;
 	virtual void StartTargeting_Implementation() override;
 	virtual void Throw_Implementation() override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -32,8 +32,10 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
+	void LazyActiveStaticMeshEvent();
 	void OnBreak();
 	
 private:
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
+	FTimerHandle _overlapActiveTimerHandle = {};
 };

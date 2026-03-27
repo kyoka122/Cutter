@@ -13,5 +13,6 @@ class CUTTER_API ABambooSealed : public ASealedBase, public IScoreTarget
 
 public:
 	ABambooSealed();
-	virtual int RobbedScore_Implementation(bool isExecPlayer) override;
+	virtual void ReStart() override;
+	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
 };

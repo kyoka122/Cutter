@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Obstacles/Enum/CutterMode.h"
+#include "Obstacles/Struct/ScoreRobbedParam.h"
 #include "ScoreTarget.generated.h"
 
 /**
@@ -19,11 +19,6 @@ class CUTTER_API IScoreTarget
 	
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	int RobbedScore(bool isExecPlayer);
-	virtual int RobbedScore_Implementation(bool isExecPlayer) = 0;
-	
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	// bool IsPlayerInteractable();
-	//
-	// virtual bool IsPlayerInteractable_Implementation() = 0;
+	FScoreRobbedParam RobbedScore(bool isExecPlayer);
+	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) = 0;
 };

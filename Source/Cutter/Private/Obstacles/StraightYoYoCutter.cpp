@@ -6,7 +6,12 @@ void AStraightYoYoCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
-	check(IsValid(_staticMeshComponent));
+	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
+	{
+		OnOverlapBreakableActor(otherActor);
+		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
+	});
 }
 
 void AStraightYoYoCutter::Tick(float DeltaTime)
@@ -36,10 +41,15 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
 		UE_LOG(LogTemp, Log, TEXT("AddScore"));
-		int score = otherScoreTarget->RobbedScore_Implementation(false);
-		if (_scoreAddFunc)
+		FScoreRobbedParam robbedParam = otherScoreTarget->RobbedScore_Implementation(false);
+		if (robbedParam.canRobScore)
 		{
-			_scoreAddFunc(score);
+			if (!_scoreAddFunc)
+			{
+				UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+				return;
+			}
+			_scoreAddFunc(robbedParam.score);
 		}
 		//演出実行
 	}
@@ -72,23 +82,31 @@ void AStraightYoYoCutter::StartTargeting_Implementation()
 void AStraightYoYoCutter::Throw_Implementation()
 {
 	UE_LOG(LogTemp, Log, TEXT("Throw 02"));
-	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
-	{
-		OnOverlapBreakableActor(otherActor);
-		OnOverlapScoreTargetActor(otherActor);
-		OnOverlapDamageableActor(otherActor);
-	});
+	
 	StartTick();
 	SetActorHiddenInGame(false);
+	LazyActiveStaticMeshEvent();
+}
+
+void AStraightYoYoCutter::LazyActiveStaticMeshEvent()
+{
+	GetWorldTimerManager().SetTimer(
+		_overlapActiveTimerHandle,
+		[this]{SetActorEnableCollision(true);},
+		1.0f,
+		false
+	);
 }
 
 void AStraightYoYoCutter::OnBreak()
 {
-	ReleaseStaticMeshEvent(_staticMeshComponent);
+	SetActorEnableCollision(false);
 	StopTick();
 	SetActorHiddenInGame(true);
-	if (_deactiveFunc)
+	if (!_deactiveFunc)
 	{
-		_deactiveFunc();
+		UE_LOG(LogTemp, Error, TEXT("_deactiveFunc 実行する関数がnullです:"));
+		return;
 	}
+	_deactiveFunc();
 }

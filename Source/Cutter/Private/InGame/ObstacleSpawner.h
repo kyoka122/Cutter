@@ -18,9 +18,8 @@ class CUTTER_API AObstacleSpawner : public AActor
 public:
 	AObstacleSpawner();
 	void Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc);
-	
 	void Update(const TObjectPtr<AInGameState> inGameState);
-	void Spawn(const FObstacleSpawnData* nextObstacleSpawnData);
+	void SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "参照設定")
@@ -30,7 +29,7 @@ private:
 	void InitGenerator(TFunction<void(int)>& scoreAddFunc);
 	void RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable);
 	void SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData);
-	void SpawnCutter(FGameplayTag type, const FTransform& transform);
+	TObjectPtr<ACutterBase> SpawnCutter(FGameplayTag type, const FTransform& transform);
 
 private:
 	TMap<TSubclassOf<ACutterBase>, ObjectPool<ACutterBase>*> _cutterPools;

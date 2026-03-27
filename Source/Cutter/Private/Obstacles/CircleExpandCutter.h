@@ -19,7 +19,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Break() override;
 	virtual void ReStart() override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -34,9 +34,11 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
+	void LazyActiveStaticMeshEvent();
 	void OnBreak();
 	
 private:
 	float _currentAngle = 0.0f;
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
+	FTimerHandle _overlapActiveTimerHandle = {};
 };

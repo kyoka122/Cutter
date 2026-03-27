@@ -7,7 +7,12 @@ void ACircleExpandCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
-	check(IsValid(_staticMeshComponent));
+	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
+	{
+		OnOverlapBreakableActor(otherActor);
+		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
+	});
 }
 
 void ACircleExpandCutter::Tick(float DeltaTime)
@@ -18,17 +23,22 @@ void ACircleExpandCutter::Tick(float DeltaTime)
 
 void ACircleExpandCutter::ReStart()
 {
-	Super::Reset();
+	Super::ReStart();
 	FVector currentPos = GetActorLocation();
 	_param.rotateCenterPos = currentPos;
-	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
-	{
-		OnOverlapBreakableActor(otherActor);
-		OnOverlapScoreTargetActor(otherActor);
-		OnOverlapDamageableActor(otherActor);
-	});
 	StartTick();
 	SetActorHiddenInGame(false);
+	LazyActiveStaticMeshEvent();
+}
+
+void ACircleExpandCutter::LazyActiveStaticMeshEvent()
+{
+	GetWorldTimerManager().SetTimer(
+		_overlapActiveTimerHandle,
+		[this]{SetActorEnableCollision(true);},
+		1.0f,
+		false
+	);
 }
 
 void ACircleExpandCutter::Translate(float deltaTime)
@@ -77,10 +87,15 @@ void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
 		UE_LOG(LogTemp, Log, TEXT("AddScore"));
-		int score = otherScoreTarget->RobbedScore_Implementation(false);
-		if (_scoreAddFunc)
+		FScoreRobbedParam robbedParam = otherScoreTarget->RobbedScore_Implementation(false);
+		if (robbedParam.canRobScore)
 		{
-			_scoreAddFunc(score);
+			if (!_scoreAddFunc)
+			{
+				UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+				return;
+			}
+			_scoreAddFunc(robbedParam.score);
 		}
 	}
 }
@@ -106,11 +121,13 @@ void ACircleExpandCutter::Break()
 
 void ACircleExpandCutter::OnBreak()
 {
-	ReleaseStaticMeshEvent(_staticMeshComponent);
+	SetActorEnableCollision(false);
 	StopTick();
 	SetActorHiddenInGame(true);
-	if (_deactiveFunc)
+	if (!_deactiveFunc)
 	{
-		_deactiveFunc();
+		UE_LOG(LogTemp, Error, TEXT("_deactiveFunc 実行する関数がnullです"));
+		return;
 	}
+	_deactiveFunc();
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "CutterBase.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "SealedBase.generated.h"
@@ -16,7 +17,7 @@ public:
 	void StartTick();
 	void StopTick();
 	virtual void ReStart(){}
-	typedef TFunction<void(FGameplayTag,FTransform)> TransformCutterFunc;
+	typedef TFunction<TObjectPtr<ACutterBase>(FGameplayTag,FTransform)> TransformCutterFunc;
 	void RegisterTransformCutterData(int score, FGameplayTag type, TransformCutterFunc transformCutterFunc);
 	
 protected:

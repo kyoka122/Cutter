@@ -22,4 +22,5 @@ void ACutterGenerator::Deactivate(TObjectPtr<ACutterBase> cutter)
 {
 	cutter->StopTick();
 	cutter->SetActorHiddenInGame(true);
+	cutter->SetActorEnableCollision(false);
 }

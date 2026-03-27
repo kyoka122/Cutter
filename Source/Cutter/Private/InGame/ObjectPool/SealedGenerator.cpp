@@ -20,6 +20,7 @@ void ASealedGenerator::Activate(TObjectPtr<ASealedBase> cutter, FTransform trans
 
 void ASealedGenerator::Deactivate(TObjectPtr<ASealedBase> cutter)
 {
+	cutter->SetActorEnableCollision(false);
 	cutter->StopTick();
 	cutter->SetActorHiddenInGame(true);
 }
