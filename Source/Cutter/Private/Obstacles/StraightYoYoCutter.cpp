@@ -1,29 +1,18 @@
 ﻿#include "StraightYoYoCutter.h"
+#include "InGame/Interface/Damageable.h"
+#include "InGame/Interface/ScoreTarget.h"
 
 void AStraightYoYoCutter::BeginPlay()
 {
 	Super::BeginPlay();
+	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	check(IsValid(_staticMeshComponent));
 }
 
 void AStraightYoYoCutter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (hadThrew)
-	{
-		Translate(DeltaTime);
-	}
-}
-
-void AStraightYoYoCutter::Init(ScoreAddFunc* scoreAddFunc)
-{
-	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
-	check(IsValid(_staticMeshComponent));
-	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
-	{
-		OnOverlapBreakableActor(otherActor);
-		OnOverlapScoreTargetActor(otherActor);
-		OnOverlapDamageableActor(otherActor);
-	});
+	Translate(DeltaTime);
 }
 
 void AStraightYoYoCutter::Translate(float deltaTime)
@@ -38,7 +27,7 @@ void AStraightYoYoCutter::OnOverlapBreakableActor(AActor* otherActor)
 		otherActor->SetActorEnableCollision(false);
 		UE_LOG(LogTemp, Log, TEXT("Destroy03,%s"), *otherActor->GetName());
 		otherBreakable->Break();
-		Destroy();
+		OnBreak();
 	}
 }
 
@@ -71,7 +60,7 @@ void AStraightYoYoCutter::Break()
 	UE_LOG(LogTemp, Log, TEXT("Imp_Destroy03"));
 	if (IsValid(this))
 	{
-		Destroy();
+		OnBreak();
 	}
 }
 
@@ -82,6 +71,24 @@ void AStraightYoYoCutter::StartTargeting_Implementation()
 
 void AStraightYoYoCutter::Throw_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("Throw"));
-	hadThrew = true;
+	UE_LOG(LogTemp, Log, TEXT("Throw 02"));
+	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
+	{
+		OnOverlapBreakableActor(otherActor);
+		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
+	});
+	StartTick();
+	SetActorHiddenInGame(false);
+}
+
+void AStraightYoYoCutter::OnBreak()
+{
+	ReleaseStaticMeshEvent(_staticMeshComponent);
+	StopTick();
+	SetActorHiddenInGame(true);
+	if (_deactiveFunc)
+	{
+		_deactiveFunc();
+	}
 }

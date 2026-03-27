@@ -11,18 +11,23 @@ class CUTTER_API ACutterBase : public AActor
 	
 public:
 	ACutterBase();
-	virtual void BeginPlay() override;
 	
+	void StartTick();
+	void StopTick();
+	virtual void ReStart(){}
 	typedef TFunction<void(int)> ScoreAddFunc;
 	void RegisterScoreAddFunc(ScoreAddFunc func);
-
+	void RegisterDeActiveFunc(TFunction<void()> _destroyFunc);
+	
 protected:
 	typedef TFunction<void(AActor*)> OverlapFunc;
 	void RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func);
+	void ReleaseStaticMeshEvent(UStaticMeshComponent* staticMeshComponent);
 
 protected:
-	TArray<OverlapFunc> _overlapFunc = {};
-	TFunction<void(int)> _scoreAddFunc = {};
+	OverlapFunc _overlapFunc = {};
+	ScoreAddFunc _scoreAddFunc = {};
+	TFunction<void()> _deactiveFunc = {};
 	
 private:
 	UFUNCTION()

@@ -1,9 +1,13 @@
 #include "CircleExpandCutter.h"
+#include "InGame/Interface/Damageable.h"
+#include "InGame/Interface/ScoreTarget.h"
+#include "Struct/CutterBaseParam.h"
 
 void ACircleExpandCutter::BeginPlay()
 {
 	Super::BeginPlay();
-	Init();
+	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	check(IsValid(_staticMeshComponent));
 }
 
 void ACircleExpandCutter::Tick(float DeltaTime)
@@ -12,19 +16,19 @@ void ACircleExpandCutter::Tick(float DeltaTime)
 	Translate(DeltaTime);
 }
 
-void ACircleExpandCutter::Init()
+void ACircleExpandCutter::ReStart()
 {
+	Super::Reset();
 	FVector currentPos = GetActorLocation();
 	_param.rotateCenterPos = currentPos;
-	
-	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
-	check(IsValid(_staticMeshComponent));
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
 		OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});
+	StartTick();
+	SetActorHiddenInGame(false);
 }
 
 void ACircleExpandCutter::Translate(float deltaTime)
@@ -54,7 +58,7 @@ FQuat ACircleExpandCutter::CalcRotation(float deltaTime)
 
 void ACircleExpandCutter::OnOverlapBreakableActor(AActor* otherActor)
 {
-	if (this < otherActor)//衝突した際片方が判定するため
+	if (this < otherActor)//同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
 	{
 		return;
 	}
@@ -64,7 +68,7 @@ void ACircleExpandCutter::OnOverlapBreakableActor(AActor* otherActor)
 		otherActor->SetActorEnableCollision(false);
 		UE_LOG(LogTemp, Log, TEXT("Destroy02,%s"), *otherActor->GetName());
 		otherBreakable->Break();
-		Destroy();
+		OnBreak();
 	}
 }
 
@@ -96,6 +100,17 @@ void ACircleExpandCutter::Break()
 	UE_LOG(LogTemp, Log, TEXT("Imp_Destroy02"));
 	if (IsValid(this))
 	{
-		Destroy();
+		OnBreak();
+	}
+}
+
+void ACircleExpandCutter::OnBreak()
+{
+	ReleaseStaticMeshEvent(_staticMeshComponent);
+	StopTick();
+	SetActorHiddenInGame(true);
+	if (_deactiveFunc)
+	{
+		_deactiveFunc();
 	}
 }

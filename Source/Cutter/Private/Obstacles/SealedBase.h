@@ -13,11 +13,14 @@ class CUTTER_API ASealedBase : public AActor
 public:
 	ASealedBase();
 	
-	typedef TFunction<void(FGameplayTag,FTransform)> CutterSpawnFunc;
-	void InitCutterSpawnData(int score, FGameplayTag type, CutterSpawnFunc cutterSpawnFunc);
+	void StartTick();
+	void StopTick();
+	virtual void ReStart(){}
+	typedef TFunction<void(FGameplayTag,FTransform)> TransformCutterFunc;
+	void RegisterTransformCutterData(int score, FGameplayTag type, TransformCutterFunc transformCutterFunc);
 	
 protected:
 	int _score = {};
 	FGameplayTag _type = {};
-	CutterSpawnFunc _cutterSpawnFunc = {};
+	TransformCutterFunc _transformCutterFunc = {};
 };

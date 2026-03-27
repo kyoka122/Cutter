@@ -1,11 +1,13 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "CutterSpawner.h"
 #include "GameFramework/Actor.h"
 #include "InGame/InGameState.h"
 #include "DataAsset/CutterListDataAsset.h"
+#include "ObjectPool/CutterGenerator.h"
+#include "ObjectPool/SealedGenerator.h"
 #include "TableRow/ObstacleSpawnData.h"
+#include "Utility/ObjectPool.h"
 #include "ObstacleSpawner.generated.h"
 
 UCLASS()
@@ -16,27 +18,23 @@ class CUTTER_API AObstacleSpawner : public AActor
 public:
 	AObstacleSpawner();
 	void Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc);
+	
 	void Update(const TObjectPtr<AInGameState> inGameState);
 	void Spawn(const FObstacleSpawnData* nextObstacleSpawnData);
 
-	DECLARE_DELEGATE(CutterSpawnFunc);
 protected:
-	// UPROPERTY(EditAnywhere, Category = "ステージ情報")
-	// float _stageBaseHeight = {};
-	
 	UPROPERTY(EditAnywhere, Category = "参照設定")
-	UCutterListDataAsset* _cutterListDataAsset = {};
-	
-	//UPROPERTY(EditAnywhere, Category = "参照設定")
-	
-	
-private:
-	void RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc);
-	void SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData);
-	void SpawnCutter(FGameplayTag type, FTransform transform);
+	TObjectPtr<UCutterListDataAsset> _cutterListDataAsset = {};
 
 private:
-	//TObjectPtr<ACutterSpawner> _cutterSpawner = {};
+	void InitGenerator(TFunction<void(int)>& scoreAddFunc);
+	void RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable);
+	void SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData);
+	void SpawnCutter(FGameplayTag type, const FTransform& transform);
+
+private:
+	TMap<TSubclassOf<ACutterBase>, ObjectPool<ACutterBase>*> _cutterPools;
+	TMap<TSubclassOf<ASealedBase>, ObjectPool<ASealedBase>*> _sealedPools;
 	TQueue<FObstacleSpawnData*> _obstacleSpawnQueue = {};
 	TFunction<void(int)> _scoreAddFunc = {};
 };

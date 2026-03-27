@@ -7,9 +7,9 @@ AAncientScrollSealed::AAncientScrollSealed()
 
 int AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
-	if (_cutterSpawnFunc)
+	if (_transformCutterFunc)
 	{
-		_cutterSpawnFunc(_type, GetActorTransform());
+		_transformCutterFunc(_type, GetActorTransform());
 		//演出実行
 		return _score;
 	}

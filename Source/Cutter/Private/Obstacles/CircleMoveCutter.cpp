@@ -1,39 +1,19 @@
 #include "CircleMoveCutter.h"
 #include "HAL/PreprocessorHelpers.h"
+#include "InGame/Interface/Damageable.h"
+#include "InGame/Interface/ScoreTarget.h"
 
 void ACircleMoveCutter::BeginPlay()
 {
 	Super::BeginPlay();
-	Init();
+	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	check(IsValid(_staticMeshComponent));
 }
 
 void ACircleMoveCutter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (hadThrew)
-	{
-		Translate(DeltaTime);
-	}
-}
-
-void ACircleMoveCutter::Init()
-{
-	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
-	check(IsValid(_staticMeshComponent));
-	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
-	{
-		OnOverlapBreakableActor(otherActor);
-		OnOverlapScoreTargetActor(otherActor);
-		OnOverlapDamageableActor(otherActor);
-	});
-	
-	FVector currentPos = GetActorLocation();
-	float radius = _param.stageSize / 2.f - FMath::Abs(currentPos.X / 2);
-	FVector toStageCenterVec = _param.stageCenterPos - currentPos;
-	FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);
-	_rotateRadius = (toStageCenterVec2D.Size() + radius) / 2;
-	toStageCenterVec2D.Normalize();
-	_rotateCenterPos = currentPos + toStageCenterVec2D * _rotateRadius;
+	Translate(DeltaTime);
 }
 
 void ACircleMoveCutter::Translate(float deltaTime)
@@ -82,7 +62,7 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 		otherActor->SetActorEnableCollision(false);
 		UE_LOG(LogTemp, Log, TEXT("Destroy01,%s"), *otherActor->GetName());
 		otherBreakable->Break();
-		Destroy();
+		OnBreak();
 	}
 }
 
@@ -116,7 +96,7 @@ void ACircleMoveCutter::Break()
 	UE_LOG(LogTemp, Log, TEXT("Imp_Destroy01"));
 	if (IsValid(this))
 	{
-		Destroy();
+		OnBreak();
 	}
 }
 
@@ -127,7 +107,36 @@ void ACircleMoveCutter::StartTargeting_Implementation()
 
 void ACircleMoveCutter::Throw_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("Throw"));
-	hadThrew = true;
-	
+	UE_LOG(LogTemp, Log, TEXT("Throw 01"));
+	ResetTransformParam();
+	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
+	{
+		OnOverlapBreakableActor(otherActor);
+		OnOverlapScoreTargetActor(otherActor);
+		OnOverlapDamageableActor(otherActor);
+	});
+	StartTick();
+	SetActorHiddenInGame(false);
+}
+
+void ACircleMoveCutter::ResetTransformParam()
+{
+	FVector currentPos = GetActorLocation();
+	float radius = _param.stageSize / 2.f - FMath::Abs(currentPos.X / 2);
+	FVector toStageCenterVec = _param.stageCenterPos - currentPos;
+	FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);
+	_rotateRadius = (toStageCenterVec2D.Size() + radius) / 2;
+	toStageCenterVec2D.Normalize();
+	_rotateCenterPos = currentPos + toStageCenterVec2D * _rotateRadius;
+}
+
+void ACircleMoveCutter::OnBreak()
+{
+	ReleaseStaticMeshEvent(_staticMeshComponent);
+	StopTick();
+	SetActorHiddenInGame(true);
+	if (_deactiveFunc)
+	{
+		_deactiveFunc();
+	}
 }

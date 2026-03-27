@@ -2,13 +2,23 @@
 
 ASealedBase::ASealedBase()
 {
-
+	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ASealedBase::InitCutterSpawnData(int score, FGameplayTag type, CutterSpawnFunc cutterSpawnFunc)
+void ASealedBase::StartTick()
+{
+	SetActorTickEnabled(true);
+}
+
+void ASealedBase::StopTick()
+{
+	SetActorTickEnabled(false);
+}
+
+void ASealedBase::RegisterTransformCutterData(int score, FGameplayTag type, TransformCutterFunc transformCutterFunc)
 {
 	_score = score;
 	_type= type;
-	_cutterSpawnFunc = cutterSpawnFunc;
+	_transformCutterFunc = transformCutterFunc;
 }
 

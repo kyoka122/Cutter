@@ -5,9 +5,14 @@ ACutterBase::ACutterBase()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ACutterBase::BeginPlay()
+void ACutterBase::StartTick()
 {
-	Super::BeginPlay();
+	SetActorTickEnabled(true);
+}
+
+void ACutterBase::StopTick()
+{
+	SetActorTickEnabled(false);
 }
 
 void ACutterBase::RegisterScoreAddFunc(ScoreAddFunc func)
@@ -15,22 +20,32 @@ void ACutterBase::RegisterScoreAddFunc(ScoreAddFunc func)
 	_scoreAddFunc = func;
 }
 
+void ACutterBase::RegisterDeActiveFunc(TFunction<void()> deactiveFunc)
+{
+	_deactiveFunc = deactiveFunc;
+}
+
 void ACutterBase::RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func)
 {
 	check(IsValid(staticMeshComponent));
-	_overlapFunc.Add(func);
+	_overlapFunc = func;
 	staticMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACutterBase::OnBeginOverlapEvent);
+}
+
+void ACutterBase::ReleaseStaticMeshEvent(UStaticMeshComponent* staticMeshComponent)
+{
+	check(IsValid(staticMeshComponent));
+	_overlapFunc = nullptr;
+	staticMeshComponent->OnComponentBeginOverlap.RemoveAll(this);
 }
 
 void ACutterBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (_overlapFunc.IsEmpty())
+	if (_overlapFunc)
 	{
-		UE_LOG(LogTemp, Log, TEXT("実行する関数がnullです:"));
+		UE_LOG(LogTemp, Error, TEXT("実行する関数がnullです:"));
+		return;
 	}
-	for (auto& overlapFunc : _overlapFunc)
-	{
-		overlapFunc(OtherActor);
-	}
+	_overlapFunc(OtherActor);
 };

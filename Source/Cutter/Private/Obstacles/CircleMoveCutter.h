@@ -4,8 +4,6 @@
 #include "Obstacles/CutterBase.h"
 #include "Components/ActorComponent.h"
 #include "InGame/Interface/Breakable.h"
-#include "InGame/Interface/Damageable.h"
-#include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Interface/Throwable.h"
 #include "Struct/CircleMoveCutterParam.h"
 #include "CircleMoveCutter.generated.h"
@@ -21,10 +19,11 @@ class CUTTER_API ACircleMoveCutter : public ACutterBase, public IThrowable, publ
 public:
 	ACircleMoveCutter(){}
 	virtual void Tick(float DeltaTime) override;
+	void ResetTransformParam();
 	virtual void Break() override;
 	virtual void StartTargeting_Implementation() override;
 	virtual void Throw_Implementation() override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -33,17 +32,17 @@ protected:
 	FCircleMoveCutterParam _param = {};
 
 private:
-	void Init();
 	void Translate(float deltaTime);
 	FVector CalcPosition(float deltaTime);
 	FQuat CalcRotation(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
-
+	void OnBreak();
+	
 private:
+	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 	float _rotateRadius = 0.0f;
 	float _currentAngle = 0.0f;
 	FVector _rotateCenterPos = {};
-	bool hadThrew = false;
 };

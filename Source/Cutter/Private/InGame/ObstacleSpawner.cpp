@@ -1,5 +1,6 @@
 ﻿#include "ObstacleSpawner.h"
 #include "TableRow/ObstacleSpawnData.h"
+#include "Utility/ObjectPool.h"
 
 AObstacleSpawner::AObstacleSpawner()
 {
@@ -8,11 +9,34 @@ AObstacleSpawner::AObstacleSpawner()
 
 void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc)
 {
-	//_cutterSpawner = GetWorld()->SpawnActor<ACutterSpawner>(ACutterSpawner::StaticClass());
-	RegisterSpawnData(obstacleSpawnTable, scoreAddFunc);
+	_scoreAddFunc = scoreAddFunc;
+	InitGenerator(scoreAddFunc);
+	RegisterSpawnData(obstacleSpawnTable);
 }
 
-void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc)
+void AObstacleSpawner::InitGenerator(TFunction<void(int)>& scoreAddFunc)
+{
+	for (auto& setData : _cutterListDataAsset->prefabs)
+	{
+		if (!_cutterPools.Contains(setData.breakModeActor))
+		{
+			TObjectPtr<ACutterGenerator> cutterGenerator = GetWorld()->SpawnActor<ACutterGenerator>(ACutterGenerator::StaticClass());
+			cutterGenerator->RegisterGeneratePrefab(setData.breakModeActor);
+			_cutterPools.Add(setData.breakModeActor, new ObjectPool<ACutterBase>(cutterGenerator));
+		}
+	}
+	for (auto& setData : _cutterListDataAsset->prefabs)
+	{
+		if (!_sealedPools.Contains(setData.sealedModeActor))
+		{
+			TObjectPtr<ASealedGenerator> sealedGenerator = GetWorld()->SpawnActor<ASealedGenerator>(ASealedGenerator::StaticClass());
+			sealedGenerator->RegisterGeneratePrefab(setData.sealedModeActor);
+			_sealedPools.Add(setData.sealedModeActor, new ObjectPool<ASealedBase>(sealedGenerator));
+		}
+	} 
+}
+
+void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable)
 {
 	static const FString contextString = FString::Printf(TEXT("オブジェクト生成リスト読み込み失敗: "));
 	TArray<FObstacleSpawnData*> obstacleSpawnData;
@@ -59,33 +83,37 @@ void AObstacleSpawner::Spawn(const FObstacleSpawnData* nextObstacleSpawnData)
 
 void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData)
 {
-	const auto* prefabSet = _cutterListDataAsset->prefabs.FindByPredicate([this, nextObstacleSpawnData](const FCutterSetData& cutterSet)
+	FCutterSetData* spawnPrefabSet = _cutterListDataAsset->prefabs.FindByPredicate([this, nextObstacleSpawnData](const FCutterSetData& cutterSet)
 	{
 		return cutterSet.type == nextObstacleSpawnData->type;
 	});
-	check(prefabSet);
+	check(spawnPrefabSet);
 	
 	FTransform transform;
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	
-	TObjectPtr<ASealedBase> sealed = GetWorld()->SpawnActor<ASealedBase>(prefabSet->sealedModeActor, transform);
+	ObjectPool<ASealedBase>* sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
+	TObjectPtr<ASealedBase> sealed = sealedPool->Get(transform);
 	
-	sealed->InitCutterSpawnData(prefabSet->score, nextObstacleSpawnData->type, [this](FGameplayTag type, FTransform transform)
+	sealed->RegisterTransformCutterData(spawnPrefabSet->score, nextObstacleSpawnData->type,[this, sealed, sealedPool](FGameplayTag type, FTransform transform)
 	{
+		sealedPool->Release(sealed);
 		SpawnCutter(type, transform);
 	});
 }
 
-void AObstacleSpawner::SpawnCutter(FGameplayTag type, FTransform transform)
+void AObstacleSpawner::SpawnCutter(FGameplayTag type, const FTransform& transform)
 {
-	auto spawnCutter = _cutterListDataAsset->prefabs.FindByPredicate([type](FCutterSetData& cutterSet)
+	FCutterSetData* spawnPrefabSet = _cutterListDataAsset->prefabs.FindByPredicate([type](const FCutterSetData& cutterSet)
 	{
 		return cutterSet.type == type;
 	});
-	check(spawnCutter);
-	UE_LOG(LogTemp, Log, TEXT("spawnCutter->type: %s"), *spawnCutter->type.ToString());
-	check(spawnCutter->breakModeActor);
+	check(spawnPrefabSet);
 	
-	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(spawnCutter->breakModeActor, transform);
+	ObjectPool<ACutterBase>* cutterPool = _cutterPools[spawnPrefabSet->breakModeActor];
+	TObjectPtr<ACutterBase> cutter = cutterPool->Get(transform);
+	
 	cutter->RegisterScoreAddFunc(_scoreAddFunc);
+	cutter->RegisterDeActiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});
+	cutter->ReStart();
 }

@@ -4,8 +4,6 @@
 #include "CutterBase.h"
 #include "GameFramework/Actor.h"
 #include "InGame/Interface/Breakable.h"
-#include "InGame/Interface/Damageable.h"
-#include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Interface/Throwable.h"
 #include "Struct/StraightRoundTripCutterParam.h"
 #include "StraightYoYoCutter.generated.h"
@@ -21,7 +19,6 @@ public:
 	virtual void Break() override;
 	virtual void StartTargeting_Implementation() override;
 	virtual void Throw_Implementation() override;
-	virtual void Init(ScoreAddFunc* scoreAddFunc);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -35,8 +32,8 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
+	void OnBreak();
 	
 private:
-	bool hadThrew = false;
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 };

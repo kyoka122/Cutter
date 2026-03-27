@@ -3,10 +3,7 @@
 #include "CoreMinimal.h"
 #include "Obstacles/CutterBase.h"
 #include "InGame/Interface/Breakable.h"
-#include "InGame/Interface/Damageable.h"
-#include "InGame/Interface/ScoreTarget.h"
 #include "Struct/CircleExpandCutterParam.h"
-#include "Struct/CutterBaseParam.h"
 #include "CircleExpandCutter.generated.h"
 
 /**
@@ -21,7 +18,7 @@ public:
 	ACircleExpandCutter(){}
 	virtual void Tick(float DeltaTime) override;
 	virtual void Break() override;
-	
+	virtual void ReStart() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -31,13 +28,14 @@ protected:
 	FCircleExpandCutterParam _param;
 
 private:
-	void Init();
 	void Translate(float deltaTime);
 	FVector CalcPosition(float deltaTime);
 	FQuat CalcRotation(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
+	void OnBreak();
+	
 private:
 	float _currentAngle = 0.0f;
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
