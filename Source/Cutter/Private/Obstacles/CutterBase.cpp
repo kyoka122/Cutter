@@ -15,6 +15,11 @@ void ACutterBase::StopTick()
 	SetActorTickEnabled(false);
 }
 
+void ACutterBase::RegisterParam(TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam)
+{
+	_stageEnvironmentParam = stageEnvironmentParam;
+}
+
 void ACutterBase::RegisterScoreAddFunc(ScoreAddFunc func)
 {
 	_scoreAddFunc = func;
@@ -31,7 +36,6 @@ void ACutterBase::RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshCompon
 	check(IsValid(staticMeshComponent));
 	_overlapFunc = func;
 	staticMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACutterBase::OnBeginOverlapEvent);
-	SetActorEnableCollision(true);
 }
 
 void ACutterBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

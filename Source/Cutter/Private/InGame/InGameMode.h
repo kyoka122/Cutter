@@ -38,6 +38,9 @@ protected:
 	TObjectPtr<UDataTable> _stageDataTable;
 	
 	UPROPERTY(EditAnywhere, Category = "参照設定")
+	TObjectPtr<UDataTable> _stageEnvironmentParamTable;
+	
+	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<AObstacleSpawner> _obstacleSpawnerClass;
 	
 private:
@@ -45,7 +48,8 @@ private:
 	void InitParam();
 	void SetCursor();
 	FStageRowData* GetStageData(FName stageName);
-	
+	FStageEnvironmentParam* GetStageEnvironmentParam(FName stageName);
+
 private:
 	TObjectPtr<AInGameState> _inGameState = {};
 	//TObjectPtr<AObstacleManager> _obstacleManager = {};

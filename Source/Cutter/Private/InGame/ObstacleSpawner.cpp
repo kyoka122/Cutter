@@ -1,5 +1,8 @@
 ﻿#include "ObstacleSpawner.h"
+
+#include "Application/TagDefine.h"
 #include "TableRow/ObstacleSpawnData.h"
+#include "TableRow/StageEnvironmentParam.h"
 #include "Utility/ObjectPool.h"
 
 AObstacleSpawner::AObstacleSpawner()
@@ -7,9 +10,10 @@ AObstacleSpawner::AObstacleSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc)
+void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam, TFunction<void(int)> scoreAddFunc)
 {
 	_scoreAddFunc = scoreAddFunc;
+	_stageEnvironmentParam = stageEnvironmentParam;
 	InitGenerator();
 	RegisterSpawnData(obstacleSpawnTable);
 }
@@ -22,7 +26,7 @@ void AObstacleSpawner::InitGenerator()
 		{
 			TObjectPtr<ACutterGenerator> cutterGenerator = GetWorld()->SpawnActor<ACutterGenerator>(ACutterGenerator::StaticClass());
 			cutterGenerator->RegisterGeneratePrefab(setData.breakModeActor);
-			_cutterPools.Add(setData.breakModeActor, new ObjectPool<ACutterBase>(cutterGenerator));
+			_cutterPools.Add(setData.breakModeActor, MakeShared<ObjectPool<ACutterBase>>(cutterGenerator));
 		}
 	}
 	for (auto& setData : _cutterListDataAsset->prefabs)
@@ -31,7 +35,7 @@ void AObstacleSpawner::InitGenerator()
 		{
 			TObjectPtr<ASealedGenerator> sealedGenerator = GetWorld()->SpawnActor<ASealedGenerator>(ASealedGenerator::StaticClass());
 			sealedGenerator->RegisterGeneratePrefab(setData.sealedModeActor);
-			_sealedPools.Add(setData.sealedModeActor, new ObjectPool<ASealedBase>(sealedGenerator));
+			_sealedPools.Add(setData.sealedModeActor, MakeShared<ObjectPool<ASealedBase>>(sealedGenerator));
 		}
 	} 
 }
@@ -71,7 +75,7 @@ void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState)
 
 void AObstacleSpawner::SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData)
 {
-	if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(FName("CutterType"))))
+	if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(TagDefine::CutterType)))
 	{
 		SpawnSealed(nextObstacleSpawnData);
 	}
@@ -92,7 +96,7 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	FTransform transform;
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	
-	ObjectPool<ASealedBase>* sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
+	TSharedPtr<ObjectPool<ASealedBase>> sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
 	TObjectPtr<ASealedBase> sealed = sealedPool->Get(transform);
 	
 	sealed->RegisterTransformCutterData(nextObstacleSpawnData->type,
@@ -113,11 +117,12 @@ TObjectPtr<ACutterBase> AObstacleSpawner::SpawnCutter(FGameplayTag type, const F
 	});
 	check(spawnPrefabSet);
 	
-	ObjectPool<ACutterBase>* cutterPool = _cutterPools[spawnPrefabSet->breakModeActor];
+	TSharedPtr<ObjectPool<ACutterBase>> cutterPool = _cutterPools[spawnPrefabSet->breakModeActor];
 	TObjectPtr<ACutterBase> cutter = cutterPool->Get(transform);
 	
 	cutter->RegisterScoreAddFunc(_scoreAddFunc);
 	cutter->RegisterInactiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});
+	cutter->RegisterParam(_stageEnvironmentParam);
 	cutter->ReStart();
 	return cutter;
 }

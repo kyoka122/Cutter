@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "CutterBase.generated.h"
 
+struct  FStageEnvironmentParam;
+
 UCLASS()
 class CUTTER_API ACutterBase : public AActor
 {
@@ -15,18 +17,20 @@ public:
 	void StartTick();
 	void StopTick();
 	virtual void ReStart(){}
-	typedef TFunction<void(int)> ScoreAddFunc;
+	void RegisterParam(TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam);
+	using ScoreAddFunc = TFunction<void(int)>;
 	void RegisterScoreAddFunc(ScoreAddFunc func);
 	void RegisterInactiveFunc(TFunction<void()> _inactiveFunc);
 	
 protected:
-	typedef TFunction<void(AActor*)> OverlapFunc;
+	using OverlapFunc = TFunction<void(AActor*)>;
 	void RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func);
 
 protected:
 	OverlapFunc _overlapFunc = {};
 	ScoreAddFunc _scoreAddFunc = {};
 	TFunction<void()> _inactiveFunc = {};
+	TObjectPtr<FStageEnvironmentParam> _stageEnvironmentParam = {};
 	
 private:
 	UFUNCTION()

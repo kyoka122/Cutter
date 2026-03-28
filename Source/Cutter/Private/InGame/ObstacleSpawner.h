@@ -7,6 +7,7 @@
 #include "ObjectPool/CutterGenerator.h"
 #include "ObjectPool/SealedGenerator.h"
 #include "TableRow/ObstacleSpawnData.h"
+#include "TableRow/StageEnvironmentParam.h"
 #include "Utility/ObjectPool.h"
 #include "ObstacleSpawner.generated.h"
 
@@ -17,7 +18,7 @@ class CUTTER_API AObstacleSpawner : public AActor
 
 public:
 	AObstacleSpawner();
-	void Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc);
+	void Init(TObjectPtr<UDataTable> obstacleSpawnTable, TObjectPtr<FStageEnvironmentParam> StageEnvironmentParam, TFunction<void(int)> scoreAddFunc);
 	void Update(const TObjectPtr<AInGameState> inGameState);
 	void SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData);
 
@@ -32,8 +33,9 @@ private:
 	TObjectPtr<ACutterBase> SpawnCutter(FGameplayTag type, const FTransform& transform);
 
 private:
-	TMap<TSubclassOf<ACutterBase>, ObjectPool<ACutterBase>*> _cutterPools;
-	TMap<TSubclassOf<ASealedBase>, ObjectPool<ASealedBase>*> _sealedPools;
+	TMap<TSubclassOf<ACutterBase>, TSharedPtr<ObjectPool<ACutterBase>>> _cutterPools;
+	TMap<TSubclassOf<ASealedBase>, TSharedPtr<ObjectPool<ASealedBase>>> _sealedPools;
 	TQueue<FObstacleSpawnData*> _obstacleSpawnQueue = {};
+	TObjectPtr<FStageEnvironmentParam> _stageEnvironmentParam = {};
 	TFunction<void(int)> _scoreAddFunc = {};
 };

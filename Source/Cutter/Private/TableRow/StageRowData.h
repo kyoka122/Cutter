@@ -26,5 +26,5 @@ public:
 	float limitTime = {};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UDataTable* obstacleSpawnData = {};
+	TObjectPtr<UDataTable> obstacleSpawnData = {};
 };

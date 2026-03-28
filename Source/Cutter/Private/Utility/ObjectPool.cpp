@@ -28,11 +28,15 @@ template <typename T>
 void ObjectPool<T>::Release(TObjectPtr<T> object)
 {
 	_generator->Deactivate(object);
-	ObjectPoolManageData** param = _poolData.FindByPredicate([object](ObjectPoolManageData* param)
+	for (auto& poolData : _poolData)
 	{
-		return param->obj == object;
-	});
-	(*param)->isUsing = false;
+		if (poolData.IsValid() && poolData->obj == object)
+		{
+			poolData->isUsing = false;
+			return;
+		}
+	}
+	UE_LOG(LogTemp, Log, TEXT("ObjectPoolのReleaseが完了できませんでした: %s"), *object.GetName());
 }
 
 template <typename T>
@@ -40,13 +44,12 @@ ObjectPool<T>::ObjectPoolManageData* ObjectPool<T>::GetNotUsingObjectData()
 {
 	for (auto& poolData : _poolData)
 	{
-		if (!poolData->isUsing)
+		if (poolData.IsValid() && !poolData->isUsing)
 		{
-			return poolData;
+			return poolData.Get();
 		}
 	}
 	TObjectPtr<T> instance = _generator->Generate();
-	ObjectPoolManageData* data = new ObjectPoolManageData(instance);
-	_poolData.Add(data);
-	return data;
+	int index = _poolData.Add(MakeShared<ObjectPoolManageData>(instance));
+	return _poolData[index].Get();
 }

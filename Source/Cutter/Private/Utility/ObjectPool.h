@@ -29,6 +29,6 @@ private:
 	ObjectPoolManageData* GetNotUsingObjectData();
 	
 private:
-	TArray<ObjectPoolManageData*> _poolData = {};
+	TArray<TSharedPtr<ObjectPoolManageData>> _poolData = {};
 	PoolObjectGenerator<T>* _generator = {};
 };

@@ -6,6 +6,7 @@
 #include "InGame/InGameUI.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "TableRow/StageEnvironmentParam.h"
 #include "TableRow/StageRowData.h"
 #include "Utility/WidgetHelper.h"
 
@@ -37,17 +38,18 @@ void AInGameMode::InstanceMember()
 void AInGameMode::InitParam()
 {
 	FName currentLevel = FName(UKismetSystemLibrary::GetDisplayName(GetWorld()));
-	FStageRowData* row = GetStageData(currentLevel);
-	check(row);
+	FStageRowData* stageRowData = GetStageData(currentLevel);
+	check(stageRowData);
 	
-	_obstacleSpawner->Init(row->obstacleSpawnData, [this](int score)
+	FStageEnvironmentParam* stageEnvironmentParamRowData= GetStageEnvironmentParam(currentLevel);
+	check(stageEnvironmentParamRowData);
+	
+	_obstacleSpawner->Init(stageRowData->obstacleSpawnData, stageEnvironmentParamRowData, [this](int score)
 	{
 		AddScore(score);
 	});
-	_inGameState->SetInitLimitTime(row->limitTime);
-	_inGameState->SetLimitTime(row->limitTime);
-	//スコアの追加処理（プレイヤーが出来たらこっちも追加）
-	//player.RegisterAddScoreEvent(AddScore);
+	_inGameState->SetInitLimitTime(stageRowData->limitTime);
+	_inGameState->SetLimitTime(stageRowData->limitTime);
 }
 
 void AInGameMode::SetCursor()
@@ -58,9 +60,6 @@ void AInGameMode::SetCursor()
 		FInputModeGameOnly InputMode = {};
 		playerController->SetInputMode(InputMode);
 		playerController->bShowMouseCursor = false;
-		//デバッグ用
-		// FInputModeGameAndUI InputMode = {};
-		// playerController->SetInputMode(InputMode);
 	}
 }
 
@@ -81,6 +80,28 @@ FStageRowData* AInGameMode::GetStageData(FName stageName)//TODO: Factory作る
 			return row;
 		}
 	}
+	UE_LOG(LogTemp, Log, TEXT("該当するデータがありません。name:%s"), *stageName.ToString());
+	return nullptr;
+}
+
+FStageEnvironmentParam* AInGameMode::GetStageEnvironmentParam(FName stageName)//TODO: Factory作る
+{
+	FString contextString = FString::Printf(TEXT("StageList読み込み失敗: "));
+	TArray<FStageEnvironmentParam*> stageRows;
+	_stageEnvironmentParamTable->GetAllRows<FStageEnvironmentParam>(contextString, stageRows);
+	for (const auto& row : stageRows)
+	{
+		if (!row)
+		{
+			UE_LOG(LogTemp, Log, TEXT("不正なRowがあります"));
+			continue;
+		}
+		if (row->levelName == stageName)
+		{
+			return row;
+		}
+	}
+	UE_LOG(LogTemp, Log, TEXT("該当するデータがありません。name:%s"), *stageName.ToString());
 	return nullptr;
 }
 

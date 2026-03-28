@@ -2,6 +2,7 @@
 #include "HAL/PreprocessorHelpers.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
+#include "InGame/ObstacleSpawner.h"
 
 void ACircleMoveCutter::BeginPlay()
 {
@@ -135,8 +136,8 @@ void ACircleMoveCutter::LazyActiveStaticMeshEvent()
 void ACircleMoveCutter::ResetTransformParam()
 {
 	FVector currentPos = GetActorLocation();
-	float radius = _param.stageSize / 2.f - FMath::Abs(currentPos.X / 2);
-	FVector toStageCenterVec = _param.stageCenterPos - currentPos;
+	float radius = _stageEnvironmentParam->stageSize / 2.f - FMath::Abs(currentPos.X / 2);
+	FVector toStageCenterVec = _stageEnvironmentParam->centerPos - currentPos;
 	FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);
 	_rotateRadius = (toStageCenterVec2D.Size() + radius) / 2;
 	toStageCenterVec2D.Normalize();
