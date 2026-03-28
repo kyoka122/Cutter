@@ -85,7 +85,7 @@ void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		}
 		if (!_scoreAddFunc)
 		{
-			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());
 			return;
 		}
 		_scoreAddFunc(robbedParam.score);
@@ -96,14 +96,14 @@ void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor)
 {
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
-		UE_LOG(LogCutter, Log, TEXT("AddDamage"));
+		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
 		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
 	}
 }
 
 void ACircleMoveCutter::Break()
 {
-	UE_LOG(LogCutter, Log, TEXT("Imp_Break"));
+	UE_LOG(LogCutter, Log, TEXT("Imp_Break %s"), *GetName());
 	if (IsValid(this))
 	{
 		OnBreak();
@@ -112,12 +112,12 @@ void ACircleMoveCutter::Break()
 
 void ACircleMoveCutter::StartTargeting_Implementation()
 {
-	UE_LOG(LogCutter, Log, TEXT("PrepareThrow"));
+	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
 }
 
 void ACircleMoveCutter::Throw_Implementation()
 {
-	UE_LOG(LogCutter, Log, TEXT("Throw"));
+	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	ResetTransformParam();
 	StartTick();
 	SetActorHiddenInGame(false);
@@ -132,7 +132,7 @@ void ACircleMoveCutter::LazyActiveStaticMeshEvent()
 		1.0f,
 		false
 	);
-	UE_LOG(LogCutter, Log, TEXT("LazyRegisterStaticMeshEvent"));
+	UE_LOG(LogCutter, Log, TEXT("LazyRegisterStaticMeshEvent %s"), *GetName());
 }
 
 void ACircleMoveCutter::ResetTransformParam()
@@ -153,7 +153,7 @@ void ACircleMoveCutter::OnBreak()
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{
-		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
+		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
 		return;
 	}
 	_inactiveFunc();

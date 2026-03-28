@@ -81,7 +81,7 @@ void AStraightYoYoCutter::StartTargeting_Implementation()
 
 void AStraightYoYoCutter::Throw_Implementation()
 {
-	UE_LOG(LogCutter, Log, TEXT("Throw %s by%s"), *GetName());
+	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	
 	StartTick();
 	SetActorHiddenInGame(false);
