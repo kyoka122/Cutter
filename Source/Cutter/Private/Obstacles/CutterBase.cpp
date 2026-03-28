@@ -1,5 +1,7 @@
 ﻿#include "CutterBase.h"
 
+#include "Cutter.h"
+
 ACutterBase::ACutterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -32,7 +34,6 @@ void ACutterBase::RegisterInactiveFunc(TFunction<void()> inactiveFunc)
 
 void ACutterBase::RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func)
 {
-	UE_LOG(LogTemp, Log, TEXT("Register."));
 	check(IsValid(staticMeshComponent));
 	_overlapFunc = func;
 	staticMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACutterBase::OnBeginOverlapEvent);
@@ -43,7 +44,7 @@ void ACutterBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActo
 {
 	if (!_overlapFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_overlapFunc 実行する関数がnullです:"));
+		UE_LOG(LogCutter, Error, TEXT("_overlapFunc 実行する関数がnullです %s by%s"), *GetName(), *OtherActor->GetName());
 		return;
 	}
 	_overlapFunc(OtherActor);

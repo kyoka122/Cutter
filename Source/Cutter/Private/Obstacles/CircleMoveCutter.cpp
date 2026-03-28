@@ -1,4 +1,6 @@
 #include "CircleMoveCutter.h"
+
+#include "Cutter.h"
 #include "HAL/PreprocessorHelpers.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
@@ -66,7 +68,7 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 	{
 		SetActorEnableCollision(false);
 		otherActor->SetActorEnableCollision(false);
-		UE_LOG(LogTemp, Log, TEXT("Destroy01,%s"), *otherActor->GetName());
+		UE_LOG(LogCutter, Log, TEXT("Destroy01,%s"), *otherActor->GetName());
 		otherBreakable->Break();
 		OnBreak();
 	}
@@ -83,7 +85,7 @@ void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		}
 		if (!_scoreAddFunc)
 		{
-			UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
 			return;
 		}
 		_scoreAddFunc(robbedParam.score);
@@ -94,14 +96,14 @@ void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor)
 {
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
-		UE_LOG(LogTemp, Log, TEXT("AddDamage"));
+		UE_LOG(LogCutter, Log, TEXT("AddDamage"));
 		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
 	}
 }
 
 void ACircleMoveCutter::Break()
 {
-	UE_LOG(LogTemp, Log, TEXT("Imp_Destroy01"));
+	UE_LOG(LogCutter, Log, TEXT("Imp_Break"));
 	if (IsValid(this))
 	{
 		OnBreak();
@@ -110,12 +112,12 @@ void ACircleMoveCutter::Break()
 
 void ACircleMoveCutter::StartTargeting_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("PrepareThrow"));
+	UE_LOG(LogCutter, Log, TEXT("PrepareThrow"));
 }
 
 void ACircleMoveCutter::Throw_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("Throw 01"));
+	UE_LOG(LogCutter, Log, TEXT("Throw"));
 	ResetTransformParam();
 	StartTick();
 	SetActorHiddenInGame(false);
@@ -130,7 +132,7 @@ void ACircleMoveCutter::LazyActiveStaticMeshEvent()
 		1.0f,
 		false
 	);
-	UE_LOG(LogTemp, Log, TEXT("LazyRegisterStaticMeshEvent"));
+	UE_LOG(LogCutter, Log, TEXT("LazyRegisterStaticMeshEvent"));
 }
 
 void ACircleMoveCutter::ResetTransformParam()
@@ -151,7 +153,7 @@ void ACircleMoveCutter::OnBreak()
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
+		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
 		return;
 	}
 	_inactiveFunc();

@@ -1,5 +1,7 @@
 ﻿#include "AncientScrollSealed.h"
 
+#include "Cutter.h"
+
 AAncientScrollSealed::AAncientScrollSealed()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -30,7 +32,7 @@ void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
+			UE_LOG(LogSealed, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
 		}
 	}
 }
@@ -40,7 +42,7 @@ FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPl
 	FScoreRobbedParam param = {};
 	if (!_transformCutterFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_transformCutterFunc 実行する関数がnullです"));
+		UE_LOG(LogSealed, Error, TEXT("_transformCutterFunc 実行する関数がnullです %s"), *GetName());
 		param.canRobScore = false;
 		return param;
 	}

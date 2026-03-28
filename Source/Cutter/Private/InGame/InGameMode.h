@@ -52,7 +52,6 @@ private:
 
 private:
 	TObjectPtr<AInGameState> _inGameState = {};
-	//TObjectPtr<AObstacleManager> _obstacleManager = {};
 	TObjectPtr<AObstacleSpawner> _obstacleSpawner = {};
 	TObjectPtr<UWidgetHelper> _widgetHelper = {};
 	TObjectPtr<UInGameUI> _inGameUI = {};

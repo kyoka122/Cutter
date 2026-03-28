@@ -39,6 +39,7 @@ private:
 	
 private:
 	float _currentAngle = 0.0f;
+	FVector _rotateCenterPos = {};
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 	FTimerHandle _overlapActiveTimerHandle = {};
 };

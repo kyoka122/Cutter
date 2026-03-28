@@ -1,4 +1,6 @@
 ﻿#include "StraightYoYoCutter.h"
+
+#include "Cutter.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 
@@ -28,9 +30,7 @@ void AStraightYoYoCutter::OnOverlapBreakableActor(AActor* otherActor)
 {
 	if (IBreakable* otherBreakable = Cast<IBreakable>(otherActor))
 	{
-		SetActorEnableCollision(false);
-		otherActor->SetActorEnableCollision(false);
-		UE_LOG(LogTemp, Log, TEXT("Destroy03,%s"), *otherActor->GetName());
+		UE_LOG(LogCutter, Log, TEXT("Break %s by%s"), *GetName(), *otherActor->GetName());
 		otherBreakable->Break();
 		OnBreak();
 	}
@@ -40,7 +40,7 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 {
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("AddScore"));
+		UE_LOG(LogCutter, Log, TEXT("AddScore %s by%s"), *GetName(), *otherActor->GetName());
 		FScoreRobbedParam robbedParam = otherScoreTarget->RobbedScore_Implementation(false);
 		if (robbedParam.canRobScore)
 		{
@@ -48,7 +48,7 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		}
 		if (!_scoreAddFunc)
 		{
-			UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());
 			return;
 		}
 		_scoreAddFunc(robbedParam.score);
@@ -59,7 +59,7 @@ void AStraightYoYoCutter::OnOverlapDamageableActor(AActor* otherActor)
 {
 	if (IDamageable* otherDamageable = Cast<IDamageable>(otherActor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("AddDamage"));
+		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
 		otherDamageable->Damage(_param.Damage, GetActorLocation());
 		//演出実行
 	}
@@ -67,7 +67,7 @@ void AStraightYoYoCutter::OnOverlapDamageableActor(AActor* otherActor)
 
 void AStraightYoYoCutter::Break()
 {
-	UE_LOG(LogTemp, Log, TEXT("Imp_Destroy03"));
+	UE_LOG(LogCutter, Log, TEXT("Imp_Destroy %s"), *GetName());
 	if (IsValid(this))
 	{
 		OnBreak();
@@ -76,12 +76,12 @@ void AStraightYoYoCutter::Break()
 
 void AStraightYoYoCutter::StartTargeting_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("PrepareThrow"));
+	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
 }
 
 void AStraightYoYoCutter::Throw_Implementation()
 {
-	UE_LOG(LogTemp, Log, TEXT("Throw 02"));
+	UE_LOG(LogCutter, Log, TEXT("Throw %s by%s"), *GetName());
 	
 	StartTick();
 	SetActorHiddenInGame(false);
@@ -105,7 +105,7 @@ void AStraightYoYoCutter::OnBreak()
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです:"));
+		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
 		return;
 	}
 	_inactiveFunc();

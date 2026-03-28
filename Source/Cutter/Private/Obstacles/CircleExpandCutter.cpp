@@ -1,4 +1,6 @@
 #include "CircleExpandCutter.h"
+
+#include "Cutter.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "Struct/CutterBaseParam.h"
@@ -25,7 +27,7 @@ void ACircleExpandCutter::ReStart()
 {
 	Super::ReStart();
 	FVector currentPos = GetActorLocation();
-	_param.rotateCenterPos = currentPos;
+	_rotateCenterPos = currentPos;
 	StartTick();
 	SetActorHiddenInGame(false);
 	LazyActiveStaticMeshEvent();
@@ -54,7 +56,7 @@ FVector ACircleExpandCutter::CalcPosition(float deltaTime)
 	float sinValue, cosValue = 0.f;
 	FMath::SinCos(&sinValue, &cosValue, _currentAngle);
 	//中心点に動径、角度によって決まった移動量x,yを加算する
-	FVector newVec =  _param.rotateCenterPos + FVector(r * cosValue, r * sinValue, 0);
+	FVector newVec =  _rotateCenterPos + FVector(r * cosValue, r * sinValue, 0);
 	return newVec;
 }
 
@@ -76,7 +78,7 @@ void ACircleExpandCutter::OnOverlapBreakableActor(AActor* otherActor)
 	{
 		SetActorEnableCollision(false);
 		otherActor->SetActorEnableCollision(false);
-		UE_LOG(LogTemp, Log, TEXT("Destroy02,%s"), *otherActor->GetName());
+		UE_LOG(LogCutter, Log, TEXT("Destroy %s"), *otherActor->GetName());
 		otherBreakable->Break();
 		OnBreak();
 	}
@@ -86,7 +88,7 @@ void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 {
 	if (IScoreTarget* otherScoreTarget = Cast<IScoreTarget>(otherActor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("AddScore"));
+		UE_LOG(LogCutter, Log, TEXT("AddScore %s by%s"), *GetName(), *otherActor->GetName());
 		FScoreRobbedParam robbedParam = otherScoreTarget->RobbedScore_Implementation(false);
 		if (!robbedParam.canRobScore)
 		{
@@ -94,7 +96,7 @@ void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		}
 		if (!_scoreAddFunc)
 		{
-			UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s by%s"), *GetName(), *otherActor->GetName());
 			return;
 		}
 		_scoreAddFunc(robbedParam.score);
@@ -105,7 +107,7 @@ void ACircleExpandCutter::OnOverlapDamageableActor(AActor* otherActor)
 {
 	if (IDamageable* otherDamageable = Cast<IDamageable>(otherActor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("AddDamage"));
+		UE_LOG(LogActor, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
 		otherDamageable->Damage(_param.Damage, GetActorLocation());
 		//演出実行
 	}
@@ -113,7 +115,7 @@ void ACircleExpandCutter::OnOverlapDamageableActor(AActor* otherActor)
 
 void ACircleExpandCutter::Break()
 {
-	UE_LOG(LogTemp, Log, TEXT("Imp_Destroy02"));
+	UE_LOG(LogCutter, Log, TEXT("Imp_Destroy%s"), *GetName());
 	if (IsValid(this))
 	{
 		OnBreak();
@@ -127,7 +129,7 @@ void ACircleExpandCutter::OnBreak()
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
+		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
 		return;
 	}
 	_inactiveFunc();

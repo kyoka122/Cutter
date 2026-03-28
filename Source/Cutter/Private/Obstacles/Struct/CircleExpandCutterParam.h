@@ -20,10 +20,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "移動パラメータ", meta = (DisplayPriority=2))
 	float moveRate = 1.f;
-
-	UPROPERTY(EditAnywhere, Category = "移動パラメータ", meta = (DisplayPriority=2))
-	FVector rotateCenterPos = FVector(0.0f, 0.0f, 0.0f);
-
+	
 	UPROPERTY(EditAnywhere, Category = "移動パラメータ", meta = (DisplayPriority=2))
 	float pitch = 10.f;
 };

@@ -1,5 +1,6 @@
 ﻿#include "BambooSealed.h"
 
+#include "Cutter.h"
 #include "Struct/ScoreRobbedParam.h"
 
 ABambooSealed::ABambooSealed()
@@ -32,7 +33,7 @@ void ABambooSealed::CheckLifeTimeIsOver(float deltaTime)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
+			UE_LOG(LogSealed, Error, TEXT("_inactiveFunc 実行する関数がnullです %s by%s"), *GetName());
 		}
 	}
 }
@@ -47,7 +48,7 @@ FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
 	}
 	if (!_transformCutterFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_transformCutterFunc 実行する関数がnullです"));
+		UE_LOG(LogSealed, Error, TEXT("_transformCutterFunc 実行する関数がnullです %s"), *GetName());
 		param.canRobScore = false;
 		return param;
 	}
