@@ -14,14 +14,14 @@ class CUTTER_API ASealedBase : public AActor
 public:
 	ASealedBase();
 	
-	void StartTick();
-	void StopTick();
 	virtual void ReStart(){}
 	typedef TFunction<TObjectPtr<ACutterBase>(FGameplayTag,FTransform)> TransformCutterFunc;
-	void RegisterTransformCutterData(int score, FGameplayTag type, TransformCutterFunc transformCutterFunc);
+	void RegisterTransformCutterData(FGameplayTag type, const TransformCutterFunc& transformCutterFunc);
+	void RegisterInactiveFunc(TFunction<void()> inactiveFunc);
 	
 protected:
-	int _score = {};
+	float _lifeTime = 0.f;
 	FGameplayTag _type = {};
 	TransformCutterFunc _transformCutterFunc = {};
+	TFunction<void()> _inactiveFunc = {};
 };

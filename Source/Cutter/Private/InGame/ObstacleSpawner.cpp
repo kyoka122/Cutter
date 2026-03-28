@@ -10,11 +10,11 @@ AObstacleSpawner::AObstacleSpawner()
 void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TFunction<void(int)> scoreAddFunc)
 {
 	_scoreAddFunc = scoreAddFunc;
-	InitGenerator(scoreAddFunc);
+	InitGenerator();
 	RegisterSpawnData(obstacleSpawnTable);
 }
 
-void AObstacleSpawner::InitGenerator(TFunction<void(int)>& scoreAddFunc)
+void AObstacleSpawner::InitGenerator()
 {
 	for (auto& setData : _cutterListDataAsset->prefabs)
 	{
@@ -95,11 +95,13 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	ObjectPool<ASealedBase>* sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
 	TObjectPtr<ASealedBase> sealed = sealedPool->Get(transform);
 	
-	sealed->RegisterTransformCutterData(spawnPrefabSet->score, nextObstacleSpawnData->type,[this, sealed, sealedPool](FGameplayTag type, FTransform transform)
-	{
-		sealedPool->Release(sealed);
-		return SpawnCutter(type, transform);
-	});
+	sealed->RegisterTransformCutterData(nextObstacleSpawnData->type,
+		[this, sealed, sealedPool](FGameplayTag type, FTransform transform)
+		{
+			sealedPool->Release(sealed);
+			return SpawnCutter(type, transform);
+		});
+	sealed->RegisterInactiveFunc([sealed, sealedPool]{sealedPool->Release(sealed);});
 	sealed->ReStart();
 }
 
@@ -115,7 +117,7 @@ TObjectPtr<ACutterBase> AObstacleSpawner::SpawnCutter(FGameplayTag type, const F
 	TObjectPtr<ACutterBase> cutter = cutterPool->Get(transform);
 	
 	cutter->RegisterScoreAddFunc(_scoreAddFunc);
-	cutter->RegisterDeActiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});
+	cutter->RegisterInactiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});
 	cutter->ReStart();
 	return cutter;
 }

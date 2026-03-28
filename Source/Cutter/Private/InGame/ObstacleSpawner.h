@@ -26,7 +26,7 @@ protected:
 	TObjectPtr<UCutterListDataAsset> _cutterListDataAsset = {};
 
 private:
-	void InitGenerator(TFunction<void(int)>& scoreAddFunc);
+	void InitGenerator();
 	void RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable);
 	void SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData);
 	TObjectPtr<ACutterBase> SpawnCutter(FGameplayTag type, const FTransform& transform);

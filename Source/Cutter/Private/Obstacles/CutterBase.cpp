@@ -20,9 +20,9 @@ void ACutterBase::RegisterScoreAddFunc(ScoreAddFunc func)
 	_scoreAddFunc = func;
 }
 
-void ACutterBase::RegisterDeActiveFunc(TFunction<void()> deactiveFunc)
+void ACutterBase::RegisterInactiveFunc(TFunction<void()> inactiveFunc)
 {
-	_deactiveFunc = deactiveFunc;
+	_inactiveFunc = inactiveFunc;
 }
 
 void ACutterBase::RegisterStaticMeshEvent(UStaticMeshComponent* staticMeshComponent, OverlapFunc func)

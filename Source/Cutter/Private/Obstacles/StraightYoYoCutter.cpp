@@ -44,14 +44,14 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		FScoreRobbedParam robbedParam = otherScoreTarget->RobbedScore_Implementation(false);
 		if (robbedParam.canRobScore)
 		{
-			if (!_scoreAddFunc)
-			{
-				UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
-				return;
-			}
-			_scoreAddFunc(robbedParam.score);
+			return;
 		}
-		//演出実行
+		if (!_scoreAddFunc)
+		{
+			UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+			return;
+		}
+		_scoreAddFunc(robbedParam.score);
 	}
 }
 
@@ -103,10 +103,10 @@ void AStraightYoYoCutter::OnBreak()
 	SetActorEnableCollision(false);
 	StopTick();
 	SetActorHiddenInGame(true);
-	if (!_deactiveFunc)
+	if (!_inactiveFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_deactiveFunc 実行する関数がnullです:"));
+		UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです:"));
 		return;
 	}
-	_deactiveFunc();
+	_inactiveFunc();
 }

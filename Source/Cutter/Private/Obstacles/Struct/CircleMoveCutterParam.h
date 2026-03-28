@@ -25,9 +25,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "回転パラメータ", meta = (DisplayPriority=2))
 	float rotateRate = 10.f;
-	
-	UPROPERTY(EditAnywhere, Category = "寿命パラメータ", meta = (DisplayPriority=2))
-	float lifeTime = 15.f;
 };
 
 //MEMO: 使用中止

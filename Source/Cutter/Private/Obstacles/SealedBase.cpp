@@ -5,20 +5,13 @@ ASealedBase::ASealedBase()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ASealedBase::StartTick()
+void ASealedBase::RegisterTransformCutterData(FGameplayTag type, const TransformCutterFunc& transformCutterFunc)
 {
-	SetActorTickEnabled(true);
-}
-
-void ASealedBase::StopTick()
-{
-	SetActorTickEnabled(false);
-}
-
-void ASealedBase::RegisterTransformCutterData(int score, FGameplayTag type, TransformCutterFunc transformCutterFunc)
-{
-	_score = score;
-	_type= type;
+	_type = type;
 	_transformCutterFunc = transformCutterFunc;
 }
 
+void ASealedBase::RegisterInactiveFunc(TFunction<void()> inactiveFunc)
+{
+	_inactiveFunc = inactiveFunc;
+}

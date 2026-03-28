@@ -17,7 +17,7 @@ public:
 	virtual void ReStart(){}
 	typedef TFunction<void(int)> ScoreAddFunc;
 	void RegisterScoreAddFunc(ScoreAddFunc func);
-	void RegisterDeActiveFunc(TFunction<void()> _destroyFunc);
+	void RegisterInactiveFunc(TFunction<void()> _inactiveFunc);
 	
 protected:
 	typedef TFunction<void(AActor*)> OverlapFunc;
@@ -26,7 +26,7 @@ protected:
 protected:
 	OverlapFunc _overlapFunc = {};
 	ScoreAddFunc _scoreAddFunc = {};
-	TFunction<void()> _deactiveFunc = {};
+	TFunction<void()> _inactiveFunc = {};
 	
 private:
 	UFUNCTION()

@@ -78,13 +78,14 @@ void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		FScoreRobbedParam robbedParam = otherScoreTarget->RobbedScore_Implementation(false);
 		if (robbedParam.canRobScore)
 		{
-			if (!_scoreAddFunc)
-			{
-				UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
-				return;
-			}
-			_scoreAddFunc(robbedParam.score);
+			return;
 		}
+		if (!_scoreAddFunc)
+		{
+			UE_LOG(LogTemp, Error, TEXT("_scoreAddFunc 実行する関数がnullです"));
+			return;
+		}
+		_scoreAddFunc(robbedParam.score);
 	}
 }
 
@@ -94,9 +95,6 @@ void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor)
 	{
 		UE_LOG(LogTemp, Log, TEXT("AddDamage"));
 		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
-	}else
-	{
-		UE_LOG(LogTemp, Log, TEXT("MissDamage"));
 	}
 }
 
@@ -150,10 +148,10 @@ void ACircleMoveCutter::OnBreak()
 	SetActorEnableCollision(false);
 	StopTick();
 	SetActorHiddenInGame(true);
-	if (!_deactiveFunc)
+	if (!_inactiveFunc)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_deactiveFunc 実行する関数がnullです"));
+		UE_LOG(LogTemp, Error, TEXT("_inactiveFunc 実行する関数がnullです"));
 		return;
 	}
-	_deactiveFunc();
+	_inactiveFunc();
 }

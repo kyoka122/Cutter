@@ -4,6 +4,7 @@
 #include "SealedBase.h"
 #include "GameFramework/Actor.h"
 #include "InGame/Interface/ScoreTarget.h"
+#include "Struct/SealedBaseParam.h"
 #include "AncientScrollSealed.generated.h"
 
 UCLASS()
@@ -13,6 +14,17 @@ class CUTTER_API AAncientScrollSealed : public ASealedBase, public IScoreTarget
 
 public:
 	AAncientScrollSealed();
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void ReStart() override;
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
+	
+protected:
+	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
+	FSealedBaseParam _param = {};
+	
+private:
+	void CheckLifeTimeIsOver(float deltaTime);
+	
+private:
+	float _lifeTime = 0.f;
 };
