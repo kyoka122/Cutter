@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Throwable.generated.h"
 
+struct FCutterThrowTargetParam;
 /**
  * 
  */
@@ -18,8 +19,8 @@ class CUTTER_API IThrowable
 	
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	void StartTargeting();
-	virtual void StartTargeting_Implementation() = 0;
+	void StartTargeting(AActor* throwActor);
+	virtual void StartTargeting_Implementation(AActor* throwActor) = 0;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
 	void Throw();

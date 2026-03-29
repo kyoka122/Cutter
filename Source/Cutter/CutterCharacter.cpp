@@ -76,9 +76,9 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
-		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		// Jumping //MEMO: このゲームではジャンプ禁止
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACutterCharacter::Move);
@@ -94,6 +94,7 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void ACutterCharacter::Move(const FInputActionValue& Value)
 {
+	//他アクション中は動けないように
 	if (IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation())
 	{
 		return;
@@ -121,10 +122,6 @@ void ACutterCharacter::Move(const FInputActionValue& Value)
 
 void ACutterCharacter::Jump(const FInputActionValue& Value)
 {
-	if (IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation())
-	{
-		return;
-	}
 	Super::Jump();
 }
 

@@ -97,7 +97,7 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	
 	TSharedPtr<ObjectPool<ASealedBase>> sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
-	TObjectPtr<ASealedBase> sealed = sealedPool->Get(transform);
+	TObjectPtr<ASealedBase> sealed = sealedPool->Create(transform);
 	
 	sealed->RegisterTransformCutterData(nextObstacleSpawnData->type,
 		[this, sealed, sealedPool](FGameplayTag type, FTransform transform)
@@ -118,7 +118,7 @@ TObjectPtr<ACutterBase> AObstacleSpawner::SpawnCutter(FGameplayTag type, const F
 	check(spawnPrefabSet);
 	
 	TSharedPtr<ObjectPool<ACutterBase>> cutterPool = _cutterPools[spawnPrefabSet->breakModeActor];
-	TObjectPtr<ACutterBase> cutter = cutterPool->Get(transform);
+	TObjectPtr<ACutterBase> cutter = cutterPool->Create(transform);
 	
 	cutter->RegisterScoreAddFunc(_scoreAddFunc);
 	cutter->RegisterInactiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});

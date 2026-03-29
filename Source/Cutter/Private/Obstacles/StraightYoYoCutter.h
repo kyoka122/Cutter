@@ -17,7 +17,7 @@ public:
 	AStraightYoYoCutter(){}
 	virtual void Tick(float DeltaTime) override;
 	virtual void Break() override;
-	virtual void StartTargeting_Implementation() override;
+	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	virtual void Throw_Implementation() override;
 
 protected:

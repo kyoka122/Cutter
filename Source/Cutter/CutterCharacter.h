@@ -36,39 +36,46 @@ class ACutterCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
-
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+	
+public:
+	/** Throw Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ThrowAction;
+	
+	/** Move Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MoveAction;
+	
 public:
 	ACutterCharacter();
-	
 
 protected:
-
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 	
 	void Jump(const FInputActionValue& Value);
-
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
+	
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	bool IsPlayingThrowAnimation();
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetIsEndThrowAnimation();
-	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	bool IsPlayingThrowStartAnimation();
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetIsEndThrowAnimation();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	bool IsPlayingDamageAnimation();
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void OnThrow();
 	
 protected:
 

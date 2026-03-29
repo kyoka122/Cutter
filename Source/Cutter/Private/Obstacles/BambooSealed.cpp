@@ -33,7 +33,7 @@ void ABambooSealed::CheckLifeTimeIsOver(float deltaTime)
 		}
 		else
 		{
-			UE_LOG(LogSealed, Error, TEXT("_inactiveFunc 実行する関数がnullです %s by%s"), *GetName());
+			UE_LOG(LogSealed, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
 		}
 	}
 }

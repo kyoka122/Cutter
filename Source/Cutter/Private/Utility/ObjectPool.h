@@ -21,8 +21,8 @@ class CUTTER_API ObjectPool
 	
 public:
 	ObjectPool(PoolObjectGenerator<T>* generator);
-	TObjectPtr<T> Get(FTransform transform);
-	TObjectPtr<T> Get();
+	TObjectPtr<T> Create(FTransform transform);
+	TObjectPtr<T> Create();
 	void Release(TObjectPtr<T> object);
 	
 private:

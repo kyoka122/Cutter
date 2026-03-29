@@ -14,9 +14,9 @@ class CUTTER_API ASealedGenerator : public AActor, public PoolObjectGenerator<AS
 public:
 	void RegisterGeneratePrefab(TSubclassOf<ASealedBase> prefab);
 	virtual TObjectPtr<ASealedBase> Generate() override;
-	virtual void Activate(TObjectPtr<ASealedBase> cutter, FTransform transform) override;
+	virtual void Activate(TObjectPtr<ASealedBase> sealed, FTransform transform) override;
 	virtual void Activate(TObjectPtr<ASealedBase> cutter) override {}
-	virtual void Deactivate(TObjectPtr<ASealedBase> cutter) override;
+	virtual void Deactivate(TObjectPtr<ASealedBase> sealed) override;
 	
 	void RegisterScoreAddFunction(TFunction<void(int)>& scoreAddFunc);
 

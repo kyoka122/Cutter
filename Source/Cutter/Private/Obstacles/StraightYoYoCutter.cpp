@@ -1,6 +1,7 @@
 ﻿#include "StraightYoYoCutter.h"
 
 #include "Cutter.h"
+#include "ActorComponenet/FullRotateTargetComponent.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 
@@ -74,9 +75,13 @@ void AStraightYoYoCutter::Break()
 	}
 }
 
-void AStraightYoYoCutter::StartTargeting_Implementation()
+void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 {
 	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
+	UFullRotateTargetComponent* fullRotateTargetComponent = NewObject<UFullRotateTargetComponent>();
+
+	fullRotateTargetComponent->RegisterThrowable(this);
+	fullRotateTargetComponent->RegisterComponent();
 }
 
 void AStraightYoYoCutter::Throw_Implementation()

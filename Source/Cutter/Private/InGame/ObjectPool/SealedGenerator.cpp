@@ -7,22 +7,25 @@ void ASealedGenerator::RegisterGeneratePrefab(TSubclassOf<ASealedBase> prefab)
 
 TObjectPtr<ASealedBase> ASealedGenerator::Generate()
 {
-	TObjectPtr<ASealedBase> cutter = GetWorld()->SpawnActor<ASealedBase>(_prefab);
-	Deactivate(cutter);
-	return cutter;
+	check(_prefab);
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	TObjectPtr<ASealedBase> sealed = GetWorld()->SpawnActor<ASealedBase>(_prefab, spawnParams);
+	Deactivate(sealed);
+	return sealed;
 }
 
-void ASealedGenerator::Activate(TObjectPtr<ASealedBase> cutter, FTransform transform)
+void ASealedGenerator::Activate(TObjectPtr<ASealedBase> sealed, FTransform transform)
 {
-	cutter->SetActorTransform(transform);
-	cutter->SetActorHiddenInGame(false);
+	sealed->SetActorTransform(transform);
+	sealed->SetActorHiddenInGame(false);
 }
 
-void ASealedGenerator::Deactivate(TObjectPtr<ASealedBase> cutter)
+void ASealedGenerator::Deactivate(TObjectPtr<ASealedBase> sealed)
 {
-	cutter->SetActorEnableCollision(false);
-	cutter->SetActorTickEnabled(false);
-	cutter->SetActorHiddenInGame(true);
+	sealed->SetActorEnableCollision(false);
+	sealed->SetActorTickEnabled(false);
+	sealed->SetActorHiddenInGame(true);
 }
 
 void ASealedGenerator::RegisterScoreAddFunction(TFunction<void(int)>& scoreAddFunc)

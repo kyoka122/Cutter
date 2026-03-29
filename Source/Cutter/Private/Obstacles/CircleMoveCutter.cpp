@@ -1,10 +1,12 @@
 #include "CircleMoveCutter.h"
 
 #include "Cutter.h"
+#include "ActorComponenet/RotateTargetComponent.h"
 #include "HAL/PreprocessorHelpers.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/ObstacleSpawner.h"
+#include "Struct/CutterThrowParam.h"
 
 void ACircleMoveCutter::BeginPlay()
 {
@@ -110,17 +112,30 @@ void ACircleMoveCutter::Break()
 	}
 }
 
-void ACircleMoveCutter::StartTargeting_Implementation()
+void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 {
-	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
+	check(IsValid(throwActor))
+	ResetTransformParam();
+	TObjectPtr<URotateTargetComponent> rotateTargetComponent = NewObject<URotateTargetComponent>(throwActor);
+	FCutterThrowTargetParam throwTargetParam;
+	throwTargetParam.firstLookVec = FVector2D(_toStageCenterVec2D);
+	throwTargetParam.rightMaxVec = FVector2D(_toStageCenterVec2D.Y, -_toStageCenterVec2D.X);
+	throwTargetParam.leftMaxVec = FVector2D(-_toStageCenterVec2D.Y, _toStageCenterVec2D.X);
+	rotateTargetComponent->RegisterParam(throwTargetParam);
+	rotateTargetComponent->RegisterThrowable(this);
+	
+	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.firstLookVec : %s"), *throwTargetParam.firstLookVec.ToString());
+	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.rightMaxVec : %s"), *throwTargetParam.rightMaxVec.ToString());
+	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.leftLookVec : %s"), *throwTargetParam.leftMaxVec.ToString());
+	rotateTargetComponent->RegisterComponent();
+	rotateTargetComponent->Init();
 }
 
 void ACircleMoveCutter::Throw_Implementation()
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
-	ResetTransformParam();
-	StartTick();
 	SetActorHiddenInGame(false);
+	StartTick();
 	LazyActiveStaticMeshEvent();
 }
 
@@ -138,12 +153,14 @@ void ACircleMoveCutter::LazyActiveStaticMeshEvent()
 void ACircleMoveCutter::ResetTransformParam()
 {
 	FVector currentPos = GetActorLocation();
-	float radius = _stageEnvironmentParam->stageSize / 2.f - FMath::Abs(currentPos.X / 2);
+	float radius = (_stageEnvironmentParam->stageSize / 2.f + (currentPos - _stageEnvironmentParam->centerPos).Size())/2;
 	FVector toStageCenterVec = _stageEnvironmentParam->centerPos - currentPos;
-	FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);
+	FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);//高さ無視のVector作成
 	_rotateRadius = (toStageCenterVec2D.Size() + radius) / 2;
 	toStageCenterVec2D.Normalize();
 	_rotateCenterPos = currentPos + toStageCenterVec2D * _rotateRadius;
+	_currentAngle = FMath::Acos(FVector::DotProduct(FVector::ForwardVector,-toStageCenterVec2D)/toStageCenterVec2D.Size());//Acos=内積/大きさ
+	_toStageCenterVec2D = FVector2D(toStageCenterVec2D);
 }
 
 void ACircleMoveCutter::OnBreak()

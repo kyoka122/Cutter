@@ -8,7 +8,9 @@ void ACutterGenerator::RegisterGeneratePrefab(TSubclassOf<ACutterBase> prefab)
 TObjectPtr<ACutterBase> ACutterGenerator::Generate()
 {
 	check(_prefab);
-	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(_prefab);
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(_prefab, spawnParams);
 	Deactivate(cutter);
 	return cutter;
 }
