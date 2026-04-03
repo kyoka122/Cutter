@@ -14,8 +14,6 @@ class CUTTER_API ACutterBase : public AActor
 public:
 	ACutterBase();
 	
-	void StartTick();
-	void StopTick();
 	virtual void ReStart(){}
 	void RegisterParam(TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam);
 	using ScoreAddFunc = TFunction<void(int)>;

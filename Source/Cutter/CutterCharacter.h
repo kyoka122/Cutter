@@ -76,7 +76,10 @@ protected:
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnThrow();
-	
+
+	TObjectPtr<ACameraActor> GetOverViewCamera();
+	void MoveToPlayerCamera();
+
 protected:
 
 	virtual void NotifyControllerChanged() override;
@@ -88,5 +91,8 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	
+private:
+	ACameraActor* _overViewCameraActor = {};
 };
 

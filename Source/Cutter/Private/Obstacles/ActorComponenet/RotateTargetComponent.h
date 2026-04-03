@@ -16,8 +16,8 @@ class CUTTER_API URotateTargetComponent : public UTargetComponentBase
 public:
 	URotateTargetComponent();
 	void RegisterParam(const FCutterThrowTargetParam& throwTargetParam);
-	void Init();
-	
+	virtual void Init() override;
+
 private:
 	virtual void Move(const FInputActionValue& Value) override;
 	virtual void Throw(const FInputActionValue& Value) override;

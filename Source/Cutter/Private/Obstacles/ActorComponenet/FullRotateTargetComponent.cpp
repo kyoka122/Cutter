@@ -1,4 +1,5 @@
 ﻿#include "FullRotateTargetComponent.h"
+#include "CutterCharacter.h"
 #include "InputActionValue.h"
 #include "InGame/Interface/Throwable.h"
 
@@ -14,10 +15,12 @@ void UFullRotateTargetComponent::RegisterParam(const FCutterThrowTargetParam& th
 
 void UFullRotateTargetComponent::Init()
 {
-	Super::BeginPlay();
-	CacheArrowMesh();
+	Super::Init();
 	RegisterInputComponent();
 	VisibleArrowMesh();
+	FRotator newActorRotator= FRotationMatrix::MakeFromX(FVector(_throwTargetParam.firstLookVec.X, _throwTargetParam.firstLookVec.Y, 0)).Rotator();
+	_owner->SetActorRotation(newActorRotator);
+	MoveToOverViewCamera();
 }
 
 void UFullRotateTargetComponent::Move(const FInputActionValue& Value)

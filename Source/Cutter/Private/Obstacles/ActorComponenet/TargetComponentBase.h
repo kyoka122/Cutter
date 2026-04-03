@@ -1,12 +1,12 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "TargetComponentBase.generated.h"
 
 
+class UCameraComponent;
+class ACutterCharacter;
 class IThrowable;
 struct FInputActionValue;
 
@@ -20,11 +20,15 @@ public:
 	void RegisterThrowable(AActor* throwable);
 	
 protected:
+	virtual void Init();
 	void CacheArrowMesh();
+	void CacheOwner();
+	void CacheCamera();
 	void VisibleArrowMesh();
 	void InVisibleArrowMesh();
 	void RegisterInputComponent();
 	void ReleaseInputComponent();
+	void MoveToOverViewCamera();
 	virtual void Move(const FInputActionValue& Value){}
 	virtual void Throw(const FInputActionValue& Value){}
 	
@@ -32,9 +36,10 @@ protected:
 	UPROPERTY()
 	TScriptInterface<IThrowable> _throwable;
 	TObjectPtr<AController> _controller;
-	TObjectPtr<AActor> _owner;
+	TObjectPtr<ACutterCharacter> _owner;
+	TObjectPtr<UCameraComponent> _followCamera;
+	TObjectPtr<UStaticMeshComponent> _throwArrowMesh;
 	
 private:
-	TObjectPtr<UStaticMeshComponent> _throwArrowMesh;
 	int32 _bindingHandle;
 };

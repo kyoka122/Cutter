@@ -1,4 +1,5 @@
 ﻿#include "CutterGenerator.h"
+#include "Kismet/GameplayStatics.h"
 
 void ACutterGenerator::RegisterGeneratePrefab(TSubclassOf<ACutterBase> prefab)
 {
@@ -8,11 +9,16 @@ void ACutterGenerator::RegisterGeneratePrefab(TSubclassOf<ACutterBase> prefab)
 TObjectPtr<ACutterBase> ACutterGenerator::Generate()
 {
 	check(_prefab);
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActor<ACutterBase>(_prefab, spawnParams);
-	Deactivate(cutter);
-	return cutter;
+	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActorDeferred<ACutterBase>(_prefab, FTransform::Identity);
+	if (IsValid(cutter))
+	{
+		Deactivate(cutter);
+		UGameplayStatics::FinishSpawningActor(cutter, FTransform::Identity);
+		cutter->SetActorTickEnabled(false);//MEMO: Spawn後にTickが始まってしまうので、再度OFF
+		return cutter;
+	}
+	UE_LOG(LogTemp, Log, TEXT("オブジェクトを生成できませんでした。 Generator: CutterGenerator"));
+	return nullptr;
 }
 
 void ACutterGenerator::Activate(TObjectPtr<ACutterBase> cutter, FTransform transform)
@@ -22,7 +28,7 @@ void ACutterGenerator::Activate(TObjectPtr<ACutterBase> cutter, FTransform trans
 
 void ACutterGenerator::Deactivate(TObjectPtr<ACutterBase> cutter)
 {
-	cutter->StopTick();
+	cutter->SetActorTickEnabled(false);
 	cutter->SetActorHiddenInGame(true);
 	cutter->SetActorEnableCollision(false);
 }

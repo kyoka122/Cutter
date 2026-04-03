@@ -58,11 +58,10 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 
 void AStraightYoYoCutter::OnOverlapDamageableActor(AActor* otherActor)
 {
-	if (IDamageable* otherDamageable = Cast<IDamageable>(otherActor))
+	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
 		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
-		otherDamageable->Damage(_param.Damage, GetActorLocation());
-		//演出実行
+		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
 	}
 }
 
@@ -77,18 +76,20 @@ void AStraightYoYoCutter::Break()
 
 void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 {
+	check(throwActor);
 	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
-	UFullRotateTargetComponent* fullRotateTargetComponent = NewObject<UFullRotateTargetComponent>();
+	UFullRotateTargetComponent* fullRotateTargetComponent = NewObject<UFullRotateTargetComponent>(throwActor);
 
 	fullRotateTargetComponent->RegisterThrowable(this);
 	fullRotateTargetComponent->RegisterComponent();
+	fullRotateTargetComponent->Init();
 }
 
 void AStraightYoYoCutter::Throw_Implementation()
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	
-	StartTick();
+	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 	LazyActiveStaticMeshEvent();
 }
@@ -106,7 +107,7 @@ void AStraightYoYoCutter::LazyActiveStaticMeshEvent()
 void AStraightYoYoCutter::OnBreak()
 {
 	SetActorEnableCollision(false);
-	StopTick();
+	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{

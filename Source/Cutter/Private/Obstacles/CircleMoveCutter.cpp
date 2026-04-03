@@ -28,8 +28,8 @@ void ACircleMoveCutter::Tick(float DeltaTime)
 
 void ACircleMoveCutter::Translate(float deltaTime)
 {
-	SetActorLocation(CalcPosition(deltaTime));
-	SetActorRotation(CalcRotation(deltaTime));
+	FTransform newTransform = FTransform(CalcRotation(deltaTime), CalcPosition(deltaTime));
+	SetActorTransform(newTransform);
 }
 
 FVector ACircleMoveCutter::CalcPosition(float deltaTime)
@@ -45,24 +45,19 @@ FVector ACircleMoveCutter::CalcPosition(float deltaTime)
     FVector rotateVec = FVector(cosValue, sinValue, 0) * _rotateRadius;//半径と角度から回転後のベクトルを求める
     FVector newPosition = _rotateCenterPos + rotateVec;
 
-	//スケール x 回転 x 移動
-	//Matrix4x4 matrix = Matrix4x4.TRS(translate, rotation, FVector.one);
-	//point = matrix.MultiplyPoint3x4(point);
-
    return newPosition;
 }
 
-FQuat ACircleMoveCutter::CalcRotation(float deltaTime)
+FRotator ACircleMoveCutter::CalcRotation(float deltaTime)
 {
-	FQuat rotation = FRotator(0, _param.rotateRate * deltaTime * 100.f, 0).Quaternion();
-	FQuat currentRotation = GetActorRotation().Quaternion();
-
-    return rotation * currentRotation;
+	FRotator currentRotation = GetActorRotation();
+	currentRotation.Yaw += _param.rotateRate * deltaTime * 100.f;
+    return currentRotation;
 }
 
 void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 {
-	if (this < otherActor)//MEMO:衝突した際片方が判定するため
+	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
 	{
 		return;
 	}
@@ -121,6 +116,7 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	throwTargetParam.firstLookVec = FVector2D(_toStageCenterVec2D);
 	throwTargetParam.rightMaxVec = FVector2D(_toStageCenterVec2D.Y, -_toStageCenterVec2D.X);
 	throwTargetParam.leftMaxVec = FVector2D(-_toStageCenterVec2D.Y, _toStageCenterVec2D.X);
+	throwTargetParam.targetingRotateSpeed = _param.targetingRotateSpeed;
 	rotateTargetComponent->RegisterParam(throwTargetParam);
 	rotateTargetComponent->RegisterThrowable(this);
 	
@@ -135,7 +131,7 @@ void ACircleMoveCutter::Throw_Implementation()
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	SetActorHiddenInGame(false);
-	StartTick();
+	SetActorTickEnabled(true);
 	LazyActiveStaticMeshEvent();
 }
 
@@ -166,7 +162,7 @@ void ACircleMoveCutter::ResetTransformParam()
 void ACircleMoveCutter::OnBreak()
 {
 	SetActorEnableCollision(false);
-	StopTick();
+	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{

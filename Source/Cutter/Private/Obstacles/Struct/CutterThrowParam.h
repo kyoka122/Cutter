@@ -14,4 +14,7 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite)
 	FVector2D leftMaxVec = {};
+	
+	UPROPERTY(BlueprintReadWrite)
+	float targetingRotateSpeed = 0.f;
 };

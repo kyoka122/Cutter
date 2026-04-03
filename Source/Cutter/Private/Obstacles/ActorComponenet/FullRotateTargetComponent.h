@@ -15,7 +15,7 @@ class CUTTER_API UFullRotateTargetComponent : public UTargetComponentBase
 public:
 	UFullRotateTargetComponent();
 	void RegisterParam(const FCutterThrowTargetParam& throwTargetParam);
-	void Init();
+	virtual void Init() override;
 
 private:
 	virtual void Move(const FInputActionValue& Value) override;

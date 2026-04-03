@@ -7,16 +7,6 @@ ACutterBase::ACutterBase()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ACutterBase::StartTick()
-{
-	SetActorTickEnabled(true);
-}
-
-void ACutterBase::StopTick()
-{
-	SetActorTickEnabled(false);
-}
-
 void ACutterBase::RegisterParam(TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam)
 {
 	_stageEnvironmentParam = stageEnvironmentParam;

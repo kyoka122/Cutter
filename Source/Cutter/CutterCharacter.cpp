@@ -10,6 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Camera/CameraActor.h"
+#include "InGame/Interface/StageProperty.h"
+#include "Engine/LevelScriptActor.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -136,4 +140,26 @@ void ACutterCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+TObjectPtr<ACameraActor> ACutterCharacter::GetOverViewCamera()
+{
+	if (IsValid(_overViewCameraActor))
+	{
+		return _overViewCameraActor;
+	}
+	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
+	if (levelScriptActor->Implements<UStageProperty>())
+	{
+		ACameraActor* overViewCamera = IStageProperty::Execute_GetOverViewCamera(levelScriptActor);
+		_overViewCameraActor = overViewCamera;
+		return overViewCamera;
+	}
+	UE_LOG(LogTemp, Log, TEXT("IStagePropertyがレベルブループリントに実装されていません"));
+	return nullptr;
+}
+
+void ACutterCharacter::MoveToPlayerCamera()
+{
+	UGameplayStatics::GetPlayerController(GetWorld(),0)->SetViewTargetWithBlend(this,1.0f);
 }

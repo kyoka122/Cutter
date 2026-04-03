@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Obstacles/Enum/CutterMode.h"
 #include "Breakable.generated.h"
 
 /**

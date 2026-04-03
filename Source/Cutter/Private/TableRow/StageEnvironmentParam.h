@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "StageEnvironmentParam.generated.h"
 
+class UCameraComponent;
+
 USTRUCT(BlueprintType)
 struct FStageEnvironmentParam : public FTableRowBase
 {
@@ -15,4 +17,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FVector centerPos = {};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UCameraComponent> overViewCamera = {};
 };

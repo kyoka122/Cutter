@@ -34,7 +34,7 @@ protected:
 private:
 	void Translate(float deltaTime);
 	FVector CalcPosition(float deltaTime);
-	FQuat CalcRotation(float deltaTime);
+	FRotator CalcRotation(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);

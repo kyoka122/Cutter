@@ -28,6 +28,7 @@ protected:
 	FCircleExpandCutterParam _param;
 
 private:
+	void CheckOutOfStage();
 	void Translate(float deltaTime);
 	FVector CalcPosition(float deltaTime);
 	FQuat CalcRotation(float deltaTime);

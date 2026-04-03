@@ -4,6 +4,7 @@
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "Struct/CutterBaseParam.h"
+#include "TableRow/StageEnvironmentParam.h"
 
 void ACircleExpandCutter::BeginPlay()
 {
@@ -21,6 +22,17 @@ void ACircleExpandCutter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Translate(DeltaTime);
+	CheckOutOfStage();
+}
+
+void ACircleExpandCutter::CheckOutOfStage()
+{
+	float stageHalfSize = _stageEnvironmentParam->stageSize/2;
+	float stageCenterToCurrentDistance = (GetActorLocation() - _stageEnvironmentParam->centerPos).Length();
+	if (stageHalfSize < stageCenterToCurrentDistance)
+	{
+		OnBreak();
+	}
 }
 
 void ACircleExpandCutter::ReStart()
@@ -28,7 +40,7 @@ void ACircleExpandCutter::ReStart()
 	Super::ReStart();
 	FVector currentPos = GetActorLocation();
 	_rotateCenterPos = currentPos;
-	StartTick();
+	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 	LazyActiveStaticMeshEvent();
 }
@@ -70,7 +82,7 @@ FQuat ACircleExpandCutter::CalcRotation(float deltaTime)
 
 void ACircleExpandCutter::OnOverlapBreakableActor(AActor* otherActor)
 {
-	if (this < otherActor)//同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
+	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
 	{
 		return;
 	}
@@ -105,11 +117,10 @@ void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 
 void ACircleExpandCutter::OnOverlapDamageableActor(AActor* otherActor)
 {
-	if (IDamageable* otherDamageable = Cast<IDamageable>(otherActor))
+	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
-		UE_LOG(LogActor, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
-		otherDamageable->Damage(_param.Damage, GetActorLocation());
-		//演出実行
+		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
+		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
 	}
 }
 
@@ -125,7 +136,7 @@ void ACircleExpandCutter::Break()
 void ACircleExpandCutter::OnBreak()
 {
 	SetActorEnableCollision(false);
-	StopTick();
+	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 	if (!_inactiveFunc)
 	{
