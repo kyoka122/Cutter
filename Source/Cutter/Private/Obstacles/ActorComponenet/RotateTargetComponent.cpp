@@ -23,7 +23,7 @@ void URotateTargetComponent::Init()
 	UE_LOG(LogTemp, Log, TEXT("_throwTargetParam.firstLookVec: %s"), *_throwTargetParam.firstLookVec.ToString());
 	FRotator newActorRotator= FRotationMatrix::MakeFromX(FVector(_throwTargetParam.firstLookVec.X, _throwTargetParam.firstLookVec.Y, 0)).Rotator();
 	_owner->SetActorRotation(newActorRotator);
-	MoveToOverViewCamera();
+	_owner->SetVisibilityMiniMap(true);
 }
 
 void URotateTargetComponent::Move(const FInputActionValue& Value)
@@ -70,7 +70,8 @@ void URotateTargetComponent::Throw(const FInputActionValue& Value)
 		_throwable->Throw_Implementation();
 	}
 	ReleaseInputComponent();
-	DestroyComponent();
 	InVisibleArrowMesh();
-	_owner->MoveToPlayerCamera();
+	_owner->SetVisibilityMiniMap(false);
+	
+	DestroyComponent();
 }

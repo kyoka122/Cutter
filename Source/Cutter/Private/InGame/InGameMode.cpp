@@ -1,11 +1,17 @@
 #pragma once
 
 #include "InGame/InGameMode.h"
+
+#include "CutterCharacter.h"
 #include "InGame/GameOverUI.h"
 #include "InGame/InGameState.h"
 #include "InGame/InGameUI.h"
 #include "Blueprint/UserWidget.h"
+#include "Engine/LevelScriptActor.h"
+#include "Interface/StageProperty.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Stage/StageShape.h"
 #include "TableRow/StageEnvironmentParam.h"
 #include "TableRow/StageRowData.h"
 #include "Utility/WidgetHelper.h"
@@ -41,7 +47,7 @@ void AInGameMode::InitParam()
 	FStageRowData* stageRowData = GetStageData(currentLevel);
 	check(stageRowData);
 	
-	FStageEnvironmentParam* stageEnvironmentParamRowData= GetStageEnvironmentParam(currentLevel);
+	TScriptInterface<IStageShape> stageEnvironmentParamRowData= GetStageShape();
 	check(stageEnvironmentParamRowData);
 	
 	_obstacleSpawner->Init(stageRowData->obstacleSpawnData, stageEnvironmentParamRowData, [this](int score)
@@ -50,6 +56,16 @@ void AInGameMode::InitParam()
 	});
 	_inGameState->SetInitLimitTime(stageRowData->limitTime);
 	_inGameState->SetLimitTime(stageRowData->limitTime);
+	
+	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(character))
+	{
+		cutterCharacter->RegisterMiniMap(_inGameUIClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("PlayerCharacterをCutterCharacterにCastできませんでした。"));
+	}
 }
 
 void AInGameMode::SetCursor()
@@ -84,24 +100,15 @@ FStageRowData* AInGameMode::GetStageData(FName stageName)//TODO: Factory作る
 	return nullptr;
 }
 
-FStageEnvironmentParam* AInGameMode::GetStageEnvironmentParam(FName stageName)//TODO: Factory作る
+TScriptInterface<IStageShape> AInGameMode::GetStageShape()//TODO: Factory作る
 {
-	FString contextString = FString::Printf(TEXT("StageList読み込み失敗: "));
-	TArray<FStageEnvironmentParam*> stageRows;
-	_stageEnvironmentParamTable->GetAllRows<FStageEnvironmentParam>(contextString, stageRows);
-	for (const auto& row : stageRows)
+	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
+	if (levelScriptActor->Implements<UStageProperty>())
 	{
-		if (!row)
-		{
-			UE_LOG(LogTemp, Log, TEXT("不正なRowがあります"));
-			continue;
-		}
-		if (row->levelName == stageName)
-		{
-			return row;
-		}
+		TScriptInterface<IStageShape> stageShape = IStageProperty::Execute_GetStageShape(levelScriptActor);
+		return stageShape;
 	}
-	UE_LOG(LogTemp, Log, TEXT("該当するデータがありません。name:%s"), *stageName.ToString());
+	UE_LOG(LogTemp, Log, TEXT("IStagePropertyがレベルブループリントに実装されていません"));
 	return nullptr;
 }
 

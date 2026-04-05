@@ -10,10 +10,10 @@ AObstacleSpawner::AObstacleSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam, TFunction<void(int)> scoreAddFunc)
+void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TScriptInterface<IStageShape> stageShape, TFunction<void(int)> scoreAddFunc)
 {
 	_scoreAddFunc = scoreAddFunc;
-	_stageEnvironmentParam = stageEnvironmentParam;
+	_stageShape = stageShape;
 	InitGenerator();
 	RegisterSpawnData(obstacleSpawnTable);
 }
@@ -122,7 +122,7 @@ TObjectPtr<ACutterBase> AObstacleSpawner::SpawnCutter(FGameplayTag type, const F
 	
 	cutter->RegisterScoreAddFunc(_scoreAddFunc);
 	cutter->RegisterInactiveFunc([cutter, cutterPool]{cutterPool->Release(cutter);});
-	cutter->RegisterParam(_stageEnvironmentParam);
+	cutter->RegisterStageShapeData(_stageShape);
 	cutter->ReStart();
 	return cutter;
 }

@@ -20,7 +20,7 @@ void UFullRotateTargetComponent::Init()
 	VisibleArrowMesh();
 	FRotator newActorRotator= FRotationMatrix::MakeFromX(FVector(_throwTargetParam.firstLookVec.X, _throwTargetParam.firstLookVec.Y, 0)).Rotator();
 	_owner->SetActorRotation(newActorRotator);
-	MoveToOverViewCamera();
+	_owner->SetVisibilityMiniMap(true);
 }
 
 void UFullRotateTargetComponent::Move(const FInputActionValue& Value)
@@ -45,5 +45,7 @@ void UFullRotateTargetComponent::Throw(const FInputActionValue& Value)
 		_throwable->Throw();
 	}
 	ReleaseInputComponent();
+	_owner->SetVisibilityMiniMap(false);
+	
 	DestroyComponent();
 }

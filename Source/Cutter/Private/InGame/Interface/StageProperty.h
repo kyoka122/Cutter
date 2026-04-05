@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "Camera/CameraActor.h"
 #include "StageProperty.generated.h"
 
+class IStageShape;
 class UCameraComponent;
 
 UINTERFACE(MinimalAPI,Blueprintable)
@@ -18,6 +18,5 @@ class CUTTER_API IStageProperty
 	
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	ACameraActor* GetOverViewCamera();
-	virtual ACameraActor* GetOverViewCamera_Implementation() = 0;
+	TScriptInterface<IStageShape> GetStageShape();
 };

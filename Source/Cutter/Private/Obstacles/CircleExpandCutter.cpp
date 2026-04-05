@@ -3,8 +3,8 @@
 #include "Cutter.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
+#include "InGame/Stage/StageShape.h"
 #include "Struct/CutterBaseParam.h"
-#include "TableRow/StageEnvironmentParam.h"
 
 void ACircleExpandCutter::BeginPlay()
 {
@@ -27,9 +27,8 @@ void ACircleExpandCutter::Tick(float DeltaTime)
 
 void ACircleExpandCutter::CheckOutOfStage()
 {
-	float stageHalfSize = _stageEnvironmentParam->stageSize/2;
-	float stageCenterToCurrentDistance = (GetActorLocation() - _stageEnvironmentParam->centerPos).Length();
-	if (stageHalfSize < stageCenterToCurrentDistance)
+	//MEMO: ステージ外に出たら寿命
+	if (!IStageShape::Execute_IsInStage(_stageShape.GetObject(), FVector2D(GetActorLocation())))
 	{
 		OnBreak();
 	}

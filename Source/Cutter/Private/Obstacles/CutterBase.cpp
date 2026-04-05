@@ -1,5 +1,4 @@
 ﻿#include "CutterBase.h"
-
 #include "Cutter.h"
 
 ACutterBase::ACutterBase()
@@ -7,9 +6,9 @@ ACutterBase::ACutterBase()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ACutterBase::RegisterParam(TObjectPtr<FStageEnvironmentParam> stageEnvironmentParam)
+void ACutterBase::RegisterStageShapeData(TScriptInterface<IStageShape> stageShape)
 {
-	_stageEnvironmentParam = stageEnvironmentParam;
+	_stageShape = stageShape;
 }
 
 void ACutterBase::RegisterScoreAddFunc(ScoreAddFunc func)

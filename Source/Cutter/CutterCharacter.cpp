@@ -13,6 +13,7 @@
 #include "Camera/CameraActor.h"
 #include "InGame/Interface/StageProperty.h"
 #include "Engine/LevelScriptActor.h"
+#include "InGame/Interface/OverViewMiniMap.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -142,24 +143,20 @@ void ACutterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-TObjectPtr<ACameraActor> ACutterCharacter::GetOverViewCamera()
+void ACutterCharacter::RegisterMiniMap(TScriptInterface<IOverViewMiniMap> overViewMinimap)
 {
-	if (IsValid(_overViewCameraActor))
-	{
-		return _overViewCameraActor;
-	}
-	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
-	if (levelScriptActor->Implements<UStageProperty>())
-	{
-		ACameraActor* overViewCamera = IStageProperty::Execute_GetOverViewCamera(levelScriptActor);
-		_overViewCameraActor = overViewCamera;
-		return overViewCamera;
-	}
-	UE_LOG(LogTemp, Log, TEXT("IStagePropertyがレベルブループリントに実装されていません"));
-	return nullptr;
+	UE_LOG(LogTemp, Log, TEXT("_overViewMinimapをセットしました。"));
+	_overViewMinimap = overViewMinimap;
 }
 
-void ACutterCharacter::MoveToPlayerCamera()
+void ACutterCharacter::SetVisibilityMiniMap(bool value)
 {
-	UGameplayStatics::GetPlayerController(GetWorld(),0)->SetViewTargetWithBlend(this,1.0f);
+	if (_overViewMinimap)
+	{
+		_overViewMinimap->SetVisibilityMiniMap(value);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("_overViewMinimapがセットされていません"));
+	}
 }

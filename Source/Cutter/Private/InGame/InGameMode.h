@@ -48,7 +48,7 @@ private:
 	void InitParam();
 	void SetCursor();
 	FStageRowData* GetStageData(FName stageName);
-	FStageEnvironmentParam* GetStageEnvironmentParam(FName stageName);
+	TScriptInterface<IStageShape> GetStageShape();
 
 private:
 	TObjectPtr<AInGameState> _inGameState = {};

@@ -18,7 +18,7 @@ class CUTTER_API AObstacleSpawner : public AActor
 
 public:
 	AObstacleSpawner();
-	void Init(TObjectPtr<UDataTable> obstacleSpawnTable, TObjectPtr<FStageEnvironmentParam> StageEnvironmentParam, TFunction<void(int)> scoreAddFunc);
+	void Init(TObjectPtr<UDataTable> obstacleSpawnTable, TScriptInterface<IStageShape> stageShape, TFunction<void(int)> scoreAddFunc);
 	void Update(const TObjectPtr<AInGameState> inGameState);
 	void SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData);
 
@@ -36,6 +36,6 @@ private:
 	TMap<TSubclassOf<ACutterBase>, TSharedPtr<ObjectPool<ACutterBase>>> _cutterPools;
 	TMap<TSubclassOf<ASealedBase>, TSharedPtr<ObjectPool<ASealedBase>>> _sealedPools;
 	TQueue<FObstacleSpawnData*> _obstacleSpawnQueue = {};
-	TObjectPtr<FStageEnvironmentParam> _stageEnvironmentParam = {};
+	TScriptInterface<IStageShape> _stageShape = {};
 	TFunction<void(int)> _scoreAddFunc = {};
 };

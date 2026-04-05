@@ -1,6 +1,7 @@
 #include "InGame/InGameUI.h"
-
 #include "Application/CutterFormat.h"
+#include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "InGame/InGameState.h"
 
 void UInGameUI::NativeConstruct()
@@ -19,6 +20,18 @@ void UInGameUI::NativeConstruct()
 		SetScore(gameState->GetScore(), deltaTime);
 	}
  }
+
+void UInGameUI::SetVisibilityMiniMap(bool value)
+{
+	if (value)
+	{
+		_miniMap->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		_miniMap->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
 
 void UInGameUI::SetScore(int score, float deltaTime)
 {

@@ -2,21 +2,25 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
-#include "InGame/InGameState.h"
+#include "Interface/OverViewMiniMap.h"
 #include "InGameUI.generated.h"
+
+class AInGameState;
+class UImage;
+class UTextBlock;
 
 /**
  * インゲームで表示するUI全てを管理するクラス
  */
 UCLASS()
-class UInGameUI : public UUserWidget
+class UInGameUI : public UUserWidget, public IOverViewMiniMap
 {
 	GENERATED_BODY()
 	
 public:
 	void UpdateUI(TObjectPtr<AInGameState> gameState, float deltaTime);
-
+	virtual void SetVisibilityMiniMap(bool value) override;
+	
 protected:
 	virtual void NativeConstruct() override;
 	
@@ -30,6 +34,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> _timeText = {};
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UImage> _miniMap = {};
 	
 	UPROPERTY(EditAnywhere, Category = "UI設定")
 	float _countUpSpeed = 1;

@@ -6,6 +6,7 @@
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/ObstacleSpawner.h"
+#include "InGame/Stage/StageShape.h"
 #include "Struct/CutterThrowParam.h"
 
 void ACircleMoveCutter::BeginPlay()
@@ -149,14 +150,25 @@ void ACircleMoveCutter::LazyActiveStaticMeshEvent()
 void ACircleMoveCutter::ResetTransformParam()
 {
 	FVector currentPos = GetActorLocation();
-	float radius = (_stageEnvironmentParam->stageSize / 2.f + (currentPos - _stageEnvironmentParam->centerPos).Size())/2;
-	FVector toStageCenterVec = _stageEnvironmentParam->centerPos - currentPos;
-	FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);//高さ無視のVector作成
-	_rotateRadius = (toStageCenterVec2D.Size() + radius) / 2;
+	FVector2D pointOfTangency = IStageShape::Execute_GetPointOfTangency(_stageShape.GetObject(), FVector2D(currentPos));
+	UE_LOG(LogTemp, Log, TEXT("pointOfTangency: %s"), *pointOfTangency.ToString());
+	
+	FVector2D toStageCenterVec2D = (pointOfTangency - FVector2D(currentPos))/2; //円の端点2つ同士の距離から半径ベクトル導出 
+	_toStageCenterVec2D = toStageCenterVec2D;
+	_rotateRadius = toStageCenterVec2D.Size();
+	FVector2D rotateCenterPos2D = (pointOfTangency + FVector2D(currentPos)) / 2;//円の端点2つ同士の中点から回転の中心点導出
+	_rotateCenterPos = FVector(rotateCenterPos2D.X, rotateCenterPos2D.Y, IStageShape::Execute_GetCenterPos(_stageShape.GetObject()).Z);
 	toStageCenterVec2D.Normalize();
-	_rotateCenterPos = currentPos + toStageCenterVec2D * _rotateRadius;
-	_currentAngle = FMath::Acos(FVector::DotProduct(FVector::ForwardVector,-toStageCenterVec2D)/toStageCenterVec2D.Size());//Acos=内積/大きさ
-	_toStageCenterVec2D = FVector2D(toStageCenterVec2D);
+	_currentAngle = FMath::Acos(FVector2D::DotProduct(FVector2D::UnitX(),-toStageCenterVec2D));//ベクトル同士の角度 = Acos(ベクトルの内積/各辺の大きさの積(Normalize済)なのでなし)
+	
+	// float radius = (_stageShape->stageSize / 2.f + (currentPos - _stageShape->centerPos).Size())/2;
+	// FVector toStageCenterVec = _stageShape->centerPos - currentPos;
+	// FVector toStageCenterVec2D = FVector(toStageCenterVec.X, toStageCenterVec.Y, 0);//高さ無視のVector作成
+	// _rotateRadius = (toStageCenterVec2D.Size() + radius) / 2;
+	// toStageCenterVec2D.Normalize();
+	// _rotateCenterPos = currentPos + toStageCenterVec2D * _rotateRadius;
+	// _currentAngle = FMath::Acos(FVector::DotProduct(FVector::ForwardVector,-toStageCenterVec2D)/toStageCenterVec2D.Size());//Acos=内積/大きさ
+	// _toStageCenterVec2D = FVector2D(toStageCenterVec2D);
 }
 
 void ACircleMoveCutter::OnBreak()

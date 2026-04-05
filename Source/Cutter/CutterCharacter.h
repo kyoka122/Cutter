@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "CutterCharacter.generated.h"
 
+class IOverViewMiniMap;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -77,13 +78,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnThrow();
 
-	TObjectPtr<ACameraActor> GetOverViewCamera();
-	void MoveToPlayerCamera();
-
+	void RegisterMiniMap(TScriptInterface<IOverViewMiniMap> overViewMinimap);
+	void SetVisibilityMiniMap(bool value);
+	
 protected:
-
 	virtual void NotifyControllerChanged() override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
@@ -93,6 +92,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 private:
-	ACameraActor* _overViewCameraActor = {};
+	TScriptInterface<IOverViewMiniMap> _overViewMinimap = {};
 };
 

@@ -4,6 +4,7 @@
 #include "ActorComponenet/FullRotateTargetComponent.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
+#include "InGame/Stage/StageShape.h"
 
 void AStraightYoYoCutter::BeginPlay()
 {
@@ -25,6 +26,7 @@ void AStraightYoYoCutter::Tick(float DeltaTime)
 
 void AStraightYoYoCutter::Translate(float deltaTime)
 {
+	
 }
 
 void AStraightYoYoCutter::OnOverlapBreakableActor(AActor* otherActor)

@@ -28,7 +28,6 @@ protected:
 	void InVisibleArrowMesh();
 	void RegisterInputComponent();
 	void ReleaseInputComponent();
-	void MoveToOverViewCamera();
 	virtual void Move(const FInputActionValue& Value){}
 	virtual void Throw(const FInputActionValue& Value){}
 	

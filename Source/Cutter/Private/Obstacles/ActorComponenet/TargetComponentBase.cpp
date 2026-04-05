@@ -4,8 +4,6 @@
 #include "EnhancedInputComponent.h"
 #include "Application/TagDefine.h"
 #include "Camera/CameraActor.h"
-#include "Kismet/GameplayStatics.h"
-
 
 void UTargetComponentBase::Init()
 {
@@ -21,7 +19,7 @@ void UTargetComponentBase::CacheArrowMesh()
 {
 	TArray<UStaticMeshComponent*> targetArrowMeshes;
 	
-	//MEMO: コンポーネントの参照の取り方が分からないので全検索+タグ検索方式で。
+	//MEMO: コンポーネントのBPでの参照の取り方が分からないので全検索+タグ検索方式で。
 	check(_owner);
 	_owner->GetComponents<UStaticMeshComponent>(targetArrowMeshes);
 	if (targetArrowMeshes.IsEmpty() || !IsValid(targetArrowMeshes[0]))
@@ -109,11 +107,4 @@ void UTargetComponentBase::ReleaseInputComponent()
 		return;
 	}
 	UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-}
-
-void UTargetComponentBase::MoveToOverViewCamera()
-{
-	ACameraActor* cameraActor = _owner->GetOverViewCamera();
-	check(IsValid(cameraActor));
-	UGameplayStatics::GetPlayerController(GetWorld(),0)->SetViewTargetWithBlend(cameraActor,1.0f);
 }

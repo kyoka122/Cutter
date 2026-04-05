@@ -47,5 +47,5 @@ private:
 	float _rotateRadius = 0.0f;
 	float _currentAngle = 0.0f;
 	FVector _rotateCenterPos = {};
-	FVector2D _toStageCenterVec2D = {};//Zが0のベクトル
+	FVector2D _toStageCenterVec2D = {};
 };
