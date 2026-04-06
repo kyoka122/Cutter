@@ -120,7 +120,8 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	throwTargetParam.targetingRotateSpeed = _param.targetingRotateSpeed;
 	rotateTargetComponent->RegisterParam(throwTargetParam);
 	rotateTargetComponent->RegisterThrowable(this);
-	
+
+	UE_LOG(LogTemp, Log, TEXT("throwActor: %s, %p"), *throwActor->GetName(), throwActor);
 	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.firstLookVec : %s"), *throwTargetParam.firstLookVec.ToString());
 	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.rightMaxVec : %s"), *throwTargetParam.rightMaxVec.ToString());
 	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.leftLookVec : %s"), *throwTargetParam.leftMaxVec.ToString());

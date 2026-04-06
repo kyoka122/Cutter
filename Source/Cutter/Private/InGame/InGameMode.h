@@ -46,6 +46,7 @@ protected:
 private:
 	void InstanceMember();
 	void InitParam();
+	void RegisterMiniMapToCharacter();
 	void SetCursor();
 	FStageRowData* GetStageData(FName stageName);
 	TScriptInterface<IStageShape> GetStageShape();

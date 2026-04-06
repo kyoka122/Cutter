@@ -5,6 +5,7 @@
 #include "CutterCharacter.h"
 #include "InGame/GameOverUI.h"
 #include "InGame/InGameState.h"
+#include "InGame/Interface/OverViewMiniMap.h"
 #include "InGame/InGameUI.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/LevelScriptActor.h"
@@ -26,6 +27,7 @@ void AInGameMode::BeginPlay()
 	Super::BeginPlay();
 	InstanceMember();
 	InitParam();
+	RegisterMiniMapToCharacter();
 	SetCursor();
 }
 
@@ -57,10 +59,22 @@ void AInGameMode::InitParam()
 	_inGameState->SetInitLimitTime(stageRowData->limitTime);
 	_inGameState->SetLimitTime(stageRowData->limitTime);
 	
+	
+}
+
+void AInGameMode::RegisterMiniMapToCharacter()
+{
 	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(character))
 	{
-		cutterCharacter->RegisterMiniMap(_inGameUIClass);
+		if (IsValid(_inGameUI) && _inGameUI->Implements<UOverViewMiniMap>())
+		{
+			cutterCharacter->RegisterMiniMap(_inGameUI);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
+		}
 	}
 	else
 	{

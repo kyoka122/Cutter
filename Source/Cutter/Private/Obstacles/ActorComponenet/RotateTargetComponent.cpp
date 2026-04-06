@@ -23,6 +23,7 @@ void URotateTargetComponent::Init()
 	UE_LOG(LogTemp, Log, TEXT("_throwTargetParam.firstLookVec: %s"), *_throwTargetParam.firstLookVec.ToString());
 	FRotator newActorRotator= FRotationMatrix::MakeFromX(FVector(_throwTargetParam.firstLookVec.X, _throwTargetParam.firstLookVec.Y, 0)).Rotator();
 	_owner->SetActorRotation(newActorRotator);
+	UE_LOG(LogTemp, Log, TEXT("_owner: %s, %p"), *_owner->GetName(), &_owner);
 	_owner->SetVisibilityMiniMap(true);
 }
 

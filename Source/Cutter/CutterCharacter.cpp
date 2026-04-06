@@ -146,6 +146,7 @@ void ACutterCharacter::Look(const FInputActionValue& Value)
 void ACutterCharacter::RegisterMiniMap(TScriptInterface<IOverViewMiniMap> overViewMinimap)
 {
 	UE_LOG(LogTemp, Log, TEXT("_overViewMinimapをセットしました。"));
+	check(overViewMinimap)
 	_overViewMinimap = overViewMinimap;
 }
 
