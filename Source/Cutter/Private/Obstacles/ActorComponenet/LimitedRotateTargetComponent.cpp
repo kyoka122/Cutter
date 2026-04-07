@@ -1,21 +1,20 @@
-﻿#include "RotateTargetComponent.h"
-
+﻿#include "LimitedRotateTargetComponent.h"
 #include "CutterCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "InGame/Interface/Throwable.h"
 
-URotateTargetComponent::URotateTargetComponent()
+ULimitedRotateTargetComponent::ULimitedRotateTargetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void URotateTargetComponent::RegisterParam(const FCutterThrowTargetParam& throwTargetParam)
+void ULimitedRotateTargetComponent::RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam)
 {
 	_throwTargetParam = throwTargetParam;
 }
 
-void URotateTargetComponent::Init()
+void ULimitedRotateTargetComponent::Init()
 {
 	Super::Init();
 	RegisterInputComponent();
@@ -27,7 +26,7 @@ void URotateTargetComponent::Init()
 	_owner->SetVisibilityMiniMap(true);
 }
 
-void URotateTargetComponent::Move(const FInputActionValue& Value)
+void ULimitedRotateTargetComponent::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -58,7 +57,7 @@ void URotateTargetComponent::Move(const FInputActionValue& Value)
 	}
 }
 	
-void URotateTargetComponent::Throw(const FInputActionValue& Value)
+void ULimitedRotateTargetComponent::Throw(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Throw"));
 	Super::Throw(Value);
@@ -68,7 +67,7 @@ void URotateTargetComponent::Throw(const FInputActionValue& Value)
 		{
 			cutterCharacter->OnThrow();
 		}
-		_throwable->Throw_Implementation();
+		IThrowable::Execute_Throw(_throwable.GetObject());
 	}
 	ReleaseInputComponent();
 	InVisibleArrowMesh();

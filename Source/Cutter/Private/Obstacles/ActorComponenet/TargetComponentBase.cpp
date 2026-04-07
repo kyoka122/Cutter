@@ -69,8 +69,9 @@ void UTargetComponentBase::InVisibleArrowMesh()
 	_throwArrowMesh->SetHiddenInGame(true);
 }
 
-void UTargetComponentBase::RegisterThrowable(AActor* throwable)
+void UTargetComponentBase::RegisterThrowEvent(AActor* throwable)
 {
+	//TODO: Event登録　or 通知（Cutter側（具象クラス）から）
 	_throwable = throwable;
 }
 

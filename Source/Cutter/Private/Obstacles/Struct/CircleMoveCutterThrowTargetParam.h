@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "CutterThrowParam.generated.h"
+#include "CircleMoveCutterThrowTargetParam.generated.h"
 
 USTRUCT(BlueprintType)
-struct FCutterThrowTargetParam
+struct FCircleMoveCutterThrowTargetParam
 {
 	GENERATED_BODY()
 public:

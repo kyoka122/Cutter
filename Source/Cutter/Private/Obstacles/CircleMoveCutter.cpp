@@ -1,13 +1,13 @@
 #include "CircleMoveCutter.h"
 
 #include "Cutter.h"
-#include "ActorComponenet/RotateTargetComponent.h"
+#include "ActorComponenet/LimitedRotateTargetComponent.h"
 #include "HAL/PreprocessorHelpers.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/ObstacleSpawner.h"
 #include "InGame/Stage/StageShape.h"
-#include "Struct/CutterThrowParam.h"
+#include "Struct/CircleMoveCutterThrowTargetParam.h"
 
 void ACircleMoveCutter::BeginPlay()
 {
@@ -35,10 +35,10 @@ void ACircleMoveCutter::Translate(float deltaTime)
 
 FVector ACircleMoveCutter::CalcPosition(float deltaTime)
 {
-	_currentAngle = FMath::Fmod(_currentAngle + _param.moveRate * deltaTime, 360.0f);
+	_currentAngle = FMath::Fmod(_currentAngle + _param.moveRate * deltaTime, 2 * UE_PI);
     if (_currentAngle < 0.0f)
     {
-        _currentAngle += 360.0f;
+        _currentAngle += 2 * UE_PI;
     }
 
 	float sinValue, cosValue = 0.f;
@@ -112,14 +112,14 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 {
 	check(IsValid(throwActor))
 	ResetTransformParam();
-	TObjectPtr<URotateTargetComponent> rotateTargetComponent = NewObject<URotateTargetComponent>(throwActor);
-	FCutterThrowTargetParam throwTargetParam;
+	TObjectPtr<ULimitedRotateTargetComponent> rotateTargetComponent = NewObject<ULimitedRotateTargetComponent>(throwActor);
+	FCircleMoveCutterThrowTargetParam throwTargetParam;
 	throwTargetParam.firstLookVec = FVector2D(_toStageCenterVec2D);
 	throwTargetParam.rightMaxVec = FVector2D(_toStageCenterVec2D.Y, -_toStageCenterVec2D.X);
 	throwTargetParam.leftMaxVec = FVector2D(-_toStageCenterVec2D.Y, _toStageCenterVec2D.X);
 	throwTargetParam.targetingRotateSpeed = _param.targetingRotateSpeed;
 	rotateTargetComponent->RegisterParam(throwTargetParam);
-	rotateTargetComponent->RegisterThrowable(this);
+	rotateTargetComponent->RegisterThrowEvent(this);
 
 	UE_LOG(LogTemp, Log, TEXT("throwActor: %s, %p"), *throwActor->GetName(), throwActor);
 	UE_LOG(LogTemp, Log, TEXT("throwTargetParam.firstLookVec : %s"), *throwTargetParam.firstLookVec.ToString());
@@ -131,6 +131,7 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 
 void ACircleMoveCutter::Throw_Implementation()
 {
+	//TODO: 引数追加
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	SetActorHiddenInGame(false);
 	SetActorTickEnabled(true);
@@ -150,14 +151,14 @@ void ACircleMoveCutter::LazyActiveStaticMeshEvent()
 
 void ACircleMoveCutter::ResetTransformParam()
 {
-	FVector currentPos = GetActorLocation();
-	FVector2D pointOfTangency = IStageShape::Execute_GetPointOfTangency(_stageShape.GetObject(), FVector2D(currentPos));
+	FVector2D currentPos2D = FVector2D(GetActorLocation());
+	FVector2D pointOfTangency = IStageShape::Execute_GetPointOfTangency(_stageShape.GetObject(), FVector2D(currentPos2D));
 	UE_LOG(LogTemp, Log, TEXT("pointOfTangency: %s"), *pointOfTangency.ToString());
 	
-	FVector2D toStageCenterVec2D = (pointOfTangency - FVector2D(currentPos))/2; //円の端点2つ同士の距離から半径ベクトル導出 
+	FVector2D toStageCenterVec2D = (pointOfTangency - currentPos2D)/2; //円の端点2つ同士の距離から半径ベクトル導出 
 	_toStageCenterVec2D = toStageCenterVec2D;
 	_rotateRadius = toStageCenterVec2D.Size();
-	FVector2D rotateCenterPos2D = (pointOfTangency + FVector2D(currentPos)) / 2;//円の端点2つ同士の中点から回転の中心点導出
+	FVector2D rotateCenterPos2D = (pointOfTangency + currentPos2D) / 2;//円の端点2つ同士の中点から回転の中心点導出
 	_rotateCenterPos = FVector(rotateCenterPos2D.X, rotateCenterPos2D.Y, IStageShape::Execute_GetCenterPos(_stageShape.GetObject()).Z);
 	toStageCenterVec2D.Normalize();
 	_currentAngle = FMath::Acos(FVector2D::DotProduct(FVector2D::UnitX(),-toStageCenterVec2D));//ベクトル同士の角度 = Acos(ベクトルの内積/各辺の大きさの積(Normalize済)なのでなし)

@@ -3,9 +3,8 @@
 #include "CoreMinimal.h"
 #include "TargetComponentBase.h"
 #include "Components/ActorComponent.h"
-#include "Obstacles/Struct/CutterThrowParam.h"
+#include "Obstacles/Struct/StraightYoYoThrowTargetParam.h"
 #include "FullRotateTargetComponent.generated.h"
-
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CUTTER_API UFullRotateTargetComponent : public UTargetComponentBase
@@ -14,7 +13,7 @@ class CUTTER_API UFullRotateTargetComponent : public UTargetComponentBase
 
 public:
 	UFullRotateTargetComponent();
-	void RegisterParam(const FCutterThrowTargetParam& throwTargetParam);
+	void RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam);
 	virtual void Init() override;
 
 private:
@@ -22,5 +21,5 @@ private:
 	virtual void Throw(const FInputActionValue& Value) override;
 	
 private:
-	FCutterThrowTargetParam _throwTargetParam;
+	FStraightYoYoThrowTargetParam _throwTargetParam;
 };

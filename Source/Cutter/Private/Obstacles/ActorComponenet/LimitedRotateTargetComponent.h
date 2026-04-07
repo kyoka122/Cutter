@@ -4,18 +4,18 @@
 #include "InputActionValue.h"
 #include "TargetComponentBase.h"
 #include "Components/ActorComponent.h"
-#include "Obstacles/Struct/CutterThrowParam.h"
-#include "RotateTargetComponent.generated.h"
+#include "Obstacles/Struct/CircleMoveCutterThrowTargetParam.h"
+#include "LimitedRotateTargetComponent.generated.h"
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class CUTTER_API URotateTargetComponent : public UTargetComponentBase
+class CUTTER_API ULimitedRotateTargetComponent : public UTargetComponentBase
 {
 	GENERATED_BODY()
 
 public:
-	URotateTargetComponent();
-	void RegisterParam(const FCutterThrowTargetParam& throwTargetParam);
+	ULimitedRotateTargetComponent();
+	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam);
 	virtual void Init() override;
 
 private:
@@ -23,5 +23,5 @@ private:
 	virtual void Throw(const FInputActionValue& Value) override;
 	
 private:
-	FCutterThrowTargetParam _throwTargetParam;
+	FCircleMoveCutterThrowTargetParam _throwTargetParam;
 };

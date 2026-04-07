@@ -17,7 +17,7 @@ class CUTTER_API UTargetComponentBase : public UActorComponent
 
 public:
 	UTargetComponentBase(){}
-	void RegisterThrowable(AActor* throwable);
+	void RegisterThrowEvent(AActor* throwable);
 	
 protected:
 	virtual void Init();

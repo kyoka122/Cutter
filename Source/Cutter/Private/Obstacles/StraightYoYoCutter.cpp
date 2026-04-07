@@ -5,6 +5,8 @@
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
+#include "Struct/StraightYoYoThrowTargetParam.h"
+#include "MathUtil.h"
 
 void AStraightYoYoCutter::BeginPlay()
 {
@@ -26,7 +28,27 @@ void AStraightYoYoCutter::Tick(float DeltaTime)
 
 void AStraightYoYoCutter::Translate(float deltaTime)
 {
-	
+	FTransform newTransform = FTransform(CalcRotation(deltaTime), CalcPosition(deltaTime));
+	SetActorTransform(newTransform);
+}
+
+FVector AStraightYoYoCutter::CalcPosition(float deltaTime)
+{
+	_currentTime = FMath::Fmod(_currentTime + deltaTime, 2 * UE_PI);
+	if (_currentTime < 0.0f)
+	{
+		_currentTime += 2 * UE_PI;
+	}
+	FVector2D newPos = _yoyoRadius2D * FMath::Sin(_param.radianFrequency * _currentTime + _offsetRad) + _yoyoCenterPos;
+	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
+	return FVector(newPos.X, newPos.Y, stageCenterPos.Z);
+}
+
+FRotator AStraightYoYoCutter::CalcRotation(float deltaTime)
+{
+	FRotator currentRotation = GetActorRotation();
+	currentRotation.Yaw += _param.rotateRate * deltaTime * 100.f;
+	return currentRotation;
 }
 
 void AStraightYoYoCutter::OnOverlapBreakableActor(AActor* otherActor)
@@ -80,9 +102,15 @@ void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 {
 	check(throwActor);
 	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
+	FVector currentPos = GetActorLocation();
+	
 	UFullRotateTargetComponent* fullRotateTargetComponent = NewObject<UFullRotateTargetComponent>(throwActor);
-
-	fullRotateTargetComponent->RegisterThrowable(this);
+	FStraightYoYoThrowTargetParam straightYoYoThrowTargetParam;
+	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
+	straightYoYoThrowTargetParam.firstLookVec = FVector2D(stageCenterPos - currentPos);
+	
+	fullRotateTargetComponent->RegisterParam(straightYoYoThrowTargetParam);
+	fullRotateTargetComponent->RegisterThrowEvent(this);
 	fullRotateTargetComponent->RegisterComponent();
 	fullRotateTargetComponent->Init();
 }
@@ -90,7 +118,7 @@ void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 void AStraightYoYoCutter::Throw_Implementation()
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
-	
+	SetThrowTargetParam();
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 	LazyActiveStaticMeshEvent();
@@ -104,6 +132,25 @@ void AStraightYoYoCutter::LazyActiveStaticMeshEvent()
 		1.0f,
 		false
 	);
+}
+
+void AStraightYoYoCutter::SetThrowTargetParam()
+{
+	FVector2D currentPos = FVector2D(GetActorLocation());
+	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
+	FVector2D moveVec = FVector2D(currentPos - FVector2D(stageCenterPos));//TODO: この辺の値引数作って修正する
+	
+	//FIntersectionData intersectionData = IStageShape::Execute_GetInterSection(_stageShape.GetObject(), currentPos, moveVec);
+	// _yoyoCenterPos = (intersectionData.point1 + intersectionData.point2) / 2;
+	// _yoyorRadius2D = (intersectionData.point1 - _yoyoCenterPos);
+	//↑に戻す
+	_yoyoCenterPos = FVector2D::Zero();//仮置き
+	_yoyoRadius2D = FVector2D(300, 300);//借り置き
+	_offsetRad = FMath::Asin((currentPos.X - _yoyoCenterPos.X) / _yoyoRadius2D.X);
+
+	UE_LOG(LogTemp, Log, TEXT("_yoyoCenterPos: %s"), *_yoyoCenterPos.ToString());
+	UE_LOG(LogTemp, Log, TEXT("_yoyoRadius2D: %s"), *_yoyoRadius2D.ToString());
+	UE_LOG(LogTemp, Log, TEXT("_offsetRad: %f"), _offsetRad);
 }
 
 void AStraightYoYoCutter::OnBreak()

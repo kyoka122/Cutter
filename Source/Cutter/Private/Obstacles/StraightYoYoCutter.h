@@ -5,7 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Throwable.h"
-#include "Struct/StraightRoundTripCutterParam.h"
+#include "Struct/StraightYoYoCutterCutterParam.h"
 #include "StraightYoYoCutter.generated.h"
 
 UCLASS()
@@ -25,17 +25,24 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
-	FStraightRoundTripCutterParam _param = {};
+	FStraightYoYoCutterCutterParam _param = {};
 	
 private:
 	void Translate(float deltaTime);
+	FVector CalcPosition(float deltaTime);
+	FRotator CalcRotation(float deltaTime);
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
 	void LazyActiveStaticMeshEvent();
+	void SetThrowTargetParam();
 	void OnBreak();
 	
 private:
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 	FTimerHandle _overlapActiveTimerHandle = {};
+	FVector2D _yoyoCenterPos = {};
+	FVector2D _yoyoRadius2D = {};
+	float _offsetRad = 0.f;
+	float _currentTime = 0.f;
 };

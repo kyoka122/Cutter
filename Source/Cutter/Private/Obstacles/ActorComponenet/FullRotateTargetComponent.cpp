@@ -8,7 +8,7 @@ UFullRotateTargetComponent::UFullRotateTargetComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UFullRotateTargetComponent::RegisterParam(const FCutterThrowTargetParam& throwTargetParam)
+void UFullRotateTargetComponent::RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam)
 {
 	_throwTargetParam = throwTargetParam;
 }
@@ -39,12 +39,18 @@ void UFullRotateTargetComponent::Move(const FInputActionValue& Value)
 	
 void UFullRotateTargetComponent::Throw(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Log, TEXT("Throw"));
 	Super::Throw(Value);
 	if (_throwable.GetInterface())
 	{
-		_throwable->Throw();
+		if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(_owner))
+		{
+			cutterCharacter->OnThrow();
+		}
+		IThrowable::Execute_Throw(_throwable.GetObject());
 	}
 	ReleaseInputComponent();
+	InVisibleArrowMesh();
 	_owner->SetVisibilityMiniMap(false);
 	
 	DestroyComponent();

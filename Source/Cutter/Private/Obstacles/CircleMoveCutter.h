@@ -44,8 +44,8 @@ private:
 private:
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 	FTimerHandle _overlapActiveTimerHandle = {};
-	float _rotateRadius = 0.0f;
-	float _currentAngle = 0.0f;
+	float _rotateRadius = 0.f;
+	float _currentAngle = 0.f;
 	FVector _rotateCenterPos = {};
 	FVector2D _toStageCenterVec2D = {};
 };

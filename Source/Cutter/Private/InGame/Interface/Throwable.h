@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Throwable.generated.h"
 
-struct FCutterThrowTargetParam;
+struct FCircleMoveCutterThrowTargetParam;
 /**
  * 
  */
