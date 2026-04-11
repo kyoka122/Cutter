@@ -26,7 +26,6 @@ void ASealedBase::SetMeshAlphaColor(float value)
 {
 	if (_dynamicMaterial)
 	{
-		UE_LOG(LogTemp, Log, TEXT("update: value: %f"), value);
 		_dynamicMaterial->SetScalarParameterValue(ParamDefine::AlphaControl, value);
 	}
 }

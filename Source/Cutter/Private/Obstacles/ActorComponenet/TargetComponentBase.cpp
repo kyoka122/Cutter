@@ -104,7 +104,6 @@ void UTargetComponentBase::ReleaseInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(_owner->InputComponent))
 	{
 		EnhancedInputComponent->RemoveBindingByHandle(_bindingHandle);
-		UE_LOG(LogTemp, Log, TEXT("_bindingHandle:"));		
 		return;
 	}
 	UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));

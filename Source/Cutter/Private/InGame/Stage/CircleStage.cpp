@@ -6,7 +6,7 @@ bool ACircleStage::IsInStage_Implementation(FVector2D point)
 	return GetRadius() >= stageCenterToPointDistance;
 }
 
-FIntersectionData ACircleStage::GetInterSection_Implementation(FVector2D viaPoint, FVector2D vec)
+FIntersectionData ACircleStage::GetInterSections_Implementation(FVector2D viaPoint, FVector2D vec)
 {
 	FIntersectionData intersectionData;
 	FVector2D centerPos2D = FVector2D(Execute_GetCenterPos(this));
@@ -42,7 +42,7 @@ FIntersectionData ACircleStage::GetInterSection_Implementation(FVector2D viaPoin
 	return intersectionData;
 }
 
-FVector2D ACircleStage::GetPointOfTangency_Implementation(FVector2D oppositePoint)
+FVector2D ACircleStage::GetFarPointOfTangency_Implementation(FVector2D oppositePoint)
 {
 	FVector2D oppositePointToStageCenterVec2D = FVector2D(Execute_GetCenterPos(this)) - oppositePoint;
 	float oppositePointToStageCenterDistance = oppositePointToStageCenterVec2D.Length();

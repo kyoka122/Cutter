@@ -67,7 +67,7 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 	{
 		SetActorEnableCollision(false);
 		otherActor->SetActorEnableCollision(false);
-		UE_LOG(LogCutter, Log, TEXT("Destroy01,%s"), *otherActor->GetName());
+		UE_LOG(LogCutter, Log, TEXT("Destroy01,%s"), *GetName());
 		otherBreakable->Break();
 		OnBreak();
 	}
@@ -143,7 +143,7 @@ void ACircleMoveCutter::Throw_Implementation()
 void ACircleMoveCutter::ResetTransformParam()
 {
 	FVector2D currentPos2D = FVector2D(GetActorLocation());
-	FVector2D pointOfTangency = IStageShape::Execute_GetPointOfTangency(_stageShape.GetObject(), FVector2D(currentPos2D));
+	FVector2D pointOfTangency = IStageShape::Execute_GetFarPointOfTangency(_stageShape.GetObject(), FVector2D(currentPos2D));
 	UE_LOG(LogTemp, Log, TEXT("pointOfTangency: %s"), *pointOfTangency.ToString());
 	
 	FVector2D toStageCenterVec2D = (pointOfTangency - currentPos2D)/2; //円の端点2つ同士の距離から半径ベクトル導出 

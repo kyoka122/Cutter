@@ -40,6 +40,7 @@ FVector AStraightYoYoCutter::CalcPosition(float deltaTime)
 	{
 		_currentTime += 2 * UE_PI;
 	}
+	UE_LOG(LogTemp, Log, TEXT("_param.radianFrequency * _currentTime: %f"), _param.radianFrequency * _currentTime);
 	FVector2D newPos = _yoyoRadius2D * FMath::Sin(_param.radianFrequency * _currentTime + _offsetRad) + _yoyoCenterPos;
 	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
 	return FVector(newPos.X, newPos.Y, stageCenterPos.Z);
@@ -130,16 +131,23 @@ void AStraightYoYoCutter::SetThrowTargetParam()
 {
 	FVector2D currentPos = FVector2D(GetActorLocation());
 	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
-	FVector2D moveVec = FVector2D(currentPos - FVector2D(stageCenterPos));//TODO: この辺の値引数作って修正する
+	UE_LOG(LogTemp, Log, TEXT("stageCenterPos: %s"), *stageCenterPos.ToString());
+	FVector2D moveVec = FVector2D(stageCenterPos) - currentPos;//TODO: この辺の値引数作って修正する
 	
-	FIntersectionData intersectionData = IStageShape::Execute_GetInterSection(_stageShape.GetObject(), currentPos, moveVec);
+	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(_stageShape.GetObject(), currentPos, moveVec);
 	_yoyoCenterPos = (intersectionData.point1 + intersectionData.point2) / 2;//中点
 	_yoyoRadius2D = (intersectionData.point1 - _yoyoCenterPos);
-	_offsetRad = FMath::Asin((currentPos.X - _yoyoCenterPos.X) / _yoyoRadius2D.X);
+	if (FMath::IsNearlyZero(_yoyoRadius2D.Y))
+	{
+		_offsetRad = FMath::Asin((currentPos.X - _yoyoCenterPos.X) / _yoyoRadius2D.X);
+	}
+	else
+	{
+		_offsetRad = FMath::Asin((currentPos.Y - _yoyoCenterPos.Y) / _yoyoRadius2D.Y);
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("intersectionData.point1: %s"), *intersectionData.point1.ToString());
 	UE_LOG(LogTemp, Log, TEXT("intersectionData.point2: %s"), *intersectionData.point2.ToString());
-	
 	UE_LOG(LogTemp, Log, TEXT("_yoyoCenterPos: %s"), *_yoyoCenterPos.ToString());
 	UE_LOG(LogTemp, Log, TEXT("_yoyoRadius2D: %s"), *_yoyoRadius2D.ToString());
 	UE_LOG(LogTemp, Log, TEXT("_offsetRad: %f"), _offsetRad);
