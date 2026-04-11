@@ -14,14 +14,18 @@ class CUTTER_API AAncientScrollSealed : public ASealedBase, public IScoreTarget
 
 public:
 	AAncientScrollSealed();
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void ReStart() override;
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
 	
 protected:
+	virtual FSealedBaseParam* GetParam() override { return &_param; }
+	
+protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FSealedBaseParam _param = {};
-	
+
 private:
 	void CheckLifeTimeIsOver(float deltaTime);
 	

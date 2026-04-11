@@ -8,8 +8,14 @@ struct FSealedBaseParam
 	
 public:
 	UPROPERTY(EditAnywhere, Category = "共通設定", meta = (DisplayPriority=1))
-	float LifeTime = {};
+	float LifeTime = 10;
 	
 	UPROPERTY(EditAnywhere, Category = "共通設定", meta = (DisplayPriority=1))
-	int Score = {};
+	int Score = 100;
+	
+	UPROPERTY(EditAnywhere, Category = "共通設定", meta = (DisplayPriority=1))
+	float moveStartAnimationDuration = 2;
+	
+	UPROPERTY(EditAnywhere, Category = "共通設定", meta = (DisplayPriority=1))
+	float moveEndAnimationDuration = 3;
 };

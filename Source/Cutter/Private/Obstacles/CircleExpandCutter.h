@@ -22,6 +22,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual FCutterBaseParam* GetParam() override { return &_param; }
 	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
@@ -35,12 +36,10 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
-	void LazyActiveStaticMeshEvent();
 	void OnBreak();
 	
 private:
 	float _currentAngle = 0.0f;
 	FVector _rotateCenterPos = {};
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
-	FTimerHandle _overlapActiveTimerHandle = {};
 };

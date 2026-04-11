@@ -10,6 +10,7 @@ void ACircleExpandCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
 		OnOverlapBreakableActor(otherActor);
@@ -40,18 +41,9 @@ void ACircleExpandCutter::ReStart()
 	FVector currentPos = GetActorLocation();
 	_rotateCenterPos = currentPos;
 	SetActorTickEnabled(true);
+	OnThrown();
+	PlayMoveStartAnimation();
 	SetActorHiddenInGame(false);
-	LazyActiveStaticMeshEvent();
-}
-
-void ACircleExpandCutter::LazyActiveStaticMeshEvent()
-{
-	GetWorldTimerManager().SetTimer(
-		_overlapActiveTimerHandle,
-		[this]{SetActorEnableCollision(true);},
-		1.0f,
-		false
-	);
 }
 
 void ACircleExpandCutter::Translate(float deltaTime)
@@ -119,7 +111,7 @@ void ACircleExpandCutter::OnOverlapDamageableActor(AActor* otherActor)
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
 		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
-		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
+		IDamageable::Execute_Damage(otherActor, _param.damage, GetActorLocation());
 	}
 }
 

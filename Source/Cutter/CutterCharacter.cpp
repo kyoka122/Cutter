@@ -10,11 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "Camera/CameraActor.h"
-#include "InGame/Interface/StageProperty.h"
-#include "Engine/LevelScriptActor.h"
 #include "InGame/Interface/OverViewMiniMap.h"
-#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -100,7 +96,8 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void ACutterCharacter::Move(const FInputActionValue& Value)
 {
 	//他アクション中は動けないように
-	if (IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation())
+	bool isPlayingAnimation = IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation();
+	if (isPlayingAnimation)
 	{
 		return;
 	}

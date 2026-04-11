@@ -7,6 +7,13 @@ AAncientScrollSealed::AAncientScrollSealed()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AAncientScrollSealed::BeginPlay()
+{
+	Super::BeginPlay();
+	UStaticMeshComponent* staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	InitTimeline(staticMeshComponent);
+}
+
 void AAncientScrollSealed::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -16,7 +23,7 @@ void AAncientScrollSealed::Tick(float DeltaSeconds)
 void AAncientScrollSealed::ReStart()
 {
 	Super::ReStart();
-	SetActorEnableCollision(true);
+	PlayMoveStartAnimation();
 	SetActorTickEnabled(true);
 	_lifeTime = _param.LifeTime;
 }
@@ -24,11 +31,16 @@ void AAncientScrollSealed::ReStart()
 void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 {
 	_lifeTime -= deltaTime;
+	if (!_playingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
+	{
+		PlayMoveEndAnimation();
+		_playingMoveEndAnimation = true;
+	}
 	if (_lifeTime < 0.f)
 	{
-		if (_inactiveFunc)
+		if (_destroyFunc)
 		{
-			_inactiveFunc();
+			_destroyFunc();
 		}
 		else
 		{
@@ -40,7 +52,7 @@ void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
 	FScoreRobbedParam param = {};
-	if (!_transformCutterFunc)
+	if (!_transformFunc)
 	{
 		UE_LOG(LogSealed, Error, TEXT("_transformCutterFunc 実行する関数がnullです %s"), *GetName());
 		param.canRobScore = false;
@@ -49,7 +61,7 @@ FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPl
 	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
-	UObject* cutterObject = Cast<UObject>(_transformCutterFunc(_type, GetActorTransform()));
+	UObject* cutterObject = Cast<UObject>(_transformFunc(_type, GetActorTransform()));
 	if (IThrowable* throwableCutter = Cast<IThrowable>(cutterObject))
 	{
 		param.throwableCutter.SetObject(cutterObject);

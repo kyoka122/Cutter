@@ -19,10 +19,12 @@ public:
 	virtual void Break() override;
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	virtual void Throw_Implementation() override;
+	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual FCutterBaseParam* GetParam() override { return &_param; }
+	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FStraightYoYoCutterCutterParam _param = {};
@@ -34,13 +36,11 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
-	void LazyActiveStaticMeshEvent();
 	void SetThrowTargetParam();
 	void OnBreak();
 	
 private:
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
-	FTimerHandle _overlapActiveTimerHandle = {};
 	FVector2D _yoyoCenterPos = {};
 	FVector2D _yoyoRadius2D = {};
 	float _offsetRad = 0.f;

@@ -2,17 +2,17 @@
 
 bool ACircleStage::IsInStage_Implementation(FVector2D point)
 {
-	float stageCenterToPointDistance = (point - FVector2D(GetCenterPos())).Length();
+	float stageCenterToPointDistance = (point - FVector2D(Execute_GetCenterPos(this))).Length();
 	return GetRadius() >= stageCenterToPointDistance;
 }
 
 FIntersectionData ACircleStage::GetInterSection_Implementation(FVector2D viaPoint, FVector2D vec)
 {
 	FIntersectionData intersectionData;
-	FVector2D centerPos2D = FVector2D(GetCenterPos());
+	FVector2D centerPos2D = FVector2D(Execute_GetCenterPos(this));
 	//MEMO:
 	//a+tb = p, |p-c| = rの連立方程式  |a-c+tb| = r の解を求める
-	// => point + t*vec = d, |d-c| = GetRadius()の連立方程式  |point - GetCenterPos() + t*vec| = GetRadius() の解を求める
+	// => viaPoint + t*vec = d, |d-c| = GetRadius()の連立方程式  |viaPoint - GetCenterPos() + t*vec| = GetRadius() の解を求める
 	float a = FMath::Square(vec.Length());
 	float b = - 2 * FVector2D::DotProduct(viaPoint - centerPos2D,vec);
 	float c = FMath::Square((viaPoint - centerPos2D).Length()) - FMath::Square(GetRadius());

@@ -23,10 +23,12 @@ public:
 	virtual void Break() override;
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	virtual void Throw_Implementation() override;
+	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual FCutterBaseParam* GetParam() override { return &_param; }
+	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FCircleMoveCutterParam _param = {};
@@ -38,12 +40,10 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor);
 	void OnOverlapDamageableActor(AActor* otherActor);
-	void LazyActiveStaticMeshEvent();
 	void OnBreak();
 	
 private:
 	TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
-	FTimerHandle _overlapActiveTimerHandle = {};
 	float _rotateRadius = 0.f;
 	float _currentAngle = 0.f;
 	FVector _rotateCenterPos = {};

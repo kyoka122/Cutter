@@ -13,6 +13,7 @@ void ACircleMoveCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
 		OnOverlapBreakableActor(otherActor);
@@ -95,7 +96,7 @@ void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor)
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
 		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
-		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
+		IDamageable::Execute_Damage(otherActor, _param.damage, GetActorLocation());
 	}
 }
 
@@ -133,20 +134,10 @@ void ACircleMoveCutter::Throw_Implementation()
 {
 	//TODO: 引数追加
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
-	SetActorHiddenInGame(false);
 	SetActorTickEnabled(true);
-	LazyActiveStaticMeshEvent();
-}
-
-void ACircleMoveCutter::LazyActiveStaticMeshEvent()
-{
-	GetWorldTimerManager().SetTimer(
-		_overlapActiveTimerHandle,
-		[this]{SetActorEnableCollision(true);},
-		1.0f,
-		false
-	);
-	UE_LOG(LogCutter, Log, TEXT("LazyRegisterStaticMeshEvent %s"), *GetName());
+	OnThrown();
+	PlayMoveStartAnimation();
+	SetActorHiddenInGame(false);
 }
 
 void ACircleMoveCutter::ResetTransformParam()

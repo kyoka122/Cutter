@@ -25,4 +25,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
 	void Throw();
 	virtual void Throw_Implementation() = 0;
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
+	FVector GetLocation();
+	virtual FVector GetLocation_Implementation() const = 0;
 };

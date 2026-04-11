@@ -8,6 +8,13 @@ ABambooSealed::ABambooSealed()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void ABambooSealed::BeginPlay()
+{
+	Super::BeginPlay();
+	UStaticMeshComponent* staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	InitTimeline(staticMeshComponent);
+}
+
 void ABambooSealed::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -17,7 +24,7 @@ void ABambooSealed::Tick(float DeltaTime)
 void ABambooSealed::ReStart()
 {
 	Super::ReStart();
-	SetActorEnableCollision(true);
+	PlayMoveStartAnimation();
 	SetActorTickEnabled(true);
 	_lifeTime = _param.LifeTime;
 }
@@ -25,11 +32,16 @@ void ABambooSealed::ReStart()
 void ABambooSealed::CheckLifeTimeIsOver(float deltaTime)
 {
 	_lifeTime -= deltaTime;
+	if (!_playingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
+	{
+		PlayMoveEndAnimation();
+		_playingMoveEndAnimation = true;
+	}
 	if (_lifeTime < 0.f)
 	{
-		if (_inactiveFunc)
+		if (_destroyFunc)
 		{
-			_inactiveFunc();
+			_destroyFunc();
 		}
 		else
 		{
@@ -40,13 +52,14 @@ void ABambooSealed::CheckLifeTimeIsOver(float deltaTime)
 
 FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
+	UE_LOG(LogTemp, Log, TEXT("RobbedScore_Implementation"));
 	FScoreRobbedParam param = {};
 	if (isExecPlayer)
 	{
 		param.canRobScore = false;
 		return param;
 	}
-	if (!_transformCutterFunc)
+	if (!_transformFunc)
 	{
 		UE_LOG(LogSealed, Error, TEXT("_transformCutterFunc 実行する関数がnullです %s"), *GetName());
 		param.canRobScore = false;
@@ -55,7 +68,7 @@ FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
 	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
-	_transformCutterFunc(_type, GetActorTransform());
+	_transformFunc(_type, GetActorTransform());
 	return param;
 	
 }

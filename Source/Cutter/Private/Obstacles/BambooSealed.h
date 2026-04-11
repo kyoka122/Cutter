@@ -14,10 +14,14 @@ class CUTTER_API ABambooSealed : public ASealedBase, public IScoreTarget
 
 public:
 	ABambooSealed();
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void ReStart() override;
 	void CheckLifeTimeIsOver(float deltaTime);
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
+	
+protected:
+	virtual FSealedBaseParam* GetParam() override { return &_param; }
 	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))

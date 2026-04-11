@@ -99,9 +99,10 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	TSharedPtr<ObjectPool<ASealedBase>> sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
 	TObjectPtr<ASealedBase> sealed = sealedPool->Create(transform);
 	
-	sealed->RegisterTransformCutterData(nextObstacleSpawnData->type,
+	sealed->RegisterTransformCutterFunc(nextObstacleSpawnData->type,
 		[this, sealed, sealedPool](FGameplayTag type, FTransform transform)
 		{
+			UE_LOG(LogTemp, Log, TEXT("RegisterTransformCutterFunc"));
 			sealedPool->Release(sealed);
 			return SpawnCutter(type, transform);
 		});

@@ -32,6 +32,7 @@ void ASealedGenerator::Deactivate(TObjectPtr<ASealedBase> sealed)
 	sealed->SetActorEnableCollision(false);
 	sealed->SetActorTickEnabled(false);
 	sealed->SetActorHiddenInGame(true);
+	sealed->SetMeshAlphaColor(1);
 }
 
 void ASealedGenerator::RegisterScoreAddFunction(TFunction<void(int)>& scoreAddFunc)

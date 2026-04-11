@@ -12,6 +12,7 @@ void AStraightYoYoCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
 		OnOverlapBreakableActor(otherActor);
@@ -85,7 +86,7 @@ void AStraightYoYoCutter::OnOverlapDamageableActor(AActor* otherActor)
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
 		UE_LOG(LogCutter, Log, TEXT("AddDamage %s by%s"), *GetName(), *otherActor->GetName());
-		IDamageable::Execute_Damage(otherActor, _param.Damage, GetActorLocation());
+		IDamageable::Execute_Damage(otherActor, _param.damage, GetActorLocation());
 	}
 }
 
@@ -120,18 +121,9 @@ void AStraightYoYoCutter::Throw_Implementation()
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	SetThrowTargetParam();
 	SetActorTickEnabled(true);
+	OnThrown();
+	PlayMoveStartAnimation();
 	SetActorHiddenInGame(false);
-	LazyActiveStaticMeshEvent();
-}
-
-void AStraightYoYoCutter::LazyActiveStaticMeshEvent()
-{
-	GetWorldTimerManager().SetTimer(
-		_overlapActiveTimerHandle,
-		[this]{SetActorEnableCollision(true);},
-		1.0f,
-		false
-	);
 }
 
 void AStraightYoYoCutter::SetThrowTargetParam()
@@ -140,14 +132,14 @@ void AStraightYoYoCutter::SetThrowTargetParam()
 	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
 	FVector2D moveVec = FVector2D(currentPos - FVector2D(stageCenterPos));//TODO: この辺の値引数作って修正する
 	
-	//FIntersectionData intersectionData = IStageShape::Execute_GetInterSection(_stageShape.GetObject(), currentPos, moveVec);
-	// _yoyoCenterPos = (intersectionData.point1 + intersectionData.point2) / 2;
-	// _yoyorRadius2D = (intersectionData.point1 - _yoyoCenterPos);
-	//↑に戻す
-	_yoyoCenterPos = FVector2D::Zero();//仮置き
-	_yoyoRadius2D = FVector2D(300, 300);//借り置き
+	FIntersectionData intersectionData = IStageShape::Execute_GetInterSection(_stageShape.GetObject(), currentPos, moveVec);
+	_yoyoCenterPos = (intersectionData.point1 + intersectionData.point2) / 2;//中点
+	_yoyoRadius2D = (intersectionData.point1 - _yoyoCenterPos);
 	_offsetRad = FMath::Asin((currentPos.X - _yoyoCenterPos.X) / _yoyoRadius2D.X);
 
+	UE_LOG(LogTemp, Log, TEXT("intersectionData.point1: %s"), *intersectionData.point1.ToString());
+	UE_LOG(LogTemp, Log, TEXT("intersectionData.point2: %s"), *intersectionData.point2.ToString());
+	
 	UE_LOG(LogTemp, Log, TEXT("_yoyoCenterPos: %s"), *_yoyoCenterPos.ToString());
 	UE_LOG(LogTemp, Log, TEXT("_yoyoRadius2D: %s"), *_yoyoRadius2D.ToString());
 	UE_LOG(LogTemp, Log, TEXT("_offsetRad: %f"), _offsetRad);
