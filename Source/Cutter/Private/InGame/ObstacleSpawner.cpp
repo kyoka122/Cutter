@@ -13,7 +13,7 @@ AObstacleSpawner::AObstacleSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc)
+void AObstacleSpawner::Init(const UDataTable* obstacleSpawnTable, const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc)
 {
 	InitGenerator(stageShape, scoreAddFunc);
 	RegisterSpawnData(obstacleSpawnTable);
@@ -23,20 +23,20 @@ void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageS
 {
 	for (auto& setData : _cutterListDataAsset->prefabs)
 	{
-		if (!_cutterPools.Contains(setData.breakModeActor))
+		if (!_cutterPools.Contains(setData.cutterModeActor))
 		{
-			TObjectPtr<ACutterGenerator> cutterGenerator = GetWorld()->SpawnActor<ACutterGenerator>(ACutterGenerator::StaticClass());
-			cutterGenerator->RegisterGeneratePrefab(setData.breakModeActor);
+			ACutterGenerator* cutterGenerator = GetWorld()->SpawnActor<ACutterGenerator>(ACutterGenerator::StaticClass());
+			cutterGenerator->RegisterGeneratePrefab(setData.cutterModeActor);
 			auto cutterPool = MakeShared<ObjectPool<ACutterBase>>(cutterGenerator);
 			cutterGenerator->RegisterParam(scoreAddFunc, [cutterPool](ACutterBase* cutter){cutterPool->Release(cutter);}, stageShape);
-			_cutterPools.Add(setData.breakModeActor, cutterPool);
+			_cutterPools.Add(setData.cutterModeActor, cutterPool);
 		}
 	}
 	for (auto& setData : _cutterListDataAsset->prefabs)
 	{
 		if (!_sealedPools.Contains(setData.sealedModeActor))
 		{
-			TObjectPtr<ASealedGenerator> sealedGenerator = GetWorld()->SpawnActor<ASealedGenerator>(ASealedGenerator::StaticClass());
+			ASealedGenerator* sealedGenerator = GetWorld()->SpawnActor<ASealedGenerator>(ASealedGenerator::StaticClass());
 			sealedGenerator->RegisterGeneratePrefab(setData.sealedModeActor);
 			auto sealedPool = MakeShared<ObjectPool<ASealedBase>>(sealedGenerator);
 			sealedGenerator->RegisterParam([sealedPool](ASealedBase* sealed){sealedPool->Release(sealed);});
@@ -45,7 +45,7 @@ void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageS
 	} 
 }
 
-void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTable)
+void AObstacleSpawner::RegisterSpawnData(const UDataTable* obstacleSpawnTable)
 {
 	static const FString contextString = FString::Printf(TEXT("オブジェクト生成リスト読み込み失敗: "));
 	TArray<FObstacleSpawnData*> obstacleSpawnData;
@@ -61,7 +61,7 @@ void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTab
 	}
 }
 
-void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState)
+void AObstacleSpawner::Update(const AInGameState* inGameState)
 {
 	float leftTime = inGameState->GetInitLimitTime() - inGameState->GetLimitTime();
 	if (_obstacleSpawnQueue.IsEmpty())
@@ -102,10 +102,10 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	
 	TSharedPtr<ObjectPool<ASealedBase>> sealedPool = _sealedPools[spawnPrefabSet->sealedModeActor];
-	TSharedPtr<ObjectPool<ACutterBase>> cutterPool = _cutterPools[spawnPrefabSet->breakModeActor];
+	TSharedPtr<ObjectPool<ACutterBase>> cutterPool = _cutterPools[spawnPrefabSet->cutterModeActor];
 	
 	TObjectPtr<ASealedBase> sealed = sealedPool->Create(transform);
-	sealed->RegisterSpawner(cutterPool);
+	sealed->RegisterCutterSpawner(cutterPool);
 	
 	sealed->ReStart();
 }

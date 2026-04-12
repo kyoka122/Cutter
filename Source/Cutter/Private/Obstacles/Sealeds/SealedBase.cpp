@@ -2,7 +2,7 @@
 
 #include "Cutter.h"
 #include "Obstacles/Cutters/CutterBase.h"
-#include "Application/ParamDefine.h"
+#include "Application/MaterialParam.h"
 #include "Components/TimelineComponent.h"
 #include "Struct/SealedBaseParam.h"
 
@@ -18,7 +18,7 @@ void ASealedBase::RegisterReleaseFunc(const TFunction<void(ASealedBase* sealed)>
 	_releaseFunc = releaseFunc;
 }
 
-void ASealedBase::RegisterSpawner(const TSharedPtr<ObjectPool<ACutterBase>>& cutterPool)
+void ASealedBase::RegisterCutterSpawner(const TSharedPtr<ObjectPool<ACutterBase>>& cutterPool)
 {
 	_cutterPool = cutterPool;
 }
@@ -62,7 +62,7 @@ void ASealedBase::SetMeshAlphaColor(float value) const
 {
 	if (IsValid(_dynamicMaterial))
 	{
-		_dynamicMaterial->SetScalarParameterValue(ParamDefine::AlphaControl, value);
+		_dynamicMaterial->SetScalarParameterValue(MaterialParam::AlphaControl, value);
 	}
 	else UE_LOG(LogSealed, Error, TEXT("_dynamicMaterialがnullです。 %s"), *GetName());
 }
@@ -121,7 +121,7 @@ void ASealedBase::HandleBlinkUpdate(float value) const
 {
 	if (_dynamicMaterial)
 	{
-		_dynamicMaterial->SetScalarParameterValue(ParamDefine::AlphaControl, value);
+		_dynamicMaterial->SetScalarParameterValue(MaterialParam::AlphaControl, value);
 	}
 	else UE_LOG(LogSealed, Error, TEXT("_dynamicMaterialがnullです。 %s"), *GetName());
 }

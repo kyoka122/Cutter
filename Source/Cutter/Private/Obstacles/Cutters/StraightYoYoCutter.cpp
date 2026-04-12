@@ -142,6 +142,7 @@ void AStraightYoYoCutter::SetThrowTargetParam()
 		_offsetRad = FMath::Asin((currentPos.Y - _yoyoCenterPos.Y) / _yoyoRadius2D.Y);
 	}
 	
+	//TODO: デバッグ用。実装終了後削除
 	UE_LOG(LogCutter, Log, TEXT("stageCenterPos: %s"), *stageCenterPos.ToString());
 	UE_LOG(LogTemp, Log, TEXT("intersectionData.point1: %s"), *intersectionData.point1.ToString());
 	UE_LOG(LogTemp, Log, TEXT("intersectionData.point2: %s"), *intersectionData.point2.ToString());

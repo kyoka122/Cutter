@@ -17,7 +17,11 @@ class CUTTER_API ACircleExpandCutter : public ACutterBase, public IBreakable
 public:
 	ACircleExpandCutter(){}
 	virtual void Tick(float DeltaTime) override;
+	
+	/*このアクタを破壊する*/
 	virtual void Break() override;
+	
+	/*生成時、オブジェクトプールから持ってくるため、ここで初期化する*/
 	virtual void ReStart() override;
 
 protected:
@@ -29,8 +33,10 @@ protected:
 	FCircleExpandCutterParam _param;
 
 private:
-	void CheckOutOfStage();
+	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
+	
+	void CheckOutOfStage();
 	FVector CalcPosition(float deltaTime);
 	FQuat CalcRotation(float deltaTime) const;
 	void OnOverlapBreakableActor(AActor* otherActor);
@@ -39,7 +45,11 @@ private:
 	void OnBreak();
 	
 private:
+	/*現在のステージに対する回転角度*/
 	float _currentAngle = 0.0f;
+	
+	/*回転基準座標*/
 	FVector _rotateCenterPos = {};
+	
 	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 };

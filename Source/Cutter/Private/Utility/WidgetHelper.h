@@ -5,7 +5,7 @@
 #include "WidgetHelper.generated.h"
 
 /**
- * Widgetのスポナー
+ * Widget表示のヘルパークラス
  */
 UCLASS()
 class UWidgetHelper : public UWorldSubsystem

@@ -3,6 +3,9 @@
 #include "InGame/Interface/Throwable.h"
 #include "ScoreRobbedParam.generated.h"
 
+/*
+ *スコア取得時のパラメータ受け取り用の構造体
+ */
 USTRUCT(BlueprintType)
 struct FScoreRobbedParam
 {

@@ -8,17 +8,17 @@ void ACutterGenerator::RegisterGeneratePrefab(TSubclassOf<ACutterBase> prefab)
 	_prefab = prefab;
 }
 
-void ACutterGenerator::RegisterParam(TFunction<void(int)> scoreAddFunc, TFunction<void(ACutterBase* cutter)> releaseFunc, TScriptInterface<IStageShape> stageShape)
+void ACutterGenerator::RegisterParam(const TFunction<void(int)>& scoreAddFunc, const TFunction<void(ACutterBase* cutter)>& releaseFunc, const TScriptInterface<IStageShape>& stageShape)
 {
 	_scoreAddFunc = scoreAddFunc;
 	_releaseFunc = releaseFunc;
 	_stageShape = stageShape;
 }
 
-TObjectPtr<ACutterBase> ACutterGenerator::Generate()
+ACutterBase* ACutterGenerator::Generate()
 {
 	check(_prefab);
-	TObjectPtr<ACutterBase> cutter = GetWorld()->SpawnActorDeferred<ACutterBase>(_prefab, FTransform::Identity);
+	ACutterBase* cutter = GetWorld()->SpawnActorDeferred<ACutterBase>(_prefab, FTransform::Identity);
 	if (IsValid(cutter))
 	{
 		Deactivate(cutter);
@@ -33,12 +33,12 @@ TObjectPtr<ACutterBase> ACutterGenerator::Generate()
 	return nullptr;
 }
 
-void ACutterGenerator::Activate(TObjectPtr<ACutterBase> cutter, FTransform transform)
+void ACutterGenerator::Activate(ACutterBase* cutter, const FTransform& transform)
 {
 	cutter->SetActorTransform(transform);
 }
 
-void ACutterGenerator::Deactivate(TObjectPtr<ACutterBase> cutter)
+void ACutterGenerator::Deactivate(ACutterBase* cutter)
 {
 	cutter->SetActorTickEnabled(false);
 	cutter->SetActorHiddenInGame(true);

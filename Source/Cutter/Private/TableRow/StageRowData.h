@@ -5,7 +5,7 @@
 #include "StageRowData.generated.h"
 
 /**
- * ステージ情報
+ * ステージ情報登録用テーブル。主にレベル名や外観Imageなどのステージ選択画面で表示する基本情報を登録する。
  */
 USTRUCT(BlueprintType)
 struct FStageRowData : public FTableRowBase

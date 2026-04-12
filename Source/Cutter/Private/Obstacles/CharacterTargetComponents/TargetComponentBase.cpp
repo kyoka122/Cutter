@@ -88,7 +88,7 @@ void UTargetComponentBase::RegisterInputComponent()
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(_owner->InputComponent))
 	{
-		EnhancedInputComponent->BindAction(_moveAction, ETriggerEvent::Triggered, this, &UTargetComponentBase::Move);
+		EnhancedInputComponent->BindAction(_moveAction, ETriggerEvent::Triggered, this, &UTargetComponentBase::Rotate);
 		EnhancedInputComponent->BindAction(_throwAction, ETriggerEvent::Started, this, &UTargetComponentBase::Throw);
 	}
 	else

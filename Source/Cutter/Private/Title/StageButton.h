@@ -17,10 +17,12 @@ class UStageButton : public UUserWidget
 
 public:
 	void Init(const FStageRowData& data);
+	
 	FName GetStageName() const { return _stageName; }
 	
+	/*選択したステージのレベルに遷移する*/
 	UFUNCTION(BlueprintCallable, Category = "Title")
-	void MoveToStage();
+	void OnStageButtonClick();
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

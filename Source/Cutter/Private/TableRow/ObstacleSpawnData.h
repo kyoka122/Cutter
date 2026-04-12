@@ -4,6 +4,9 @@
 #include "Engine/DataTable.h"
 #include "ObstacleSpawnData.generated.h"
 
+/*
+ *時間経過で生成するオブジェクトを登録するためのテーブル
+ */
 USTRUCT(BlueprintType)
 struct FObstacleSpawnData: public FTableRowBase
 {

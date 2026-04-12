@@ -4,11 +4,12 @@
 #include "LevelMoveContext.h"
 
 /**
- * 
+ * 遷移パターンから遷移レベルやContextを導出するConvertクラス
  */
 class SceneDefine
 {
 public:
+	/*遷移パラメータ*/
 	static LevelMoveContext GetStageContexts(const FName& scene)
 	{
 		for (LevelMoveContext stageContext : GetDefaultStageContexts())

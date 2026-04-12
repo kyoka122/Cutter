@@ -22,6 +22,7 @@ class AInGameMode : public AGameModeBase
 public:
 	AInGameMode();
 	
+	/*スコア加算*/
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void AddScore(int value);
 	
@@ -30,15 +31,19 @@ protected:
 	virtual void Tick(const float deltaTime) override;
 	
 protected:
+	/*インゲーム中に表示するUI*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<UInGameUI> _inGameUIClass = {};
 	
+	/*ゲームオーバー時に表示するUI*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<UGameOverUI> _gameOverUIClass = {};
 	
+	/*ステージパラメータを管理するテーブル（生成オブジェクトのデータ等）*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UDataTable> _stageDataTable;
 	
+	/*汎用スポナー*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<AObstacleSpawner> _obstacleSpawnerClass;
 	
@@ -56,7 +61,6 @@ private:
 	UPROPERTY() TObjectPtr<UWidgetHelper> _widgetHelper = {};
 	UPROPERTY() TObjectPtr<UInGameUI> _inGameUI = {};
 	UPROPERTY() TObjectPtr<UGameOverUI> _gameOverUI = {};
-	
 	bool _isActiveGameOverUI = false;
 };
 

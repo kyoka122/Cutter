@@ -13,10 +13,10 @@ void ASealedGenerator::RegisterParam(const TFunction<void(ASealedBase* sealed)>&
 	_releaseFunc = releaseFunc;
 }
 
-TObjectPtr<ASealedBase> ASealedGenerator::Generate()
+ASealedBase* ASealedGenerator::Generate()
 {
 	check(_prefab);
-	TObjectPtr<ASealedBase> sealed = GetWorld()->SpawnActorDeferred<ASealedBase>(_prefab, FTransform::Identity);
+	ASealedBase* sealed = GetWorld()->SpawnActorDeferred<ASealedBase>(_prefab, FTransform::Identity);
 	if (IsValid(sealed))
 	{
 		SafeDeactivate(sealed);
@@ -29,19 +29,24 @@ TObjectPtr<ASealedBase> ASealedGenerator::Generate()
 	return nullptr;
 }
 
-void ASealedGenerator::Activate(TObjectPtr<ASealedBase> sealed, FTransform transform)
+void ASealedGenerator::Activate(ASealedBase* sealed, const FTransform& transform)
 {
 	sealed->SetActorTransform(transform);
 	sealed->SetActorHiddenInGame(false);
 }
 
-void ASealedGenerator::Deactivate(TObjectPtr<ASealedBase> sealed)
+void ASealedGenerator::Activate(ASealedBase* sealed)
 {
-	SafeDeactivate(sealed);
-	sealed->SetMeshAlphaColor(1);//MEMO: Meshの取得処理を先にしておかないとDeactivate時にエラーになるため他のDeactive処理と分ける
+	sealed->SetActorHiddenInGame(false);
 }
 
-void ASealedGenerator::SafeDeactivate(TObjectPtr<ASealedBase> sealed)
+void ASealedGenerator::Deactivate(ASealedBase* sealed)
+{
+	SafeDeactivate(sealed);
+	sealed->SetMeshAlphaColor(1);//MEMO: Meshの取得処理を先にしておかないとDeactivate時にエラーになるため他のDeactivate処理と分ける
+}
+
+void ASealedGenerator::SafeDeactivate(ASealedBase* sealed)
 {
 	sealed->SetActorEnableCollision(false);
 	sealed->SetActorTickEnabled(false);

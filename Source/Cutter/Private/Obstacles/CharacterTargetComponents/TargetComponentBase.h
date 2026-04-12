@@ -27,7 +27,7 @@ protected:
 	void InVisibleArrowMesh() const;
 	void RegisterInputComponent();
 	void ReleaseInputComponent() const;
-	virtual void Move(const FInputActionValue& Value){}
+	virtual void Rotate(const FInputActionValue& Value){}
 	virtual void Throw(const FInputActionValue& Value){}
 	
 protected:

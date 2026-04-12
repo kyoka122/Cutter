@@ -18,15 +18,14 @@ class UInGameUI : public UUserWidget, public IOverViewMiniMap
 	GENERATED_BODY()
 	
 public:
-	void UpdateUI(TObjectPtr<AInGameState> gameState, float deltaTime);
+	/*表示コンテンツの更新*/
+	void UpdateUI(const AInGameState* gameState, float deltaTime);
+	
+	/*Miniマップの表示、非表示*/
 	virtual void SetVisibilityMiniMap(bool value) override;
 	
 protected:
 	virtual void NativeConstruct() override;
-	
-private:
-	void SetScore(int score, float deltaTime);
-	void SetTime(float limitTime) const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -40,6 +39,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "UI設定")
 	float _countUpSpeed = 1;
+
+private:
+	void SetScore(int score, float deltaTime);
+	void SetTime(float limitTime) const;
 
 private:
 	float _countAnimatedScore = 0;//MEMO: スコアのカウントアニメーション実装のため、現在表示している数値をキャッシュしておく

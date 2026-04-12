@@ -1,24 +1,24 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "CutterBaseParam.h"
 #include "Engine/DataAsset.h"
-#include "CircleMoveCutterParam.generated.h"
+#include "StraightYoYoCutterParam.generated.h"
 
-/**
- * CircleMoveCutterのパラメータ構造
+/*
+ *　StraightYoYoCutterで使うパラメータ構造
  */
 USTRUCT(BlueprintType)
-struct FCircleMoveCutterParam : public FCutterBaseParam
+struct FStraightYoYoCutterParam : public FCutterBaseParam
 {
 	GENERATED_BODY()
 	
 public:
-	/*アクタ基準で回転する回転のスピード*/
+	/*バネ振動数*/
 	UPROPERTY(EditAnywhere, Category = "移動パラメータ", meta = (DisplayPriority=2))
-	float moveRate = 1.f;
+	float radianFrequency = 1.f;
 
-	/*ステージ中を動き回る時のスピード*/
+	/*アクタ基準で回転する回転のスピード*/
 	UPROPERTY(EditAnywhere, Category = "回転パラメータ", meta = (DisplayPriority=2))
 	float rotateRate = 10.f;
 };

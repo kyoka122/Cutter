@@ -13,7 +13,7 @@ void UStageButton::Init(const FStageRowData& data)
 	_stageImage->SetBrushFromTexture(data.image);
 }
 
-void UStageButton::MoveToStage()
+void UStageButton::OnStageButtonClick()
 {
 	UE_LOG(LogTemp, Log, TEXT("ステージに移動します"));
 	TObjectPtr<UCutterWorldSubsystem> titleWorldSubsystem = GetWorld()->GetSubsystem<UCutterWorldSubsystem>();

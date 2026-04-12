@@ -6,9 +6,8 @@
 #include "CutterListDataAsset.generated.h"
 
 /**
- * 
+ * 生成するアクタ情報を登録するデータアセット
  */
-
 UCLASS(BlueprintType, Blueprintable)
 class CUTTER_API UCutterListDataAsset : public UPrimaryDataAsset
 {

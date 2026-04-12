@@ -6,6 +6,9 @@
 #include "Obstacles/Cutters/Struct/StraightYoYoThrowTargetParam.h"
 #include "FullRotateTargetComponent.generated.h"
 
+/*
+ * 360度回転できるターゲット用コンポーネント
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CUTTER_API UFullRotateTargetComponent : public UTargetComponentBase
 {
@@ -17,7 +20,10 @@ public:
 	virtual void Init() override;
 
 private:
-	virtual void Move(const FInputActionValue& Value) override;
+	/*ターゲットのための回転*/
+	virtual void Rotate(const FInputActionValue& Value) override;
+	
+	/*引数の値が指定値になっていたらカッターを投げる（入力検知入り登録用関数）*/
 	virtual void Throw(const FInputActionValue& Value) override;
 	
 private:

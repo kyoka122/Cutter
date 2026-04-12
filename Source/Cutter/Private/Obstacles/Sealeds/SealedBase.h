@@ -10,6 +10,9 @@ class UTimelineComponent;
 class ACutterBase;
 struct FSealedBaseParam;
 
+/*
+ *レリックのBaseクラス
+ */
 UCLASS()
 class CUTTER_API ASealedBase : public AActor
 {
@@ -19,12 +22,26 @@ public:
 	ASealedBase();
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void ReStart(){}
+	
+	/*オブジェクトプールに戻す用の関数を登録する*/
 	void RegisterReleaseFunc(const TFunction<void(ASealedBase* sealed)>& releaseFunc);
-	void RegisterSpawner(const TSharedPtr<ObjectPool<ACutterBase>>& cutterPool);
+	
+	/*カッターのSpawnerを登録する*/
+	void RegisterCutterSpawner(const TSharedPtr<ObjectPool<ACutterBase>>& cutterPool);
+	
+	/*アニメーション用のタイムラインを初期化する*/
 	void InitTimeline(UStaticMeshComponent* staticMeshComponent);
+	
+	/*カッターに変形する（実際はこのアクタをReleaseしてカッターアクタを別途生成する）*/
 	ACutterBase* TransformCutter();
+	
+	/*メッシュのアルファカラーを設定する*/
 	void SetMeshAlphaColor(float value) const;
+	
+	/*アクティブ時に再生されるアニメーションを実行する*/
 	void PlayMoveStartAnimation();
+	
+	/*時間経過で消える前に再生されるアニメーションを実行する*/
 	void PlayMoveEndAnimation();
 
 protected:
@@ -36,35 +53,27 @@ protected:
 	FGameplayTag _type = {};
 	TFunction<void(ASealedBase* sealed)> _releaseFunc = {};
 	bool _playingMoveEndAnimation = false;
+	
+	/*カッター生成用のプール*/
 	TSharedPtr<ObjectPool<ACutterBase>> _cutterPool;
 	
-	/*c++で生成するアニメーション用Timeline。このオブジェクトの動き出し時に機能する*/
-	UPROPERTY()
-	TObjectPtr<UTimelineComponent> _moveStartAnimTimeline;
-	
-	/*c++で生成する点滅アニメーション用Timeline。このオブジェクトが消える時に機能する*/
-	UPROPERTY()
-	TObjectPtr<UTimelineComponent> _moveEndAnimTimeline;
-	
-	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> _dynamicMaterial;
-	
+	/*サイズアップアニメーション用カーブ情報*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UCurveFloat> _sizeUpCurve;
 	
+	/*サイズアップアニメーション用カーブ情報*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UCurveFloat> _blinkCurve;
 
 private:
-	void OnEndMoveEndAnimation();
+	/*アクティブ時に再生されるアニメーションが終了する際に呼ばれるコールバック*/
 	void OnEndMoveStartAnimation();
 	
-	UFUNCTION()
-	void HandleBlinkUpdate(float value) const;
+	/*時間経過で消える前に再生されるアニメーションが終了する際に呼ばれるコールバック*/
+	void OnEndMoveEndAnimation();
 	
-	UFUNCTION()
-	void HandleSizeUpUpdate(float value);
-	
+	UFUNCTION() void HandleBlinkUpdate(float value) const;
+	UFUNCTION() void HandleSizeUpUpdate(float value);
 
 private:
 	FTimerHandle _startAnimationTimerHandle = {};
@@ -72,4 +81,13 @@ private:
 	
 	/*サイズ変更アニメーションをかける時のための、元サイズのキャッシュ*/
 	FVector _originSizeCache = {};
+	
+	/*c++で生成するアニメーション用Timeline。このオブジェクトの動き出し時に機能する*/
+	UPROPERTY() TObjectPtr<UTimelineComponent> _moveStartAnimTimeline;
+	
+	/*c++で生成するアニメーション用Timeline。このオブジェクトが消える時に機能する*/
+	UPROPERTY() TObjectPtr<UTimelineComponent> _moveEndAnimTimeline;
+	
+	/*c++で生成したサイズアップアニメーション用マテリアルインスタンス。GC対策でキャッシュしておく*/
+	UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> _dynamicMaterial;
 };

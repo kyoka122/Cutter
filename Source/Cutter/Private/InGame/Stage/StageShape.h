@@ -27,19 +27,19 @@ public:
 	virtual bool IsInStage_Implementation(FVector2D point) = 0;
 	
 	
-	/* そのベクトルとの交点（ステージの内部を通らない場合、FIntersectionDataのisInがfalseかつ交点情報は初期値が返る）*/
+	/* 指定の位置+方向ベクトルとステージの辺の交点情報（ステージの内部を通らない場合、FIntersectionDataのisInがfalseかつ交点情報は初期値が返る）*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Stage")
 	FIntersectionData GetInterSections(FVector2D point, FVector2D vec);
 	
-	/* そのベクトルとの交点（ステージの内部を通らない場合、FIntersectionDataのisInがfalseかつ交点情報は初期値が返る）*/
+	/* 指定の位置+方向ベクトルとステージの辺の交点情報（ステージの内部を通らない場合、FIntersectionDataのisInがfalseかつ交点情報は初期値が返る）*/
 	virtual FIntersectionData GetInterSections_Implementation(FVector2D point, FVector2D vec) = 0;
 	
 	
-	/*内接円を作った時の接点（現状は一番大きい内接円を描いた時の接点）*/
+	/*指定位置を通る円かつ、ステージ外にはみ出さずに一番大きく描ける内接円の接点座標*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Stage")
 	FVector2D GetFarPointOfTangency(FVector2D oppositePoint);
 	
-	/* 内接円を作った時の接点（現状は一番大きい内接円を描いた時の接点）*/
+	/*指定位置を通る円かつ、ステージ外にはみ出さずに一番大きく描ける内接円の接点座標*/
 	virtual FVector2D GetFarPointOfTangency_Implementation(FVector2D oppositePoint) = 0;
 	
 	

@@ -7,6 +7,9 @@
 #include "Struct/SealedBaseParam.h"
 #include "AncientScrollSealed.generated.h"
 
+/**
+ * キャラクターが触れるとカッターを入手できるレリッククラス
+ */
 UCLASS()
 class CUTTER_API AAncientScrollSealed : public ASealedBase, public IScoreTarget
 {
@@ -16,7 +19,11 @@ public:
 	AAncientScrollSealed();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	
+	/*生成時、オブジェクトプールから持ってくるため、ここで初期化する*/
 	virtual void ReStart() override;
+	
+	/*このオブジェクトからスコアを奪う*/
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
 	
 protected:

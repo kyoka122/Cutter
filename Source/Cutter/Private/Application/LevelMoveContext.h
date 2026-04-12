@@ -3,11 +3,12 @@
 #include "CoreMinimal.h"
 
 /**
- * 
+ * レベル遷移時のパラメータ定義
  */
 struct LevelMoveContext
 {
 public:
+	/* レベル遷移時のパラメータ（オプション付き）*/
 	LevelMoveContext(FName scene, FName level, FString option)
 	{
 		sceneName = scene;
@@ -15,6 +16,7 @@ public:
 		moveOption = option;
 	}
 	
+	/* レベル遷移時のパラメータ */
 	LevelMoveContext(FName scene, FName level)
 	{
 		sceneName = scene;

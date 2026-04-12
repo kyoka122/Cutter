@@ -7,6 +7,9 @@
 #include "Struct/SealedBaseParam.h"
 #include "BambooSealed.generated.h"
 
+/**
+ * 別のカッターが触れるとカッターが自動生成するタイプのレリッククラス
+ */
 UCLASS()
 class CUTTER_API ABambooSealed : public ASealedBase, public IScoreTarget
 {
@@ -16,8 +19,11 @@ public:
 	ABambooSealed();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	
+	/*生成時、オブジェクトプールから持ってくるため、ここで初期化する*/
 	virtual void ReStart() override;
-	void CheckLifeTimeIsOver(float deltaTime);
+	
+	/*このオブジェクトからスコアを奪う*/
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
 	
 protected:
@@ -26,6 +32,9 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FSealedBaseParam _param = {};
+	
+private:
+	void CheckLifeTimeIsOver(float deltaTime);
 	
 private:
 	float _lifeTime = 0.f;

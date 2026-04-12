@@ -10,6 +10,12 @@ void ACircleExpandCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	if (!IsValid(_staticMeshComponent))
+	{
+		UE_LOG(LogCutter, Log, TEXT("_staticMeshComponent None %s"), *GetName());
+		return;
+	}
+	
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
@@ -58,6 +64,7 @@ FVector ACircleExpandCutter::CalcPosition(float deltaTime)
 	float r = _param.pitch * _currentAngle;//動径算出 r=aθ
 	float sinValue, cosValue = 0.f;
 	FMath::SinCos(&sinValue, &cosValue, _currentAngle);
+	
 	//中心点に動径、角度によって決まった移動量x,yを加算する
 	FVector newVec =  _rotateCenterPos + FVector(r * cosValue, r * sinValue, 0);
 	return newVec;
@@ -114,7 +121,7 @@ void ACircleExpandCutter::OnOverlapDamageableActor(AActor* otherActor) const
 
 void ACircleExpandCutter::Break()
 {
-	UE_LOG(LogCutter, Log, TEXT("Imp_Destroy%s"), *GetName());
+	UE_LOG(LogCutter, Log, TEXT("Break%s"), *GetName());
 	if (IsValid(this))
 	{
 		OnBreak();

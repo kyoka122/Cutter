@@ -4,6 +4,9 @@
 #include "Obstacles/Sealeds/SealedBase.h"
 #include "CutterSetData.generated.h"
 
+/*
+ *カッターとレリックの組み合わせ登録用構造体
+ */
 USTRUCT(BlueprintType)
 struct FCutterSetData
 {
@@ -20,5 +23,5 @@ public:
 	TSubclassOf<ASealedBase> sealedModeActor = {};
 	
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ACutterBase> breakModeActor = {};
+	TSubclassOf<ACutterBase> cutterModeActor = {};
 };

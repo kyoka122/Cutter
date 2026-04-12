@@ -24,7 +24,7 @@ void UFullRotateTargetComponent::Init()
 	_owner->SetVisibilityMiniMap(true);
 }
 
-void UFullRotateTargetComponent::Move(const FInputActionValue& Value)//TODO: 実装
+void UFullRotateTargetComponent::Rotate(const FInputActionValue& Value)//TODO: 実装
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -40,7 +40,7 @@ void UFullRotateTargetComponent::Move(const FInputActionValue& Value)//TODO: 実
 	
 void UFullRotateTargetComponent::Throw(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Throw"));
+	UE_LOG(LogTemp, Log, TEXT("Throw %s"), *GetName());
 	Super::Throw(Value);
 	if (_throwable.GetInterface())
 	{

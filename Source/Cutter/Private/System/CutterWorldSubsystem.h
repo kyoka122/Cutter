@@ -5,6 +5,7 @@
 #include "CutterWorldSubsystem.generated.h"
 
 struct LevelMoveContext;
+
 /**
  * タイトル画面のサブシステム。
  * レベル遷移等の管理を行う。

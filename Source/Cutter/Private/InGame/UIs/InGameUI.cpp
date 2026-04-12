@@ -1,4 +1,4 @@
-#include "InGame/Uis/InGameUI.h"
+#include "InGame/UIs/InGameUI.h"
 
 #include "Application/CutterFormat.h"
 #include "Blueprint/UserWidget.h"
@@ -14,14 +14,14 @@ void UInGameUI::NativeConstruct()
 	SetTime(0);
 }
 
- void UInGameUI::UpdateUI(const TObjectPtr<AInGameState> gameState, float deltaTime)
- {
+void UInGameUI::UpdateUI(const AInGameState* gameState, float deltaTime)
+{
 	SetTime(gameState->GetLimitTime());
 	if(_countAnimatedScore != gameState->GetScore())
 	{
 		SetScore(gameState->GetScore(), deltaTime);
 	}
- }
+}
 
 void UInGameUI::SetVisibilityMiniMap(bool value)
 {

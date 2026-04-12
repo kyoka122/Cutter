@@ -1,4 +1,4 @@
-#include "InGame/Uis/GameOverUI.h"
+#include "InGame/UIs/GameOverUI.h"
 
 #include "Application/CutterFormat.h"
 #include "Application/SceneDefine.h"
@@ -7,7 +7,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "System/CutterWorldSubsystem.h"
 
-void UGameOverUI::Update(const TObjectPtr<AInGameState> gameState) const
+void UGameOverUI::Update(const AInGameState* gameState) const
 {
 	_scoreText->SetText(CutterFormat::ConvertScoreText(gameState->GetScore()));
 }
