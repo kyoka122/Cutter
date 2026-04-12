@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
+#include "Utility/ObjectPool.h"
 
 #include "SealedBase.generated.h"
 
@@ -19,15 +20,11 @@ public:
 	ASealedBase();
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void ReStart(){}
-	
-	/*
-	 * 
-	 */
-	typedef TFunction<TObjectPtr<ACutterBase>(FGameplayTag, FTransform)> TransformFunc;
-	void RegisterTransformCutterFunc(FGameplayTag type, const TransformFunc& transformFunc);
-	void RegisterInactiveFunc(TFunction<void()> desteroyFunc);
-	void SetMeshAlphaColor(float value);
+	void RegisterReleaseFunc(TFunction<void(ASealedBase* sealed)> releaseFunc);
+	void RegisterSpawner(TSharedPtr<ObjectPool<ACutterBase>> cutterPool);
 	void InitTimeline(UStaticMeshComponent* staticMeshComponent);
+	ACutterBase* TransformCutter();
+	void SetMeshAlphaColor(float value);
 	void PlayMoveStartAnimation();
 	void PlayMoveEndAnimation();
 
@@ -38,9 +35,9 @@ protected:
 protected:
 	float _lifeTime = 0.f;
 	FGameplayTag _type = {};
-	TransformFunc _transformFunc = {};
-	TFunction<void()> _destroyFunc = {};
+	TFunction<void(ASealedBase* sealed)> _releaseFunc = {};
 	bool _playingMoveEndAnimation = false;
+	TSharedPtr<ObjectPool<ACutterBase>> _cutterPool;
 	
 	/*c++で生成するアニメーション用Timeline。このオブジェクトの動き出し時に機能する*/
 	UPROPERTY()

@@ -7,7 +7,7 @@ ObjectPool<T>::ObjectPool(PoolObjectGenerator<T>* generator)
 }
 
 template <typename T>
-TObjectPtr<T> ObjectPool<T>::Create(FTransform transform)
+TObjectPtr<T> ObjectPool<T>::Create(const FTransform& transform)
 {
 	ObjectPoolManageData* param = GetNotUsingObjectData();
 	param->isUsing = true;

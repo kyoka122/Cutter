@@ -1,5 +1,6 @@
 ﻿#include "SealedBase.h"
 
+#include "CutterBase.h"
 #include "Application/ParamDefine.h"
 #include "Components/TimelineComponent.h"
 #include "Struct/SealedBaseParam.h"
@@ -11,23 +12,14 @@ ASealedBase::ASealedBase()
 	_moveEndAnimTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MoveEndAnimTimeline"));
 }
 
-void ASealedBase::RegisterTransformCutterFunc(FGameplayTag type, const TransformFunc& transformFunc)
+void ASealedBase::RegisterReleaseFunc(TFunction<void(ASealedBase* sealed)> releaseFunc)
 {
-	_type = type;
-	_transformFunc = transformFunc;
+	_releaseFunc = releaseFunc;
 }
 
-void ASealedBase::RegisterInactiveFunc(TFunction<void()> desteroyFunc)
+void ASealedBase::RegisterSpawner(TSharedPtr<ObjectPool<ACutterBase>> cutterPool)
 {
-	_destroyFunc = desteroyFunc;
-}
-
-void ASealedBase::SetMeshAlphaColor(float value)
-{
-	if (_dynamicMaterial)
-	{
-		_dynamicMaterial->SetScalarParameterValue(ParamDefine::AlphaControl, value);
-	}
+	_cutterPool = cutterPool;
 }
 
 void ASealedBase::InitTimeline(UStaticMeshComponent* staticMeshComponent)
@@ -44,6 +36,33 @@ void ASealedBase::InitTimeline(UStaticMeshComponent* staticMeshComponent)
 	alphaUpdater.BindUFunction(this, "HandleBlinkUpdate");
 	_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
 	_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
+}
+
+ACutterBase* ASealedBase::TransformCutter()
+{
+	ACutterBase* cutter = nullptr;
+	if (_cutterPool)
+	{
+		cutter = _cutterPool->Create(GetActorTransform());
+		cutter->ReStart();
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterPoolがnullです"));
+	
+	if (_releaseFunc)
+	{
+		_releaseFunc(this);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_releaseFuncがnullです"));
+	
+	return cutter;
+}
+
+void ASealedBase::SetMeshAlphaColor(float value)
+{
+	if (_dynamicMaterial)
+	{
+		_dynamicMaterial->SetScalarParameterValue(ParamDefine::AlphaControl, value);
+	}
 }
 
 void ASealedBase::PlayMoveStartAnimation()
@@ -92,10 +111,11 @@ void ASealedBase::OnEndMoveEndAnimation()
 	_moveStartAnimTimeline->Stop();
 	_playingMoveEndAnimation = false;
 	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
-	if (_destroyFunc)
+	if (_releaseFunc)
 	{
-		_destroyFunc;
+		_releaseFunc(this);
 	}
+	else UE_LOG(LogTemp, Error, TEXT("_releaseFuncがnullです"));
 }
 
 void ASealedBase::HandleBlinkUpdate(float value)

@@ -39,13 +39,13 @@ void ABambooSealed::CheckLifeTimeIsOver(float deltaTime)
 	}
 	if (_lifeTime < 0.f)
 	{
-		if (_destroyFunc)
+		if (_releaseFunc)
 		{
-			_destroyFunc();
+			_releaseFunc(this);
 		}
 		else
 		{
-			UE_LOG(LogSealed, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
+			UE_LOG(LogSealed, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
 		}
 	}
 }
@@ -59,16 +59,10 @@ FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
 		param.canRobScore = false;
 		return param;
 	}
-	if (!_transformFunc)
-	{
-		UE_LOG(LogSealed, Error, TEXT("_transformCutterFunc 実行する関数がnullです %s"), *GetName());
-		param.canRobScore = false;
-		return param;
-	}
 	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
-	_transformFunc(_type, GetActorTransform());
+	TransformCutter();
 	return param;
 	
 }

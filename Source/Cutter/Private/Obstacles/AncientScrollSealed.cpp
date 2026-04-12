@@ -38,13 +38,13 @@ void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 	}
 	if (_lifeTime < 0.f)
 	{
-		if (_destroyFunc)
+		if (_releaseFunc)
 		{
-			_destroyFunc();
+			_releaseFunc(this);
 		}
 		else
 		{
-			UE_LOG(LogSealed, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
+			UE_LOG(LogSealed, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
 		}
 	}
 }
@@ -52,16 +52,10 @@ void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
 	FScoreRobbedParam param = {};
-	if (!_transformFunc)
-	{
-		UE_LOG(LogSealed, Error, TEXT("_transformCutterFunc 実行する関数がnullです %s"), *GetName());
-		param.canRobScore = false;
-		return param;
-	}
 	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
-	UObject* cutterObject = Cast<UObject>(_transformFunc(_type, GetActorTransform()));
+	UObject* cutterObject = Cast<UObject>(TransformCutter());
 	if (IThrowable* throwableCutter = Cast<IThrowable>(cutterObject))
 	{
 		param.throwableCutter.SetObject(cutterObject);

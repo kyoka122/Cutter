@@ -6,7 +6,6 @@
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
 #include "Struct/StraightYoYoThrowTargetParam.h"
-#include "MathUtil.h"
 
 void AStraightYoYoCutter::BeginPlay()
 {
@@ -40,7 +39,6 @@ FVector AStraightYoYoCutter::CalcPosition(float deltaTime)
 	{
 		_currentTime += 2 * UE_PI;
 	}
-	UE_LOG(LogTemp, Log, TEXT("_param.radianFrequency * _currentTime: %f"), _param.radianFrequency * _currentTime);
 	FVector2D newPos = _yoyoRadius2D * FMath::Sin(_param.radianFrequency * _currentTime + _offsetRad) + _yoyoCenterPos;
 	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
 	return FVector(newPos.X, newPos.Y, stageCenterPos.Z);
@@ -73,12 +71,11 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		{
 			return;
 		}
-		if (!_scoreAddFunc)
+		if (_scoreAddFunc)
 		{
-			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());
-			return;
+			_scoreAddFunc(robbedParam.score);
 		}
-		_scoreAddFunc(robbedParam.score);
+		else UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());
 	}
 }
 
@@ -93,7 +90,7 @@ void AStraightYoYoCutter::OnOverlapDamageableActor(AActor* otherActor)
 
 void AStraightYoYoCutter::Break()
 {
-	UE_LOG(LogCutter, Log, TEXT("Imp_Destroy %s"), *GetName());
+	UE_LOG(LogCutter, Log, TEXT("Destroy %s"), *GetName());
 	if (IsValid(this))
 	{
 		OnBreak();
@@ -103,7 +100,7 @@ void AStraightYoYoCutter::Break()
 void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 {
 	check(throwActor);
-	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s"), *GetName());
+	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s by%s"), *GetName(), *throwActor->GetName());
 	FVector currentPos = GetActorLocation();
 	
 	UFullRotateTargetComponent* fullRotateTargetComponent = NewObject<UFullRotateTargetComponent>(throwActor);
@@ -131,7 +128,6 @@ void AStraightYoYoCutter::SetThrowTargetParam()
 {
 	FVector2D currentPos = FVector2D(GetActorLocation());
 	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
-	UE_LOG(LogTemp, Log, TEXT("stageCenterPos: %s"), *stageCenterPos.ToString());
 	FVector2D moveVec = FVector2D(stageCenterPos) - currentPos;//TODO: この辺の値引数作って修正する
 	
 	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(_stageShape.GetObject(), currentPos, moveVec);
@@ -145,7 +141,8 @@ void AStraightYoYoCutter::SetThrowTargetParam()
 	{
 		_offsetRad = FMath::Asin((currentPos.Y - _yoyoCenterPos.Y) / _yoyoRadius2D.Y);
 	}
-
+	
+	UE_LOG(LogCutter, Log, TEXT("stageCenterPos: %s"), *stageCenterPos.ToString());
 	UE_LOG(LogTemp, Log, TEXT("intersectionData.point1: %s"), *intersectionData.point1.ToString());
 	UE_LOG(LogTemp, Log, TEXT("intersectionData.point2: %s"), *intersectionData.point2.ToString());
 	UE_LOG(LogTemp, Log, TEXT("_yoyoCenterPos: %s"), *_yoyoCenterPos.ToString());
@@ -158,10 +155,10 @@ void AStraightYoYoCutter::OnBreak()
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
-	if (!_inactiveFunc)
+	if (_releaseFunc)
 	{
-		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
-		return;
+		_releaseFunc(this);
 	}
-	_inactiveFunc();
+	else UE_LOG(LogCutter, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
+	
 }

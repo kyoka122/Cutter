@@ -2,9 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Obstacles/CutterBase.h"
 #include "Utility/PoolObjectGenerator.h"
 #include "CutterGenerator.generated.h"
+
+class IStageShape;
+class ACutterBase;
 
 UCLASS(BlueprintType)
 class CUTTER_API ACutterGenerator : public AActor, public PoolObjectGenerator<ACutterBase>
@@ -13,6 +15,9 @@ class CUTTER_API ACutterGenerator : public AActor, public PoolObjectGenerator<AC
 
 public:
 	void RegisterGeneratePrefab(TSubclassOf<ACutterBase> prefab);
+	void RegisterParam(TFunction<void(int)> scoreAddFunc, TFunction<void(ACutterBase* cutter)> releaseFunc,
+		TScriptInterface<IStageShape> stageShape);
+	
 	virtual TObjectPtr<ACutterBase> Generate() override;
 	virtual void Activate(TObjectPtr<ACutterBase> cutter, FTransform transform) override;
 	virtual void Activate(TObjectPtr<ACutterBase> cutter) override {}
@@ -20,4 +25,7 @@ public:
 	
 protected:
 	TSubclassOf<ACutterBase> _prefab;
+	TFunction<void(int)> _scoreAddFunc = {};
+	TFunction<void(ACutterBase* cutter)> _releaseFunc = {};
+	TScriptInterface<IStageShape> _stageShape = {};
 };

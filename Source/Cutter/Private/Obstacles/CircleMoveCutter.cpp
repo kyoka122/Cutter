@@ -65,9 +65,7 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 	}
 	if (IBreakable* otherBreakable = Cast<IBreakable>(otherActor))
 	{
-		SetActorEnableCollision(false);
-		otherActor->SetActorEnableCollision(false);
-		UE_LOG(LogCutter, Log, TEXT("Destroy01,%s"), *GetName());
+		UE_LOG(LogCutter, Log, TEXT("Break %s by%s"), *GetName(), *otherActor->GetName());
 		otherBreakable->Break();
 		OnBreak();
 	}
@@ -82,12 +80,11 @@ void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor)
 		{
 			return;
 		}
-		if (!_scoreAddFunc)
+		if (_scoreAddFunc)
 		{
-			UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());
-			return;
+			_scoreAddFunc(robbedParam.score);
 		}
-		_scoreAddFunc(robbedParam.score);
+		else UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());
 	}
 }
 
@@ -102,7 +99,7 @@ void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor)
 
 void ACircleMoveCutter::Break()
 {
-	UE_LOG(LogCutter, Log, TEXT("Imp_Break %s"), *GetName());
+	UE_LOG(LogCutter, Log, TEXT("Break %s"), *GetName());
 	if (IsValid(this))
 	{
 		OnBreak();
@@ -169,10 +166,9 @@ void ACircleMoveCutter::OnBreak()
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
-	if (!_inactiveFunc)
+	if (_releaseFunc)
 	{
-		UE_LOG(LogCutter, Error, TEXT("_inactiveFunc 実行する関数がnullです %s"), *GetName());
-		return;
+		_releaseFunc(this);
 	}
-	_inactiveFunc();
+	else UE_LOG(LogCutter, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
 }

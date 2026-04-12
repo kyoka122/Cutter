@@ -21,7 +21,7 @@ public:
 	void RegisterStageShapeData(TScriptInterface<IStageShape> stageShape);
 	using ScoreAddFunc = TFunction<void(int)>;
 	void RegisterScoreAddFunc(ScoreAddFunc func);
-	void RegisterInactiveFunc(TFunction<void()> _inactiveFunc);
+	void RegisterReleaseFunc(TFunction<void(ACutterBase* cutter)> releaseFunc);
 	
 protected:
 	/*このオブジェクトの可変パラメータ。override必須*/
@@ -49,7 +49,7 @@ protected:
 
 	OverlapFunc _overlapFunc = {};
 	ScoreAddFunc _scoreAddFunc = {};
-	TFunction<void()> _inactiveFunc = {};
+	TFunction<void(ACutterBase* cutter)> _releaseFunc = {};
 	TScriptInterface<IStageShape> _stageShape = {};
 	
 private:
