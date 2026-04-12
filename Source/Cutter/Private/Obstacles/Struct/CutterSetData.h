@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "Obstacles/CutterBase.h"
-#include "Obstacles/SealedBase.h"
+
+#include "Obstacles/Cutters/CutterBase.h"
+#include "Obstacles/Sealeds/SealedBase.h"
 #include "CutterSetData.generated.h"
 
 USTRUCT(BlueprintType)

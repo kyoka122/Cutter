@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "PoolObjectGenerator.h"
 
 template <typename T = UObject>

@@ -1,19 +1,16 @@
-#pragma once
-
 #include "InGame/InGameMode.h"
 
 #include "CutterCharacter.h"
-#include "InGame/GameOverUI.h"
+#include "ObstacleSpawner.h"
+#include "InGame/Uis/GameOverUI.h"
 #include "InGame/InGameState.h"
 #include "InGame/Interface/OverViewMiniMap.h"
-#include "InGame/InGameUI.h"
-#include "Blueprint/UserWidget.h"
+#include "InGame/Uis/InGameUI.h"
 #include "Engine/LevelScriptActor.h"
 #include "Interface/StageProperty.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Stage/StageShape.h"
-#include "TableRow/StageEnvironmentParam.h"
 #include "TableRow/StageRowData.h"
 #include "Utility/WidgetHelper.h"
 
@@ -58,11 +55,9 @@ void AInGameMode::InitParam()
 	});
 	_inGameState->SetInitLimitTime(stageRowData->limitTime);
 	_inGameState->SetLimitTime(stageRowData->limitTime);
-	
-	
 }
 
-void AInGameMode::RegisterMiniMapToCharacter()
+void AInGameMode::RegisterMiniMapToCharacter() const
 {
 	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(character))
@@ -82,7 +77,7 @@ void AInGameMode::RegisterMiniMapToCharacter()
 	}
 }
 
-void AInGameMode::SetCursor()
+void AInGameMode::SetCursor() const
 {
 	TObjectPtr<APlayerController> playerController = GetWorld()->GetFirstPlayerController();
 	if (IsValid(playerController))
@@ -93,7 +88,7 @@ void AInGameMode::SetCursor()
 	}
 }
 
-FStageRowData* AInGameMode::GetStageData(FName stageName)//TODO: Factory作る
+FStageRowData* AInGameMode::GetStageData(FName stageName) const//TODO: Factory作る
 {
 	FString contextString = FString::Printf(TEXT("StageList読み込み失敗: "));
 	TArray<FStageRowData*> stageRows;
@@ -114,7 +109,7 @@ FStageRowData* AInGameMode::GetStageData(FName stageName)//TODO: Factory作る
 	return nullptr;
 }
 
-TScriptInterface<IStageShape> AInGameMode::GetStageShape()//TODO: Factory作る
+TScriptInterface<IStageShape> AInGameMode::GetStageShape() const//TODO: Factory作る
 {
 	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
 	if (levelScriptActor->Implements<UStageProperty>())

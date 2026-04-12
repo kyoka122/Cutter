@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "StageShape.h"
 #include "CircleStage.generated.h"
 

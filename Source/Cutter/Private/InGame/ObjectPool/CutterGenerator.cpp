@@ -1,6 +1,7 @@
 ﻿#include "CutterGenerator.h"
+
 #include "Kismet/GameplayStatics.h"
-#include "Obstacles/CutterBase.h"
+#include "Obstacles/Cutters/CutterBase.h"
 
 void ACutterGenerator::RegisterGeneratePrefab(TSubclassOf<ACutterBase> prefab)
 {

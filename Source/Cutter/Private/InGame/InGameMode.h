@@ -1,13 +1,15 @@
 #pragma once
 
-#include "ObstacleSpawner.h"
-#include "InGame/GameOverUI.h"
-#include "InGame/InGameState.h"
-#include "InGame/InGameUI.h"
 #include "GameFramework/GameModeBase.h"
-#include "TableRow/StageRowData.h"
-#include "Utility/WidgetHelper.h"
 #include "InGameMode.generated.h"
+
+struct FStageRowData;
+class IStageShape;
+class UWidgetHelper;
+class AInGameState;
+class AObstacleSpawner;
+class UGameOverUI;
+class UInGameUI;
 
 /**
  *  インゲームを管理するGameModeクラス
@@ -38,25 +40,23 @@ protected:
 	TObjectPtr<UDataTable> _stageDataTable;
 	
 	UPROPERTY(EditAnywhere, Category = "参照設定")
-	TObjectPtr<UDataTable> _stageEnvironmentParamTable;
-	
-	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<AObstacleSpawner> _obstacleSpawnerClass;
 	
 private:
 	void InstanceMember();
 	void InitParam();
-	void RegisterMiniMapToCharacter();
-	void SetCursor();
-	FStageRowData* GetStageData(FName stageName);
-	TScriptInterface<IStageShape> GetStageShape();
+	void RegisterMiniMapToCharacter() const;
+	void SetCursor() const;
+	FStageRowData* GetStageData(FName stageName) const;
+	TScriptInterface<IStageShape> GetStageShape() const;
 
 private:
-	TObjectPtr<AInGameState> _inGameState = {};
-	TObjectPtr<AObstacleSpawner> _obstacleSpawner = {};
-	TObjectPtr<UWidgetHelper> _widgetHelper = {};
-	TObjectPtr<UInGameUI> _inGameUI = {};
-	TObjectPtr<UGameOverUI> _gameOverUI = {};
+	UPROPERTY() TObjectPtr<AInGameState> _inGameState = {};
+	UPROPERTY() TObjectPtr<AObstacleSpawner> _obstacleSpawner = {};
+	UPROPERTY() TObjectPtr<UWidgetHelper> _widgetHelper = {};
+	UPROPERTY() TObjectPtr<UInGameUI> _inGameUI = {};
+	UPROPERTY() TObjectPtr<UGameOverUI> _gameOverUI = {};
+	
 	bool _isActiveGameOverUI = false;
 };
 

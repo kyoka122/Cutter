@@ -6,7 +6,7 @@
 /**
  * 
  */
-UINTERFACE(MinimalAPI,Blueprintable)
+UINTERFACE(MinimalAPI, Blueprintable)
 class UBreakable : public UInterface
 {
 	GENERATED_BODY()

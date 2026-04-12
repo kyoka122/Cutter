@@ -3,8 +3,9 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "TableRow/StageRowData.h"
 #include "StageButton.generated.h"
+
+struct FStageRowData;
 
 /**
  * タイトル画面の各ステージ単位のUI。

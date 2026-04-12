@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "IntersectionData.generated.h"
 
 /**
@@ -11,6 +12,7 @@ struct FIntersectionData
 public:
 	/*そもそも点がステージの中にあるかどうか*/
 	bool isIn = false;
+	
 	/*点が接する場合(float値での計算のためめったに起こらない。この場合、point1,2には同じ値が入る)*/
 	bool isTangent = false;
 	

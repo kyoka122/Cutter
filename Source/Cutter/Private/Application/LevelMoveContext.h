@@ -25,5 +25,4 @@ public:
 	FName sceneName = {};
 	FName levelName = {};
 	FString moveOption = {};
-	
 };

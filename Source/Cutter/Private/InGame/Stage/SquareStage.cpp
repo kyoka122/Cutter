@@ -79,8 +79,9 @@ std::pair<bool, FVector2D> ASquareStage::GetPointOfTangency(FVector2D point, FVe
 	
 	FVector2D stageLine = stageEdge2 - stageEdge1;
 	FVector2D pointToStageEdge1 = stageEdge1 - point;
+	
+	//MEMO:  FVector2.DotProduct (pointToStageEdge1 + t * stageLine , stageLine) = 0 を変形
 	float t = - (pointToStageEdge1.X * stageLine.X + pointToStageEdge1.Y * stageLine.Y) / (stageLine.X * stageLine.X + stageLine.Y * stageLine.Y);
-	UE_LOG(LogTemp, Log, TEXT("t: %f"), t);
 	
 	if (t >= 0 && t <= 1)
 	{

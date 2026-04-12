@@ -26,7 +26,7 @@ FText CutterFormat::ConvertScoreText(int score)
 	return FText::AsNumber(score, &textFormatOptions);
 }
 
-FString CutterFormat::ConvertOpenLevelOption(FString key, FString value)
+FString CutterFormat::ConvertOpenLevelOption(const FString& key, const FString& value)
 {
 	return key + '=' + value + '?';
 }

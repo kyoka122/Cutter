@@ -1,8 +1,11 @@
 ﻿#include "ObstacleSpawner.h"
 
+#include "InGameState.h"
 #include "Application/TagDefine.h"
+#include "ObjectPool/CutterGenerator.h"
+#include "ObjectPool/SealedGenerator.h"
+#include "Obstacles/DataAsset/CutterListDataAsset.h"
 #include "TableRow/ObstacleSpawnData.h"
-#include "TableRow/StageEnvironmentParam.h"
 #include "Utility/ObjectPool.h"
 
 AObstacleSpawner::AObstacleSpawner()
@@ -10,15 +13,13 @@ AObstacleSpawner::AObstacleSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, TScriptInterface<IStageShape> stageShape, TFunction<void(int)> scoreAddFunc)
+void AObstacleSpawner::Init(TObjectPtr<UDataTable> obstacleSpawnTable, const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc)
 {
-	_scoreAddFunc = scoreAddFunc;
-	_stageShape = stageShape;
-	InitGenerator();
+	InitGenerator(stageShape, scoreAddFunc);
 	RegisterSpawnData(obstacleSpawnTable);
 }
 
-void AObstacleSpawner::InitGenerator()
+void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc)
 {
 	for (auto& setData : _cutterListDataAsset->prefabs)
 	{
@@ -27,7 +28,7 @@ void AObstacleSpawner::InitGenerator()
 			TObjectPtr<ACutterGenerator> cutterGenerator = GetWorld()->SpawnActor<ACutterGenerator>(ACutterGenerator::StaticClass());
 			cutterGenerator->RegisterGeneratePrefab(setData.breakModeActor);
 			auto cutterPool = MakeShared<ObjectPool<ACutterBase>>(cutterGenerator);
-			cutterGenerator->RegisterParam(_scoreAddFunc, [cutterPool](ACutterBase* cutter){cutterPool->Release(cutter);}, _stageShape);
+			cutterGenerator->RegisterParam(scoreAddFunc, [cutterPool](ACutterBase* cutter){cutterPool->Release(cutter);}, stageShape);
 			_cutterPools.Add(setData.breakModeActor, cutterPool);
 		}
 	}
@@ -62,7 +63,7 @@ void AObstacleSpawner::RegisterSpawnData(TObjectPtr<UDataTable> obstacleSpawnTab
 
 void AObstacleSpawner::Update(const TObjectPtr<AInGameState> inGameState)
 {
-	float leftTime = inGameState->GetInitLimitTime()-inGameState->GetLimitTime();
+	float leftTime = inGameState->GetInitLimitTime() - inGameState->GetLimitTime();
 	if (_obstacleSpawnQueue.IsEmpty())
 	{
 		return;

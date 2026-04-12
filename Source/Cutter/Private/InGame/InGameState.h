@@ -17,10 +17,10 @@ public:
 	void ConsumeLimitTime(float value);
 	void SetLimitTime(float value);
 	void SetInitLimitTime(float value);
-	int GetScore();
-	float GetLimitTime();
-	bool IsTimeOver();
-	float GetInitLimitTime();
+	int GetScore() const;
+	float GetLimitTime() const;
+	bool IsTimeOver() const;
+	float GetInitLimitTime() const;
 
 private:
 	int score = 0;

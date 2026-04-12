@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "TitleMenu.h"
 #include "GameFramework/GameModeBase.h"
 #include "TitleGameMode.generated.h"
 
+class UTitleMenu;
 /**
  * 
  */

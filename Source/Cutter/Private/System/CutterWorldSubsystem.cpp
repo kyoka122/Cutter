@@ -1,10 +1,11 @@
 #include "CutterWorldSubsystem.h"
+
 #include "Application/CutterFormat.h"
 #include "Application/LevelMoveContext.h"
 #include "Application/LevelMoveOptionDefine.h"
 #include "Kismet/GameplayStatics.h"
 
-void UCutterWorldSubsystem::MoveToStage(const LevelMoveContext& context)
+void UCutterWorldSubsystem::MoveToStage(const LevelMoveContext& context) const
 {
 	UE_LOG(LogTemp, Log, TEXT("遷移するシーン: %s"), *context.sceneName.ToString());
 	if (context.levelName == NAME_None)

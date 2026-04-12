@@ -11,5 +11,5 @@ class CutterFormat
 public:
 	static FText ConvertTimeText(float time);
 	static FText ConvertScoreText(int score);
-	static FString ConvertOpenLevelOption(FString key, FString value);
+	static FString ConvertOpenLevelOption(const FString& key, const FString& value);
 };

@@ -20,22 +20,22 @@ void AInGameState::SetInitLimitTime(float value)
 	initLimitTime = value;
 }
 
-int AInGameState::GetScore()
+int AInGameState::GetScore() const
 {
 	return score;
 }
 
-float AInGameState::GetLimitTime()
+float AInGameState::GetLimitTime() const
 {
 	return limitTime;
 }
 
-bool AInGameState::IsTimeOver()
+bool AInGameState::IsTimeOver() const
 {
 	return limitTime <= 0;
 }
 
-float AInGameState::GetInitLimitTime()
+float AInGameState::GetInitLimitTime() const
 {
 	return initLimitTime;
 }

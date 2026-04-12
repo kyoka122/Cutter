@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "StageShape.h"
 #include "SquareStage.generated.h"
 

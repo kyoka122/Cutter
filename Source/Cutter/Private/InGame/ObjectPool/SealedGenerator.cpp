@@ -1,13 +1,14 @@
 ﻿#include "SealedGenerator.h"
+
 #include "Kismet/GameplayStatics.h"
-#include "Obstacles/SealedBase.h"
+#include "Obstacles/Sealeds/SealedBase.h"
 
 void ASealedGenerator::RegisterGeneratePrefab(TSubclassOf<ASealedBase> prefab)
 {
 	_prefab = prefab;
 }
 
-void ASealedGenerator::RegisterParam(TFunction<void(ASealedBase* sealed)> releaseFunc)
+void ASealedGenerator::RegisterParam(const TFunction<void(ASealedBase* sealed)>& releaseFunc)
 {
 	_releaseFunc = releaseFunc;
 }
@@ -18,7 +19,7 @@ TObjectPtr<ASealedBase> ASealedGenerator::Generate()
 	TObjectPtr<ASealedBase> sealed = GetWorld()->SpawnActorDeferred<ASealedBase>(_prefab, FTransform::Identity);
 	if (IsValid(sealed))
 	{
-		Deactivate(sealed);
+		SafeDeactivate(sealed);
 		UGameplayStatics::FinishSpawningActor(sealed, FTransform::Identity);
 		sealed->SetActorTickEnabled(false);//MEMO: Spawn後にTickが始まってしまうので、再度OFF
 		sealed->RegisterReleaseFunc(_releaseFunc);
@@ -36,8 +37,13 @@ void ASealedGenerator::Activate(TObjectPtr<ASealedBase> sealed, FTransform trans
 
 void ASealedGenerator::Deactivate(TObjectPtr<ASealedBase> sealed)
 {
+	SafeDeactivate(sealed);
+	sealed->SetMeshAlphaColor(1);//MEMO: Meshの取得処理を先にしておかないとDeactivate時にエラーになるため他のDeactive処理と分ける
+}
+
+void ASealedGenerator::SafeDeactivate(TObjectPtr<ASealedBase> sealed)
+{
 	sealed->SetActorEnableCollision(false);
 	sealed->SetActorTickEnabled(false);
 	sealed->SetActorHiddenInGame(true);
-	sealed->SetMeshAlphaColor(1);
 }
