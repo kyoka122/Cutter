@@ -24,18 +24,19 @@ void UFullRotateTargetComponent::Init()
 	_owner->SetVisibilityMiniMap(true);
 }
 
-void UFullRotateTargetComponent::Rotate(const FInputActionValue& Value)//TODO: 実装
+void UFullRotateTargetComponent::Rotate(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (_controller != nullptr)
-	{
-		const FRotator Rotation = _controller->GetControlRotation();
-		
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	}
+	//TODO: 実装中
+	// FVector2D MovementVector = Value.Get<FVector2D>();
+	//
+	// if (_controller != nullptr)
+	// {
+	// 	const FRotator Rotation = _controller->GetControlRotation();
+	// 	
+	// 	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	// 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	// 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	// }
 }
 	
 void UFullRotateTargetComponent::Throw(const FInputActionValue& Value)

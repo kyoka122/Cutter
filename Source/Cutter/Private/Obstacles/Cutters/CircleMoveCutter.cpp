@@ -116,7 +116,11 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	
 	TObjectPtr<ULimitedRotateTargetComponent> rotateTargetComponent = NewObject<ULimitedRotateTargetComponent>(throwActor);
 	FCircleMoveCutterThrowTargetParam throwTargetParam;
-	throwTargetParam.firstLookVec = FVector2D(toStageCenterVec2D);
+
+	//TODO: 現状左向き確定なので、左用の値を入れる
+	//throwTargetParam.firstLookVec = FVector2D(toStageCenterVec2D);
+	throwTargetParam.firstLookVec = FVector2D(toStageCenterVec2D.Y, -toStageCenterVec2D.X);
+	
 	throwTargetParam.rightMaxVec = FVector2D(toStageCenterVec2D.Y, -toStageCenterVec2D.X);
 	throwTargetParam.leftMaxVec = FVector2D(-toStageCenterVec2D.Y, toStageCenterVec2D.X);
 	rotateTargetComponent->RegisterParam(throwTargetParam);
