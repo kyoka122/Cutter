@@ -8,13 +8,14 @@ bool ACircleStage::IsInStage_Implementation(FVector2D point)
 
 FIntersectionData ACircleStage::GetInterSections_Implementation(FVector2D viaPoint, FVector2D vec)
 {
+	UE_LOG(LogTemp, Log, TEXT("GetInterSections1"));
 	FIntersectionData intersectionData;
 	FVector2D centerPos2D = FVector2D(Execute_GetCenterPos(this));
 	//MEMO:
 	//a+tb = p, |p-c| = rの連立方程式  |a-c+tb| = r の解を求める
 	// => viaPoint + t*vec = d, |d-c| = GetRadius()の連立方程式  |viaPoint - GetCenterPos() + t*vec| = GetRadius() の解を求める
 	float a = FMath::Square(vec.Length());
-	float b = - 2 * FVector2D::DotProduct(viaPoint - centerPos2D,vec);
+	float b = 2 * FVector2D::DotProduct(viaPoint - centerPos2D,vec);
 	float c = FMath::Square((viaPoint - centerPos2D).Length()) - FMath::Square(GetRadius());
 	
 	float d = FMath::Square(b) - 4 * a * c;
@@ -22,6 +23,8 @@ FIntersectionData ACircleStage::GetInterSections_Implementation(FVector2D viaPoi
 	{
 		float t1 = (-b + FMath::Sqrt(d)) / 2 / a;
 		float t2 = (-b - FMath::Sqrt(d)) / 2 / a;
+		UE_LOG(LogTemp, Log, TEXT("t1: %f"), t1);
+		UE_LOG(LogTemp, Log, TEXT("t2: %f"), t2);
 		intersectionData.isIn = true;
 		intersectionData.isTangent = false;
 		intersectionData.point1 = viaPoint + t1 * vec;
@@ -29,16 +32,19 @@ FIntersectionData ACircleStage::GetInterSections_Implementation(FVector2D viaPoi
 	}
 	else if (d < 0)
 	{
+		UE_LOG(LogTemp, Log, TEXT("Error"));
 		intersectionData.isIn = false;
 	}
 	else
 	{
 		float t1 = -b / 2 / a;
+		UE_LOG(LogTemp, Log, TEXT("viaPoint + t1 * vec: %s"), *(viaPoint + t1 * vec).ToString());
 		intersectionData.isIn = true;
 		intersectionData.isTangent = true;
 		intersectionData.point1 = viaPoint + t1 * vec;
 		intersectionData.point2 = viaPoint + t1 * vec;
 	}
+	UE_LOG(LogTemp, Log, TEXT("GetInterSections2"));
 	return intersectionData;
 }
 

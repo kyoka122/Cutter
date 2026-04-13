@@ -50,6 +50,4 @@ private:
 	
 	/*回転基準座標*/
 	FVector _rotateCenterPos = {};
-	
-	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 };

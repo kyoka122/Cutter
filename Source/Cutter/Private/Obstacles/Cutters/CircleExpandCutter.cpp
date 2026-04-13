@@ -9,13 +9,11 @@
 void ACircleExpandCutter::BeginPlay()
 {
 	Super::BeginPlay();
-	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	_staticMeshComponent = GetStaticMesh();
 	if (!IsValid(_staticMeshComponent))
 	{
-		UE_LOG(LogCutter, Log, TEXT("_staticMeshComponent None %s"), *GetName());
 		return;
 	}
-	
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{

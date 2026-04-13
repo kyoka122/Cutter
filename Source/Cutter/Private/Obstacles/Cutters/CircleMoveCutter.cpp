@@ -2,7 +2,6 @@
 
 #include "Cutter.h"
 #include "Obstacles/CharacterTargetComponents/LimitedRotateTargetComponent.h"
-#include "HAL/PreprocessorHelpers.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
@@ -11,7 +10,7 @@
 void ACircleMoveCutter::BeginPlay()
 {
 	Super::BeginPlay();
-	_staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	_staticMeshComponent = GetStaticMesh();
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
@@ -72,9 +71,9 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 
 void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
 {
-	
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UScoreTarget::StaticClass()))
 	{
+		UE_LOG(LogCutter, Log, TEXT("AddScore %s by%s"), *GetName(), *otherActor->GetName());
 		FScoreRobbedParam robbedParam = IScoreTarget::Execute_RobbedScore(otherActor, false);
 		if (robbedParam.canRobScore)
 		{

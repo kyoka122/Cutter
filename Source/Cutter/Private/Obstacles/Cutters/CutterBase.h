@@ -50,13 +50,17 @@ protected:
 	/*自身が投げられた直後に呼ばれる。演出などを実装する用*/
 	UFUNCTION(BlueprintCallable, Category = "Cutter")
 	void OnThrown(){}
-
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Cutter")
+	UStaticMeshComponent* GetStaticMesh();
 
 protected:
 	OverlapFunc _overlapFunc = {};
 	ScoreAddFunc _scoreAddFunc = {};
 	TFunction<void(ACutterBase* cutter)> _releaseFunc = {};
 	TScriptInterface<IStageShape> _stageShape = {};
+	
+	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 	
 	/*サイズアップアニメーション用カーブ情報*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")

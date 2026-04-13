@@ -63,6 +63,4 @@ private:
 	
 	/*運動を始めてからの経過時間*/
 	float _currentTime = 0.f;
-	
-	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 };
