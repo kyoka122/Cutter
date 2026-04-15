@@ -36,6 +36,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual FCutterBaseParam* GetParam() override { return &_param; }
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Cutter")
+	UStaticMeshComponent* GetStaticMesh();
+	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FStraightYoYoCutterParam _param = {};
@@ -50,7 +53,7 @@ private:
 	void OnOverlapDamageableActor(AActor* otherActor) const;
 	void SetThrowTargetParam();
 	void OnBreak();
-	
+
 private:
 	/*ばね運動の振動の中心点*/
 	FVector2D _yoyoCenterPos = {};
@@ -63,4 +66,6 @@ private:
 	
 	/*運動を始めてからの経過時間*/
 	float _currentTime = 0.f;
+	
+	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
 };

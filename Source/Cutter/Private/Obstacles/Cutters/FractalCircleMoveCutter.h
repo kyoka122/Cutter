@@ -1,22 +1,16 @@
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Obstacles/Cutters/CutterBase.h"
+﻿#pragma once
+#include "CutterBase.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Throwable.h"
-#include "Struct/CircleMoveCutterParam.h"
-#include "CircleMoveCutter.generated.h"
+#include "Struct/FractalCircleMoveCutterParam.h"
+#include "FractalCircleMoveCutter.generated.h"
 
-/**
- * 円形ステージを円周上に周るカッタークラス
- */
 UCLASS()
-class CUTTER_API ACircleMoveCutter : public ACutterBase, public IThrowable, public IBreakable
+class AFractalCircleMoveCutter : public ACutterBase, public IThrowable, public IBreakable
 {
 	GENERATED_BODY()
 
 public:
-	ACircleMoveCutter(){}
 	virtual void Tick(float DeltaTime) override;
 	
 	/*このアクタを破壊する*/
@@ -33,21 +27,26 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void InstanceCutterChildren();
+	void TransformCutterChildren(const FMatrix& parentMatrix, int depth, int& instanceIndex);
 	virtual FCutterBaseParam* GetParam() override { return &_param; }
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Cutter")
-	UStaticMeshComponent* GetStaticMesh();
-	
+	UInstancedStaticMeshComponent* GetIsmStaticMesh();
+
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
-	FCircleMoveCutterParam _param = {};
+	FFractalCircleMoveCutterParam _param = {};
 
 private:
 	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
+
 	
-	FVector CalcPosition(float deltaTime);
-	FRotator CalcRotation(float deltaTime) const;
+	/*一番中心のメッシュ位置を更新*/
+	FVector CalcParentPosition(float deltaTime);
+	FRotator CalcParentRotation(float deltaTime) const;
+	
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
@@ -64,5 +63,9 @@ private:
 	/*回転基準座標*/
 	FVector _rotateCenterPos = {};
 	
-	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
+	/*全子オブジェクトの総数を計算してキャッシュしておく用*/
+	int _totalInstanceCount = 0;
+	
+	/*子オブジェクト達を大量描画する際に1回のドローコールで済むようにInstancedMeshを使う*/
+	UPROPERTY() TObjectPtr<UInstancedStaticMeshComponent> _ismComponent = {};
 };

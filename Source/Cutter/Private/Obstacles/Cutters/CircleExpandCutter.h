@@ -28,6 +28,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual FCutterBaseParam* GetParam() override { return &_param; }
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Cutter")
+	UStaticMeshComponent* GetStaticMesh();
+	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FCircleExpandCutterParam _param;
@@ -50,4 +53,7 @@ private:
 	
 	/*回転基準座標*/
 	FVector _rotateCenterPos = {};
+	
+	UPROPERTY() TObjectPtr<UStaticMeshComponent> _staticMeshComponent = {};
+	
 };

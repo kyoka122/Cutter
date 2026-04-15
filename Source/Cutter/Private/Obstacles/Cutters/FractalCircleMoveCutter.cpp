@@ -1,61 +1,107 @@
-#include "CircleMoveCutter.h"
+﻿#include "FractalCircleMoveCutter.h"
 
 #include "Cutter.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "Obstacles/CharacterTargetComponents/LimitedRotateTargetComponent.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
 #include "Struct/CircleMoveCutterThrowTargetParam.h"
 
-void ACircleMoveCutter::BeginPlay()
+void AFractalCircleMoveCutter::BeginPlay()
 {
 	Super::BeginPlay();
-	_staticMeshComponent = GetStaticMesh();
-	InitTimeline(_staticMeshComponent);
-	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
+	_ismComponent = GetIsmStaticMesh();
+	InitTimeline(_ismComponent);
+	RegisterStaticMeshEvent(_ismComponent, [this](AActor* otherActor)
 	{
 		OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});
+	InstanceCutterChildren();
 }
 
-void ACircleMoveCutter::Tick(float DeltaTime)
+void AFractalCircleMoveCutter::InstanceCutterChildren()
+{
+	float k =static_cast<float>(_param.childCountPerLayer);
+	_totalInstanceCount = (FMath::Pow(k, _param.depth) - 1) / (k - 1);//MEMO: 等比数列
+	for (int i = 0; i < _totalInstanceCount; i++)
+	{
+		_ismComponent->AddInstance(FTransform::Identity);
+	}
+}
+
+void AFractalCircleMoveCutter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Translate(DeltaTime);
 }
 
-void ACircleMoveCutter::Translate(float deltaTime)
+void AFractalCircleMoveCutter::Translate(float deltaTime)
 {
-	FTransform newTransform = FTransform(CalcRotation(deltaTime), CalcPosition(deltaTime));
+	FTransform newTransform = FTransform(CalcParentRotation(deltaTime), CalcParentPosition(deltaTime));
 	SetActorTransform(newTransform);
+	
+	FVector baseScale =_ismComponent->GetRelativeScale3D();
+	FScaleMatrix baseScaleMatrix(baseScale);
+	FMatrix parentTransformMatrix = baseScaleMatrix * newTransform.ToMatrixWithScale();
+	
+	int index = 1;
+	_ismComponent->UpdateInstanceTransform(0, FTransform(parentTransformMatrix), true, false, true);
+	TransformCutterChildren(parentTransformMatrix, _param.depth - 1, index);
+	
+	_ismComponent->RecreatePhysicsState();
+	_ismComponent->MarkRenderStateDirty();//MEMO: ↑で更新が終わるので、ここでまとめて描画更新対象にする
 }
 
-FVector ACircleMoveCutter::CalcPosition(float deltaTime)
+FVector AFractalCircleMoveCutter::CalcParentPosition(float deltaTime)
 {
 	_currentAngle = FMath::Fmod(_currentAngle + _param.moveRate * deltaTime, 2 * UE_PI);
-    if (_currentAngle < 0.0f)
-    {
-        _currentAngle += 2 * UE_PI;
-    }
+	if (_currentAngle < 0.0f)
+	{
+		_currentAngle += 2 * UE_PI;
+	}
 
 	float sinValue, cosValue = 0.f;
-    FMath::SinCos(&sinValue, &cosValue, _currentAngle);
-    FVector rotateVec = FVector(cosValue, sinValue, 0) * _rotateRadius;//半径と角度から回転後のベクトルを求める
-    FVector newPosition = _rotateCenterPos + rotateVec;
-
-   return newPosition;
+	FMath::SinCos(&sinValue, &cosValue, _currentAngle);
+	FVector rotateVec = FVector(cosValue, sinValue, 0) * _rotateRadius;//半径と角度から回転後のベクトルを求める
+	FVector newPosition = _rotateCenterPos + rotateVec;
+	return newPosition;
 }
 
-FRotator ACircleMoveCutter::CalcRotation(float deltaTime) const
+FRotator AFractalCircleMoveCutter::CalcParentRotation(float deltaTime) const
 {
 	FRotator currentRotation = GetActorRotation();
 	currentRotation.Yaw += _param.rotateRate * deltaTime * 100.f;
-    return currentRotation;
+	return currentRotation;
 }
 
-void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
+void AFractalCircleMoveCutter::TransformCutterChildren(const FMatrix& parentMatrix, int depth, int& instanceIndex)
+{
+	if (depth <= 0)
+	{
+		return;
+	}
+
+	for (int i = 0; i < _param.childCountPerLayer; i++)
+	{
+		FScaleMatrix s (FVector(_param.sizeFactor));
+		FRotationMatrix r (FRotator(0.f, 0,0.f));//TODO: 個別で回転する要素も足してみる
+		
+		float sinValue, cosValue = 0.f;
+		FMath::SinCos(&sinValue, &cosValue, 2 * PI / _param.childCountPerLayer * i);
+		
+		FTranslationMatrix t (FVector(_param.distanceFromParent * sinValue, _param.distanceFromParent * cosValue, 0.f));
+		FMatrix childTransform = s * r * t;
+		FMatrix childMatrix = childTransform * parentMatrix;
+		_ismComponent->UpdateInstanceTransform(instanceIndex, FTransform(childMatrix), true, false, true);
+		instanceIndex++;
+		TransformCutterChildren(childMatrix, depth - 1, instanceIndex);
+	}
+}
+
+void AFractalCircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 {
 	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
 	{
@@ -69,7 +115,7 @@ void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
 	}
 }
 
-void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
+void AFractalCircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
 {
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UScoreTarget::StaticClass()))
 	{
@@ -87,7 +133,7 @@ void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
 	}
 }
 
-void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor) const
+void AFractalCircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor) const
 {
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
@@ -96,7 +142,7 @@ void ACircleMoveCutter::OnOverlapDamageableActor(AActor* otherActor) const
 	}
 }
 
-void ACircleMoveCutter::Break()
+void AFractalCircleMoveCutter::Break()
 {
 	UE_LOG(LogCutter, Log, TEXT("Break %s"), *GetName());
 	if (IsValid(this))
@@ -105,7 +151,7 @@ void ACircleMoveCutter::Break()
 	}
 }
 
-void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
+void AFractalCircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 {
 	check(IsValid(throwActor))
 	FVector2D currentPos2D = FVector2D(GetActorLocation());
@@ -136,7 +182,7 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	rotateTargetComponent->Init();
 }
 
-void ACircleMoveCutter::Throw_Implementation()
+void AFractalCircleMoveCutter::Throw_Implementation()
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	SetActorTickEnabled(true);
@@ -145,7 +191,7 @@ void ACircleMoveCutter::Throw_Implementation()
 	SetActorHiddenInGame(false);
 }
 
-void ACircleMoveCutter::ResetTransformParam(FVector2D pointOfTangency, FVector2D toStageCenterVec2D)
+void AFractalCircleMoveCutter::ResetTransformParam(FVector2D pointOfTangency, FVector2D toStageCenterVec2D)
 {
 	FVector2D currentPos2D = FVector2D(GetActorLocation());
 	_rotateRadius = toStageCenterVec2D.Size();
@@ -155,7 +201,7 @@ void ACircleMoveCutter::ResetTransformParam(FVector2D pointOfTangency, FVector2D
 	_currentAngle = FMath::Acos(FVector2D::DotProduct(FVector2D::UnitX(),-toStageCenterVec2D));//ベクトル同士の角度 = Acos(ベクトルの内積/各辺の大きさの積(Normalize済)なのでなし)
 }
 
-void ACircleMoveCutter::OnBreak()
+void AFractalCircleMoveCutter::OnBreak()
 {
 	SetActorEnableCollision(false);
 	SetActorTickEnabled(false);
