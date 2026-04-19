@@ -12,6 +12,7 @@ void ACircleExpandCutter::BeginPlay()
 	_staticMeshComponent = GetStaticMesh();
 	if (!IsValid(_staticMeshComponent))
 	{
+		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(_staticMeshComponent);
@@ -58,7 +59,12 @@ void ACircleExpandCutter::Translate(float deltaTime)
 
 FVector ACircleExpandCutter::CalcPosition(float deltaTime)
 {
-	_currentAngle = _currentAngle + _param.moveRate * deltaTime;//角度加算
+	_currentAngle = FMath::Fmod(_currentAngle + _param.moveRate * deltaTime, 2 * UE_PI);//角度加算
+	if (_currentAngle < 0.0f)
+	{
+		_currentAngle += 2 * UE_PI;
+	}
+	
 	float r = _param.pitch * _currentAngle;//動径算出 r=aθ
 	float sinValue, cosValue = 0.f;
 	FMath::SinCos(&sinValue, &cosValue, _currentAngle);

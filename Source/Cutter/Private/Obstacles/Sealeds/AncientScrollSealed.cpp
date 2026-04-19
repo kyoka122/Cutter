@@ -10,7 +10,12 @@ AAncientScrollSealed::AAncientScrollSealed()
 void AAncientScrollSealed::BeginPlay()
 {
 	Super::BeginPlay();
-	UStaticMeshComponent* staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	UStaticMeshComponent* staticMeshComponent = GetStaticMesh();
+	if (!IsValid(staticMeshComponent))
+	{
+		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
+		return;
+	}
 	InitTimeline(staticMeshComponent);
 }
 

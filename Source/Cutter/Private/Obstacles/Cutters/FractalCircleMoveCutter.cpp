@@ -12,6 +12,11 @@ void AFractalCircleMoveCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_ismComponent = GetIsmStaticMesh();
+	if (!IsValid(_ismComponent))
+	{
+		UE_LOG(LogTemp, Log, TEXT("_instancedStaticMeshComponentが取得できませんでした。"));
+		return;
+	}
 	InitTimeline(_ismComponent);
 	RegisterStaticMeshEvent(_ismComponent, [this](AActor* otherActor)
 	{
@@ -87,7 +92,7 @@ void AFractalCircleMoveCutter::TransformCutterChildren(const FMatrix& parentMatr
 	for (int i = 0; i < _param.childCountPerLayer; i++)
 	{
 		FScaleMatrix s (FVector(_param.sizeFactor));
-		FRotationMatrix r (FRotator(0.f, 0,0.f));//TODO: 個別で回転する要素も足してみる
+		FRotationMatrix r (FRotator(0.f, 0,0.f));
 		
 		float sinValue, cosValue = 0.f;
 		FMath::SinCos(&sinValue, &cosValue, 2 * PI / _param.childCountPerLayer * i);

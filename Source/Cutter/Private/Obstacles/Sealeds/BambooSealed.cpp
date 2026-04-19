@@ -11,7 +11,12 @@ ABambooSealed::ABambooSealed()
 void ABambooSealed::BeginPlay()
 {
 	Super::BeginPlay();
-	UStaticMeshComponent* staticMeshComponent = FindComponentByClass<UStaticMeshComponent>();
+	UStaticMeshComponent* staticMeshComponent = GetStaticMesh();
+	if (!IsValid(staticMeshComponent))
+	{
+		UE_LOG(LogTemp, Log, TEXT("staticMeshComponentが取得できませんでした。"));
+		return;
+	}
 	InitTimeline(staticMeshComponent);
 }
 

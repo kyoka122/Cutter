@@ -29,6 +29,9 @@ public:
 protected:
 	virtual FSealedBaseParam* GetParam() override { return &_param; }
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
+	UStaticMeshComponent* GetStaticMesh();
+	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FSealedBaseParam _param = {};

@@ -11,6 +11,11 @@ void ACircleMoveCutter::BeginPlay()
 {
 	Super::BeginPlay();
 	_staticMeshComponent = GetStaticMesh();
+	if (!IsValid(_staticMeshComponent))
+	{
+		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
+		return;
+	}
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
