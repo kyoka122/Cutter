@@ -26,6 +26,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void AddScore(int value);
 	
+	/*今盤面に存在する全てのオブジェクトのスピードを遅くする*/
+	UFUNCTION(BlueprintCallable, Category = "InGame")
+	void SetObstaclesSpeed(float value);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(const float deltaTime) override;

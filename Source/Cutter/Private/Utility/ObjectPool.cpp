@@ -25,6 +25,21 @@ TObjectPtr<T> ObjectPool<T>::Create()
 }
 
 template <typename T>
+TArray<T*> ObjectPool<T>::GetCurrentUsingObject() const
+{
+	TArray<T*> usingObjects;
+	usingObjects.Reserve(_poolData.Num());//メモリ確保
+	for (auto& poolData : _poolData)
+	{
+		if (poolData.IsValid() && poolData->isUsing)
+		{
+			usingObjects.Add(poolData.Get()->obj);
+		}
+	}
+	return usingObjects;
+}
+
+template <typename T>
 void ObjectPool<T>::Release(TObjectPtr<T> object)
 {
 	_generator->Deactivate(object);

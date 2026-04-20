@@ -146,3 +146,10 @@ void AInGameMode::AddScore(int value)
 	}
 }
 
+void AInGameMode::SetObstaclesSpeed(float value)
+{
+	for (auto& obstacle : _obstacleSpawner->GetCurrentUsingObstacles())
+	{
+		obstacle->CustomTimeDilation = value;
+	}
+}

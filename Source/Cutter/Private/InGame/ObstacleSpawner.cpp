@@ -109,3 +109,20 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	
 	sealed->ReStart();
 }
+
+TArray<AActor*> AObstacleSpawner::GetCurrentUsingObstacles()
+{
+	TArray<AActor*> usingObstacles;
+	usingObstacles.Reserve(_cutterPools.Num() + _sealedPools.Num());//メモリ確保。Poolそれぞれに1ずつ以上ぐらいはあるはず。（どちらにせよすぐに使用しなくなるので無駄分は気にしない）
+	for (auto& cutterPool : _cutterPools)
+	{
+		usingObstacles.Append(cutterPool.Value->GetCurrentUsingObject());
+	}
+	
+	for (auto& sealedPool : _sealedPools)
+	{
+		usingObstacles.Append(sealedPool.Value->GetCurrentUsingObject());
+	}
+	
+	return usingObstacles;
+}

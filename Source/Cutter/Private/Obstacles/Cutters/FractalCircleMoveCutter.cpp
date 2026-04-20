@@ -20,7 +20,7 @@ void AFractalCircleMoveCutter::BeginPlay()
 	InitTimeline(_ismComponent);
 	RegisterStaticMeshEvent(_ismComponent, [this](AActor* otherActor)
 	{
-		OnOverlapBreakableActor(otherActor);
+		//OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});

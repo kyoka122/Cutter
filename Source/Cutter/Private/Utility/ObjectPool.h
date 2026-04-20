@@ -32,6 +32,9 @@ public:
 	/*Poolから取得する*/
 	TObjectPtr<T> Create();
 	
+	/*Poolから現在使用中のCutterを全て取得する*/
+	TArray<T*> GetCurrentUsingObject() const;
+	
 	/*Poolにオブジェクトを戻す*/
 	void Release(TObjectPtr<T> object);
 	

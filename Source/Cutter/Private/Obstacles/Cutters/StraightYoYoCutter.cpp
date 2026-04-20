@@ -19,7 +19,7 @@ void AStraightYoYoCutter::BeginPlay()
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
-		OnOverlapBreakableActor(otherActor);
+		//OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});

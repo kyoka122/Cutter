@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Obstacles/Sealeds/SealedBase.h"
 #include "Utility/PoolObjectGenerator.h"
 #include "CutterGenerator.generated.h"
 
