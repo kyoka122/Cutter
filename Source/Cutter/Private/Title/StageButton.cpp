@@ -18,5 +18,6 @@ void UStageButton::OnStageButtonClick()
 	UE_LOG(LogTemp, Log, TEXT("ステージに移動します"));
 	TObjectPtr<UCutterWorldSubsystem> titleWorldSubsystem = GetWorld()->GetSubsystem<UCutterWorldSubsystem>();
 	LevelMoveContext context = SceneDefine::GetStageContexts(GetStageName());
+	UE_LOG(LogTemp, Log, TEXT("context: %s"), *context.levelName.ToString());
 	titleWorldSubsystem->MoveToStage(context);
 }
