@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Throwable.h"
+#include "Obstacles/CharacterTargetComponents/Struct/StraightYoYoThrowParam.h"
 #include "Struct/StraightYoYoCutterParam.h"
 #include "StraightYoYoCutter.generated.h"
 
@@ -26,11 +27,8 @@ public:
 	/*このカッターを投げる際のターゲットを行う*/
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	
-	/*このカッターを投げる*/
-	virtual void Throw_Implementation() override;
-	
 	/*このアクタの位置を取得する*/
-	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
+	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -44,6 +42,9 @@ protected:
 	FStraightYoYoCutterParam _param = {};
 	
 private:
+	/*このカッターを投げる*/
+	void Throw(const FStraightYoYoThrowParam& param);
+	
 	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
 	FVector CalcPosition(float deltaTime);
@@ -51,7 +52,7 @@ private:
 	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
-	void SetThrowTargetParam();
+	void SetThrowTargetParam(const FStraightYoYoThrowParam& param);
 	void OnBreak();
 
 private:

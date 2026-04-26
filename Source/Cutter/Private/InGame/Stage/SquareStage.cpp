@@ -40,7 +40,8 @@ FIntersectionData ASquareStage::GetInterSections_Implementation(FVector2D point,
 			UE_LOG(LogTemp, Warning, TEXT("3つor4つ目の交点を見つけました。 min: %s, max: %s"), *stageEdge.Min.ToString(), *stageEdge.Max.ToString());
 		}
 	}
-	if (FMath::IsNearlyEqual(FVector2D::DotProduct(vec, intersectionData.point2), 1.f))
+	float point2Product = FVector2D::DotProduct(vec, intersectionData.point2 - point);
+	if (point2Product > 0)//MEMO: >0の時、だいたい同じ方向を向いている（誤差90°以内）
 	{
 		Swap(intersectionData.point1, intersectionData.point2);
 	}

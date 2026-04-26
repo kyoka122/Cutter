@@ -25,7 +25,7 @@ ASealedBase* ASealedGenerator::Generate()
 		sealed->RegisterReleaseFunc(_releaseFunc);
 		return sealed;
 	}
-	UE_LOG(LogTemp, Log, TEXT("オブジェクトを生成できませんでした。 Generator: SealedGenerator"));
+	UE_LOG(LogTemp, Error, TEXT("オブジェクトを生成できませんでした。 Generator: SealedGenerator"));
 	return nullptr;
 }
 

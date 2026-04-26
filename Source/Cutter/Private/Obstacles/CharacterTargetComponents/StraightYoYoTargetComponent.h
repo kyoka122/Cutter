@@ -4,19 +4,20 @@
 #include "TargetComponentBase.h"
 #include "Components/ActorComponent.h"
 #include "Obstacles/Cutters/Struct/StraightYoYoThrowTargetParam.h"
-#include "FullRotateTargetComponent.generated.h"
+#include "StraightYoYoTargetComponent.generated.h"
 
+struct FStraightYoYoThrowParam;
 /*
  * 360度回転できるターゲット用コンポーネント
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class CUTTER_API UFullRotateTargetComponent : public UTargetComponentBase
+class CUTTER_API UStraightYoYoTargetComponent : public UTargetComponentBase
 {
 	GENERATED_BODY()
 
 public:
-	UFullRotateTargetComponent();
-	void RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam);
+	UStraightYoYoTargetComponent();
+	void RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam, TFunction<void(const FStraightYoYoThrowParam&)> throwFunc);
 	virtual void Init() override;
 
 private:
@@ -27,5 +28,6 @@ private:
 	virtual void Throw(const FInputActionValue& Value) override;
 	
 private:
-	FStraightYoYoThrowTargetParam _throwTargetParam;
+	TFunction<void(const FStraightYoYoThrowParam&)> _throwCutterFunc = {};
+	FStraightYoYoThrowTargetParam _throwTargetParam = {};
 };

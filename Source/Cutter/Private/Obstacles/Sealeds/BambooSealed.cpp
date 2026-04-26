@@ -14,7 +14,7 @@ void ABambooSealed::BeginPlay()
 	UStaticMeshComponent* staticMeshComponent = GetStaticMesh();
 	if (!IsValid(staticMeshComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("staticMeshComponentが取得できませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("staticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(staticMeshComponent);

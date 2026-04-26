@@ -25,4 +25,7 @@ public:
 	/*ステージの形状情報を取得する*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
 	TScriptInterface<IStageShape> GetStageShape();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
+	USceneCaptureComponent2D* GetOverViewCapture();
 };

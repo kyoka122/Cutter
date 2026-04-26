@@ -1,7 +1,7 @@
 #include "CircleMoveCutter.h"
 
 #include "Cutter.h"
-#include "Obstacles/CharacterTargetComponents/LimitedRotateTargetComponent.h"
+#include "Obstacles/CharacterTargetComponents/CircleMoveTargetComponent.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
@@ -13,7 +13,7 @@ void ACircleMoveCutter::BeginPlay()
 	_staticMeshComponent = GetStaticMesh();
 	if (!IsValid(_staticMeshComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(_staticMeshComponent);
@@ -118,18 +118,20 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	FVector2D toStageCenterVec2D = (pointOfTangency - currentPos2D)/2; //円の端点2つ同士の距離から半径ベクトル導出 
 	ResetTransformParam(pointOfTangency, toStageCenterVec2D);
 	
-	TObjectPtr<ULimitedRotateTargetComponent> rotateTargetComponent = NewObject<ULimitedRotateTargetComponent>(throwActor);
+	TObjectPtr<UCircleMoveTargetComponent> rotateTargetComponent = NewObject<UCircleMoveTargetComponent>(throwActor);
 	FCircleMoveCutterThrowTargetParam throwTargetParam;
 
 	//TODO: 現状左向き確定なので、左用の値を入れる
 	//throwTargetParam.firstLookVec = FVector2D(toStageCenterVec2D);
-	throwTargetParam.firstLookVec = FVector2D(toStageCenterVec2D.Y, -toStageCenterVec2D.X);
 	
 	throwTargetParam.rightMaxVec = FVector2D(toStageCenterVec2D.Y, -toStageCenterVec2D.X);
 	throwTargetParam.leftMaxVec = FVector2D(-toStageCenterVec2D.Y, toStageCenterVec2D.X);
-	rotateTargetComponent->RegisterParam(throwTargetParam);
-	rotateTargetComponent->RegisterThrowEvent(this);
-
+	throwTargetParam.rotateSpeed = _param.targetRotateSpeed;
+	throwTargetParam.cutterPos = currentPos2D;
+	throwTargetParam.accuracy = _param.targetAccuracy;
+	throwTargetParam.stageShape = _stageShape;
+	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveCutterThrowParam& param){Throw(param);});
+	
 	//TODO: 実装完了次第消す
 	UE_LOG(LogTemp, Log, TEXT("pointOfTangency: %s"), *pointOfTangency.ToString());
 	UE_LOG(LogTemp, Log, TEXT("throwActor: %s, %p"), *throwActor->GetName(), throwActor);
@@ -141,7 +143,7 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	rotateTargetComponent->Init();
 }
 
-void ACircleMoveCutter::Throw_Implementation()
+void ACircleMoveCutter::Throw(const FCircleMoveCutterThrowParam& param)
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	SetActorTickEnabled(true);

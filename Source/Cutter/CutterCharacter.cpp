@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "InGame/Interface/OverViewMiniMap.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -140,21 +141,36 @@ void ACutterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ACutterCharacter::RegisterMiniMap(TScriptInterface<IOverViewMiniMap> overViewMinimap)
+void ACutterCharacter::RegisterMiniMap(const TScriptInterface<IOverViewMiniMap>& overViewMinimap, USceneCaptureComponent2D* overViewCapture)
 {
-	UE_LOG(LogTemp, Log, TEXT("_overViewMinimapをセットしました。"));
-	check(overViewMinimap)
 	_overViewMinimap = overViewMinimap;
+	_overViewCapture = overViewCapture;
 }
 
-void ACutterCharacter::SetVisibilityMiniMap(bool value)
+void ACutterCharacter::SetVisibilityMiniMap(bool value) const
 {
 	if (_overViewMinimap)
 	{
 		_overViewMinimap->SetVisibilityMiniMap(value);
 	}
-	else
+	else UE_LOG(LogTemp, Error, TEXT("_overViewMinimapがセットされていません"));
+}
+
+void ACutterCharacter::UpdatePoints(const TArray<FVector2D>& points) const
+{
+	if (_overViewMinimap)
 	{
-		UE_LOG(LogTemp, Log, TEXT("_overViewMinimapがセットされていません"));
+		_overViewMinimap->UpdateDrawLines(points, _overViewCapture->GetComponentLocation(), _overViewCapture->OrthoWidth);
 	}
+	else UE_LOG(LogTemp, Error, TEXT("_overViewMinimapがセットされていません"));
+}
+
+USceneCaptureComponent2D* ACutterCharacter::GetOverViewCapture() const
+{
+	if (_overViewCapture)
+	{
+		return _overViewCapture;
+	}
+	UE_LOG(LogTemp, Error, TEXT("_overViewCaptureがセットされていません"));
+	return nullptr;
 }

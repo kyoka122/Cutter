@@ -55,7 +55,7 @@ void AObstacleSpawner::RegisterSpawnData(const UDataTable* obstacleSpawnTable)
 	{
 		if (!row)
 		{
-			UE_LOG(LogTemp, Log, TEXT("不正なRowがあります"));
+			UE_LOG(LogTemp, Error, TEXT("不正なRowがあります"));
 		}
 		_obstacleSpawnQueue.Enqueue(row);
 	}

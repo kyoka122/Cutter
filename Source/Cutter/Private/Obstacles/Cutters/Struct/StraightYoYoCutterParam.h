@@ -20,5 +20,9 @@ public:
 
 	/*アクタ基準で回転する回転のスピード*/
 	UPROPERTY(EditAnywhere, Category = "回転パラメータ", meta = (DisplayPriority=2))
-	float rotateRate = 10.f;
+	float rotateSpeed = 10.f;
+	
+	/*ターゲット時の回転速度*/
+	UPROPERTY(EditAnywhere, Category = "ターゲット時パラメータ", meta = (DisplayPriority=2))
+	float targetRotateSpeed = 1.f;
 };

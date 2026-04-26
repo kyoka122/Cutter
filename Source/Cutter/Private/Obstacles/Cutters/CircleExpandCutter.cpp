@@ -12,7 +12,7 @@ void ACircleExpandCutter::BeginPlay()
 	_staticMeshComponent = GetStaticMesh();
 	if (!IsValid(_staticMeshComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(_staticMeshComponent);

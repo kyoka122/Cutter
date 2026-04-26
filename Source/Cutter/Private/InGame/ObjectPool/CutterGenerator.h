@@ -38,7 +38,7 @@ public:
 	
 protected:
 	/*生成するPrefab*/
-	TSubclassOf<ACutterBase> _prefab;
+	UPROPERTY() TSubclassOf<ACutterBase> _prefab;
 	
 	/*スコア加算用関数*/
 	TFunction<void(int)> _scoreAddFunc = {};
@@ -47,5 +47,5 @@ protected:
 	TFunction<void(ACutterBase* cutter)> _releaseFunc = {};
 	
 	/*ステージの地形情報*/
-	TScriptInterface<IStageShape> _stageShape = {};
+	UPROPERTY() TScriptInterface<IStageShape> _stageShape = {};
 };

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InGame/InGameMode.h"
+#include "InGame/UIs/InGameUI.h"
 #include "Logging/LogMacros.h"
 #include "CutterCharacter.generated.h"
 
@@ -78,9 +80,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnThrow();
 
-	void RegisterMiniMap(TScriptInterface<IOverViewMiniMap> overViewMinimap);
-	void SetVisibilityMiniMap(bool value);
+	/*Minimapの情報を登録*/
+	void RegisterMiniMap(const TScriptInterface<IOverViewMiniMap>& overViewMinimap, USceneCaptureComponent2D* overViewCapture);
 	
+	/*MinimapのVisible切り替え(背景含む)*/
+	void SetVisibilityMiniMap(bool value) const;
+	
+	/*Minimapに描画する線情報の更新*/
+	void UpdatePoints(const TArray<FVector2D>& points) const;
+	
+	/*Minimapを映しているカメラ(CaptureComponent)　の情報を取得*/
+	USceneCaptureComponent2D* GetOverViewCapture() const;
+
 protected:
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -92,6 +103,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 private:
-	TScriptInterface<IOverViewMiniMap> _overViewMinimap = {};
+	UPROPERTY() TScriptInterface<IOverViewMiniMap> _overViewMinimap = {};
+	UPROPERTY() TObjectPtr<USceneCaptureComponent2D> _overViewCapture = {};
 };
 

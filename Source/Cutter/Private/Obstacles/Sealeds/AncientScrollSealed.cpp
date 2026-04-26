@@ -13,7 +13,7 @@ void AAncientScrollSealed::BeginPlay()
 	UStaticMeshComponent* staticMeshComponent = GetStaticMesh();
 	if (!IsValid(staticMeshComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(staticMeshComponent);

@@ -51,7 +51,7 @@ void ObjectPool<T>::Release(TObjectPtr<T> object)
 			return;
 		}
 	}
-	UE_LOG(LogTemp, Log, TEXT("ObjectPoolのReleaseが完了できませんでした: %s"), *object.GetName());
+	UE_LOG(LogTemp, Error, TEXT("ObjectPoolのReleaseが完了できませんでした: %s"), *object.GetName());
 }
 
 template <typename T>

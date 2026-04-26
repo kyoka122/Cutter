@@ -4,9 +4,11 @@
 #include "Obstacles/Cutters/CutterBase.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Throwable.h"
+#include "Obstacles/CharacterTargetComponents/Struct/CircleMoveCutterThrowParam.h"
 #include "Struct/CircleMoveCutterParam.h"
 #include "CircleMoveCutter.generated.h"
 
+struct FStraightYoYoThrowParam;
 /**
  * 円形ステージを円周上に周るカッタークラス
  */
@@ -25,9 +27,6 @@ public:
 	/*このカッターを投げる際のターゲットを行う*/
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	
-	/*このカッターを投げる*/
-	virtual void Throw_Implementation() override;
-	
 	/*このアクタの位置を取得する*/
 	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
 
@@ -43,6 +42,9 @@ protected:
 	FCircleMoveCutterParam _param = {};
 
 private:
+	/*このカッターを投げる*/
+	void Throw(const FCircleMoveCutterThrowParam& param);
+	
 	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
 	

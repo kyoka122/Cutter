@@ -2,7 +2,7 @@
 
 #include "Cutter.h"
 #include "Components/InstancedStaticMeshComponent.h"
-#include "Obstacles/CharacterTargetComponents/LimitedRotateTargetComponent.h"
+#include "Obstacles/CharacterTargetComponents/CircleMoveTargetComponent.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
@@ -14,7 +14,7 @@ void AFractalCircleMoveCutter::BeginPlay()
 	_ismComponent = GetIsmStaticMesh();
 	if (!IsValid(_ismComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("_instancedStaticMeshComponentが取得できませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("_instancedStaticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(_ismComponent);
@@ -164,7 +164,7 @@ void AFractalCircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	FVector2D toStageCenterVec2D = (pointOfTangency - currentPos2D)/2; //円の端点2つ同士の距離から半径ベクトル導出 
 	ResetTransformParam(pointOfTangency, toStageCenterVec2D);
 	
-	TObjectPtr<ULimitedRotateTargetComponent> rotateTargetComponent = NewObject<ULimitedRotateTargetComponent>(throwActor);
+	TObjectPtr<UCircleMoveTargetComponent> rotateTargetComponent = NewObject<UCircleMoveTargetComponent>(throwActor);
 	FCircleMoveCutterThrowTargetParam throwTargetParam;
 
 	//TODO: 現状左向き確定なので、左用の値を入れる
@@ -173,8 +173,7 @@ void AFractalCircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	
 	throwTargetParam.rightMaxVec = FVector2D(toStageCenterVec2D.Y, -toStageCenterVec2D.X);
 	throwTargetParam.leftMaxVec = FVector2D(-toStageCenterVec2D.Y, toStageCenterVec2D.X);
-	rotateTargetComponent->RegisterParam(throwTargetParam);
-	rotateTargetComponent->RegisterThrowEvent(this);
+	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveCutterThrowParam& param){Throw(param);});
 
 	//TODO: 実装完了次第消す
 	UE_LOG(LogTemp, Log, TEXT("pointOfTangency: %s"), *pointOfTangency.ToString());
@@ -187,7 +186,7 @@ void AFractalCircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	rotateTargetComponent->Init();
 }
 
-void AFractalCircleMoveCutter::Throw_Implementation()
+void AFractalCircleMoveCutter::Throw(const FCircleMoveCutterThrowParam& param)
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	SetActorTickEnabled(true);

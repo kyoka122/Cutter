@@ -10,8 +10,8 @@ void UTargetComponentBase::Init()
 	check(_owner)
 	CacheArrowMesh();
 	check(_throwArrowMesh)
-	CacheCamera();
-	check(_followCamera)
+	CacheOverViewCapture();
+	check(_overViewCapture)
 }
 
 void UTargetComponentBase::CacheArrowMesh()
@@ -36,7 +36,6 @@ void UTargetComponentBase::CacheArrowMesh()
 		return;
 	}
 	_throwArrowMesh = throwTargetArrows[0];
-	UE_LOG(LogTemp, Log, TEXT("_throwArrowMesh: %s"), *_throwArrowMesh->GetName());
 }
 
 void UTargetComponentBase::CacheOwner()
@@ -49,13 +48,13 @@ void UTargetComponentBase::CacheOwner()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("コンポーネント登録先のがアクタがACutterCharacterではありません"));
+		UE_LOG(LogTemp, Error, TEXT("コンポーネント登録先のがアクタがACutterCharacterではありません"));
 	}
 }
 
-void UTargetComponentBase::CacheCamera()
+void UTargetComponentBase::CacheOverViewCapture()
 {
-	_followCamera = _owner->GetFollowCamera();
+	_overViewCapture = _owner->GetOverViewCapture();
 }
 
 void UTargetComponentBase::VisibleArrowMesh() const
@@ -68,23 +67,19 @@ void UTargetComponentBase::InVisibleArrowMesh() const
 	_throwArrowMesh->SetHiddenInGame(true);
 }
 
-void UTargetComponentBase::RegisterThrowEvent(AActor* throwable)
-{
-	//TODO: Event登録　or 通知（Cutter側（具象クラス）から）
-	_throwable = throwable;
-}
-
 void UTargetComponentBase::RegisterInputComponent()
 {
-	check(_owner);
-
-	_controller= _owner->Controller;
+	if (!IsValid(_owner))
+	{
+		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
+		return;
+	}
+	
+	_controller = _owner->Controller;
 	UInputAction* _throwAction = _owner->ThrowAction;
-	UInputAction* _moveAction = _owner->MoveAction;
-	check(_controller);
+	UInputAction* _moveAction = _owner->MoveAction;//TODO: nullチェック
 	check(_throwAction);
 	check(_moveAction);
-	UE_LOG(LogTemp, Log, TEXT("RegisterInput"));
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(_owner->InputComponent))
 	{
@@ -99,7 +94,11 @@ void UTargetComponentBase::RegisterInputComponent()
 
 void UTargetComponentBase::ReleaseInputComponent() const
 {
-	check(_owner);
+	if (!IsValid(_owner))
+	{
+		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
+		return;
+	}
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(_owner->InputComponent))
 	{
 		EnhancedInputComponent->RemoveBindingByHandle(_bindingHandle);

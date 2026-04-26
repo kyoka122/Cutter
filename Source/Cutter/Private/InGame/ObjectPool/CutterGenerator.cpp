@@ -29,7 +29,7 @@ ACutterBase* ACutterGenerator::Generate()
 		cutter->RegisterReleaseFunc(_releaseFunc);
 		return cutter;
 	}
-	UE_LOG(LogTemp, Log, TEXT("オブジェクトを生成できませんでした。 Generator: CutterGenerator"));
+	UE_LOG(LogTemp, Error, TEXT("オブジェクトを生成できませんでした。 Generator: CutterGenerator"));
 	return nullptr;
 }
 

@@ -58,6 +58,7 @@ private:
 	void SetCursor() const;
 	FStageRowData* GetStageData(FName stageName) const;
 	TScriptInterface<IStageShape> GetStageShape() const;
+	USceneCaptureComponent2D* GetOverViewCapture() const;
 
 private:
 	UPROPERTY() TObjectPtr<AInGameState> _inGameState = {};

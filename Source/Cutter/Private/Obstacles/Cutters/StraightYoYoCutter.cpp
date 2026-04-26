@@ -1,10 +1,11 @@
 ﻿#include "StraightYoYoCutter.h"
 
 #include "Cutter.h"
-#include "Obstacles/CharacterTargetComponents/FullRotateTargetComponent.h"
+#include "Obstacles/CharacterTargetComponents/StraightYoYoTargetComponent.h"
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
+#include "Obstacles/CharacterTargetComponents/Struct/StraightYoYoThrowParam.h"
 #include "Struct/StraightYoYoThrowTargetParam.h"
 
 void AStraightYoYoCutter::BeginPlay()
@@ -13,7 +14,7 @@ void AStraightYoYoCutter::BeginPlay()
 	_staticMeshComponent = GetStaticMesh();
 	if (!IsValid(_staticMeshComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("_staticMeshComponentが取得できませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした。"));
 		return;
 	}
 	InitTimeline(_staticMeshComponent);
@@ -52,7 +53,7 @@ FVector AStraightYoYoCutter::CalcPosition(float deltaTime)
 FRotator AStraightYoYoCutter::CalcRotation(float deltaTime) const
 {
 	FRotator currentRotation = GetActorRotation();
-	currentRotation.Yaw += _param.rotateRate * deltaTime * 100.f;
+	currentRotation.Yaw += _param.rotateSpeed * deltaTime * 100.f;
 	return currentRotation;
 }
 
@@ -112,52 +113,55 @@ void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 	UE_LOG(LogCutter, Log, TEXT("PrepareThrow %s by%s"), *GetName(), *throwActor->GetName());
 	FVector currentPos = GetActorLocation();
 	
-	UFullRotateTargetComponent* fullRotateTargetComponent = NewObject<UFullRotateTargetComponent>(throwActor);
+	UStraightYoYoTargetComponent* straightYoYoTargetComponent = NewObject<UStraightYoYoTargetComponent>(throwActor);
 	FStraightYoYoThrowTargetParam straightYoYoThrowTargetParam;
 	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
-	straightYoYoThrowTargetParam.firstLookVec = FVector2D(stageCenterPos - currentPos);
 	
-	fullRotateTargetComponent->RegisterParam(straightYoYoThrowTargetParam);
-	fullRotateTargetComponent->RegisterThrowEvent(this);
-	fullRotateTargetComponent->RegisterComponent();
-	fullRotateTargetComponent->Init();
+	straightYoYoThrowTargetParam.firstLookVec = FVector2D(stageCenterPos - currentPos);//MEMO: 初回は中央を向かせる
+	straightYoYoThrowTargetParam.rotateSpeed = _param.targetRotateSpeed;
+	straightYoYoThrowTargetParam.cutterPos = FVector2D(currentPos);
+	straightYoYoThrowTargetParam.stageShape = _stageShape;
+	
+	straightYoYoTargetComponent->RegisterParam(straightYoYoThrowTargetParam, [this](const FStraightYoYoThrowParam& param){Throw(param);});
+	straightYoYoTargetComponent->RegisterComponent();
+	straightYoYoTargetComponent->Init();
 }
 
-void AStraightYoYoCutter::Throw_Implementation()
+void AStraightYoYoCutter::Throw(const FStraightYoYoThrowParam& param)
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
-	SetThrowTargetParam();
+	SetThrowTargetParam(param);
 	SetActorTickEnabled(true);
 	OnThrown();
 	PlayMoveStartAnimation();
 	SetActorHiddenInGame(false);
 }
 
-void AStraightYoYoCutter::SetThrowTargetParam()
+void AStraightYoYoCutter::SetThrowTargetParam(const FStraightYoYoThrowParam& param)
 {
 	FVector2D currentPos = FVector2D(GetActorLocation());
-	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
-	FVector2D moveVec = FVector2D(stageCenterPos) - currentPos;//TODO: この辺の値引数作って修正する
 	
-	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(_stageShape.GetObject(), currentPos, moveVec);
+	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(_stageShape.GetObject(), currentPos, FVector2D(param.moveVec));
 	_yoyoCenterPos = (intersectionData.point1 + intersectionData.point2) / 2;//中点
-	_yoyoRadius2D = (intersectionData.point1 - _yoyoCenterPos);
+	
+	float point1Product = FVector2D::DotProduct(param.moveVec, intersectionData.point1 - currentPos);
+	if (point1Product > 0)//だいたい同じ方向を向いている（誤差90°以内）
+	{
+		_yoyoRadius2D = (intersectionData.point1 - _yoyoCenterPos);
+	}
+	else
+	{
+		_yoyoRadius2D = (intersectionData.point2 - _yoyoCenterPos);
+	}
+	
 	if (FMath::IsNearlyZero(_yoyoRadius2D.Y))
 	{
 		_offsetRad = FMath::Asin((currentPos.X - _yoyoCenterPos.X) / _yoyoRadius2D.X);
 	}
-	else
+	else if (FMath::IsNearlyZero(_yoyoRadius2D.X))
 	{
 		_offsetRad = FMath::Asin((currentPos.Y - _yoyoCenterPos.Y) / _yoyoRadius2D.Y);
 	}
-	
-	//TODO: デバッグ用。実装終了後削除
-	UE_LOG(LogCutter, Log, TEXT("stageCenterPos: %s"), *stageCenterPos.ToString());
-	UE_LOG(LogTemp, Log, TEXT("intersectionData.point1: %s"), *intersectionData.point1.ToString());
-	UE_LOG(LogTemp, Log, TEXT("intersectionData.point2: %s"), *intersectionData.point2.ToString());
-	UE_LOG(LogTemp, Log, TEXT("_yoyoCenterPos: %s"), *_yoyoCenterPos.ToString());
-	UE_LOG(LogTemp, Log, TEXT("_yoyoRadius2D: %s"), *_yoyoRadius2D.ToString());
-	UE_LOG(LogTemp, Log, TEXT("_offsetRad: %f"), _offsetRad);
 }
 
 void AStraightYoYoCutter::OnBreak()

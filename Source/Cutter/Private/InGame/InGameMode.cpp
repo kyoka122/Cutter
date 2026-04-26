@@ -2,6 +2,7 @@
 
 #include "CutterCharacter.h"
 #include "ObstacleSpawner.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "InGame/Uis/GameOverUI.h"
 #include "InGame/InGameState.h"
 #include "InGame/Interface/OverViewMiniMap.h"
@@ -46,7 +47,7 @@ void AInGameMode::InitParam()
 	FStageRowData* stageRowData = GetStageData(currentLevel);
 	check(stageRowData);
 	
-	TScriptInterface<IStageShape> stageEnvironmentParamRowData= GetStageShape();
+	TScriptInterface<IStageShape> stageEnvironmentParamRowData = GetStageShape();
 	check(stageEnvironmentParamRowData);
 	
 	_obstacleSpawner->Init(stageRowData->obstacleSpawnData, stageEnvironmentParamRowData, [this](int score)
@@ -60,20 +61,21 @@ void AInGameMode::InitParam()
 void AInGameMode::RegisterMiniMapToCharacter() const
 {
 	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	
 	if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(character))
 	{
 		if (IsValid(_inGameUI) && _inGameUI->Implements<UOverViewMiniMap>())
 		{
-			cutterCharacter->RegisterMiniMap(_inGameUI);
+			cutterCharacter->RegisterMiniMap(_inGameUI, GetOverViewCapture());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Log, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
+			UE_LOG(LogTemp, Error, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("PlayerCharacterをCutterCharacterにCastできませんでした。"));
+		UE_LOG(LogTemp, Error, TEXT("PlayerCharacterをCutterCharacterにCastできませんでした。"));
 	}
 }
 
@@ -97,7 +99,7 @@ FStageRowData* AInGameMode::GetStageData(FName stageName) const//TODO: Factory�
 	{
 		if (!row)
 		{
-			UE_LOG(LogTemp, Log, TEXT("不正なRowがあります"));
+			UE_LOG(LogTemp, Error, TEXT("不正なRowがあります"));
 			continue;
 		}
 		if (row->levelName == stageName)
@@ -105,7 +107,7 @@ FStageRowData* AInGameMode::GetStageData(FName stageName) const//TODO: Factory�
 			return row;
 		}
 	}
-	UE_LOG(LogTemp, Log, TEXT("該当するデータがありません。name:%s"), *stageName.ToString());
+	UE_LOG(LogTemp, Error, TEXT("該当するデータがありません。name:%s"), *stageName.ToString());
 	return nullptr;
 }
 
@@ -117,7 +119,19 @@ TScriptInterface<IStageShape> AInGameMode::GetStageShape() const//TODO: Factory�
 		TScriptInterface<IStageShape> stageShape = IStageProperty::Execute_GetStageShape(levelScriptActor);
 		return stageShape;
 	}
-	UE_LOG(LogTemp, Log, TEXT("IStagePropertyがレベルブループリントに実装されていません"));
+	UE_LOG(LogTemp, Error, TEXT("IStagePropertyがレベルブループリントに実装されていません"));
+	return nullptr;
+}
+
+USceneCaptureComponent2D* AInGameMode::GetOverViewCapture() const//TODO: Factory作る
+{
+	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
+	if (levelScriptActor->Implements<UStageProperty>())
+	{
+		USceneCaptureComponent2D* overViewCapture = IStageProperty::Execute_GetOverViewCapture(levelScriptActor);
+		return overViewCapture;
+	}
+	UE_LOG(LogTemp, Error, TEXT("GetOverViewCamera()がレベルブループリントに実装されていません"));
 	return nullptr;
 }
 

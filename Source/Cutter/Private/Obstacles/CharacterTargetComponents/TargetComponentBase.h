@@ -16,13 +16,12 @@ class CUTTER_API UTargetComponentBase : public UActorComponent
 
 public:
 	UTargetComponentBase(){}
-	void RegisterThrowEvent(AActor* throwable);
 	
 protected:
 	virtual void Init();
 	void CacheArrowMesh();
 	void CacheOwner();
-	void CacheCamera();
+	void CacheOverViewCapture();
 	void VisibleArrowMesh() const;
 	void InVisibleArrowMesh() const;
 	void RegisterInputComponent();
@@ -31,10 +30,9 @@ protected:
 	virtual void Throw(const FInputActionValue& Value){}
 	
 protected:
-	UPROPERTY() TScriptInterface<IThrowable> _throwable;
 	UPROPERTY() TObjectPtr<AController> _controller;
 	UPROPERTY() TObjectPtr<ACutterCharacter> _owner;
-	UPROPERTY() TObjectPtr<UCameraComponent> _followCamera;
+	UPROPERTY() TObjectPtr<USceneCaptureComponent2D> _overViewCapture;
 	UPROPERTY() TObjectPtr<UStaticMeshComponent> _throwArrowMesh;
 	
 private:

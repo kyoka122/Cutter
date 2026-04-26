@@ -20,7 +20,7 @@ void UTitleMenu::CreateStageList()
 	{
 		if (!row)
 		{
-			UE_LOG(LogTemp, Log, TEXT("不正なRowがあります"));
+			UE_LOG(LogTemp, Error, TEXT("不正なRowがあります"));
 		}
 		TObjectPtr<UStageButton> newStageButton = CreateWidget<UStageButton>(this, _stageButtonClass);
 		if (!newStageButton)

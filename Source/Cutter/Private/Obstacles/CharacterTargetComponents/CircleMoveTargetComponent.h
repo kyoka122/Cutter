@@ -4,19 +4,22 @@
 #include "InputActionValue.h"
 #include "TargetComponentBase.h"
 #include "Obstacles/Cutters/Struct/CircleMoveCutterThrowTargetParam.h"
-#include "LimitedRotateTargetComponent.generated.h"
+#include "CircleMoveTargetComponent.generated.h"
+
+struct FCircleMoveCutterThrowParam;
 
 /*
  * 回転範囲に制限があるターゲット用コンポーネント
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class CUTTER_API ULimitedRotateTargetComponent : public UTargetComponentBase
+class CUTTER_API UCircleMoveTargetComponent : public UTargetComponentBase
 {
 	GENERATED_BODY()
 
 public:
-	ULimitedRotateTargetComponent();
-	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam);
+	UCircleMoveTargetComponent();
+	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam, TFunction<void(const FCircleMoveCutterThrowParam&)>
+	                   throwCutterFunc);
 	virtual void Init() override;
 
 private:
@@ -28,4 +31,5 @@ private:
 	
 private:
 	FCircleMoveCutterThrowTargetParam _throwTargetParam;
+	TFunction<void(const FCircleMoveCutterThrowParam&)> _throwCutterFunc = {};
 };

@@ -19,8 +19,7 @@ public:
 	/*このカッターを投げる際のターゲットを行う*/
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	
-	/*このカッターを投げる*/
-	virtual void Throw_Implementation() override;
+
 	
 	/*このアクタの位置を取得する*/
 	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
@@ -39,9 +38,11 @@ protected:
 	FFractalCircleMoveCutterParam _param = {};
 
 private:
+	/*このカッターを投げる*/
+	void Throw(const FCircleMoveCutterThrowParam& param);
+	
 	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
-
 	
 	/*一番中心のメッシュ位置を更新*/
 	FVector CalcParentPosition(float deltaTime);
