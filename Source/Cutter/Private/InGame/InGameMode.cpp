@@ -25,7 +25,7 @@ void AInGameMode::BeginPlay()
 	Super::BeginPlay();
 	InstanceMember();
 	InitParam();
-	RegisterMiniMapToCharacter();
+	RegisterCharacterParam();
 	SetCursor();
 }
 
@@ -58,7 +58,7 @@ void AInGameMode::InitParam()
 	_inGameState->SetLimitTime(stageRowData->limitTime);
 }
 
-void AInGameMode::RegisterMiniMapToCharacter() const
+void AInGameMode::RegisterCharacterParam() const
 {
 	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	
@@ -68,10 +68,9 @@ void AInGameMode::RegisterMiniMapToCharacter() const
 		{
 			cutterCharacter->RegisterMiniMap(_inGameUI, GetOverViewCapture());
 		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
-		}
+		else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
+		
+		cutterCharacter->RegisterStageShape(GetStageShape());
 	}
 	else
 	{

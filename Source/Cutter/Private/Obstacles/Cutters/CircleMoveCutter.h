@@ -4,7 +4,7 @@
 #include "Obstacles/Cutters/CutterBase.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Throwable.h"
-#include "Obstacles/CharacterTargetComponents/Struct/CircleMoveCutterThrowParam.h"
+#include "Obstacles/CharacterTargetComponents/Struct/CircleMoveThrowParam.h"
 #include "Struct/CircleMoveCutterParam.h"
 #include "CircleMoveCutter.generated.h"
 
@@ -43,14 +43,13 @@ protected:
 
 private:
 	/*このカッターを投げる*/
-	void Throw(const FCircleMoveCutterThrowParam& param);
+	void Throw(const FCircleMoveThrowParam& param);
 	
 	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
 	
 	FVector CalcPosition(float deltaTime);
 	FRotator CalcRotation(float deltaTime) const;
-	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
 	void OnBreak();

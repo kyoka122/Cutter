@@ -20,7 +20,6 @@ void AStraightYoYoCutter::BeginPlay()
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
-		//OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});
@@ -55,20 +54,6 @@ FRotator AStraightYoYoCutter::CalcRotation(float deltaTime) const
 	FRotator currentRotation = GetActorRotation();
 	currentRotation.Yaw += _param.rotateSpeed * deltaTime * 100.f;
 	return currentRotation;
-}
-
-void AStraightYoYoCutter::OnOverlapBreakableActor(AActor* otherActor)
-{
-	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
-	{
-		return;
-	}
-	if (IBreakable* otherBreakable = Cast<IBreakable>(otherActor))
-	{
-		UE_LOG(LogCutter, Log, TEXT("Break %s by%s"), *GetName(), *otherActor->GetName());
-		otherBreakable->Break();
-		OnBreak();
-	}
 }
 
 void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor) const

@@ -19,7 +19,6 @@ void ACircleMoveCutter::BeginPlay()
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
-		//OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});
@@ -58,20 +57,6 @@ FRotator ACircleMoveCutter::CalcRotation(float deltaTime) const
 	FRotator currentRotation = GetActorRotation();
 	currentRotation.Yaw += _param.rotateRate * deltaTime * 100.f;
     return currentRotation;
-}
-
-void ACircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
-{
-	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
-	{
-		return;
-	}
-	if (IBreakable* otherBreakable = Cast<IBreakable>(otherActor))
-	{
-		UE_LOG(LogCutter, Log, TEXT("Break %s by%s"), *GetName(), *otherActor->GetName());
-		otherBreakable->Break();
-		OnBreak();
-	}
 }
 
 void ACircleMoveCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
@@ -122,13 +107,13 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	throwTargetParam.accuracy = _param.targetAccuracy;
 	throwTargetParam.segments = _param.segments;
 	throwTargetParam.stageShape = _stageShape;
-	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveCutterThrowParam& param){Throw(param);});
+	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveThrowParam& param){Throw(param);});
 	
 	rotateTargetComponent->RegisterComponent();
 	rotateTargetComponent->Init();
 }
 
-void ACircleMoveCutter::Throw(const FCircleMoveCutterThrowParam& param)
+void ACircleMoveCutter::Throw(const FCircleMoveThrowParam& param)
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	_rotateDirection = param.rotateDirection;

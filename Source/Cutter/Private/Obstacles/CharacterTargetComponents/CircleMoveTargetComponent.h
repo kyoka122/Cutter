@@ -6,7 +6,7 @@
 #include "Obstacles/Cutters/Struct/CircleMoveCutterThrowTargetParam.h"
 #include "CircleMoveTargetComponent.generated.h"
 
-struct FCircleMoveCutterThrowParam;
+struct FCircleMoveThrowParam;
 
 /*
  * 回転範囲に制限があるターゲット用コンポーネント
@@ -18,7 +18,7 @@ class CUTTER_API UCircleMoveTargetComponent : public UTargetComponentBase
 
 public:
 	UCircleMoveTargetComponent();
-	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam, const TFunction<void(const FCircleMoveCutterThrowParam&)>
+	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam, const TFunction<void(const FCircleMoveThrowParam&)>
 	                   & throwCutterFunc);
 	virtual void Init() override;
 
@@ -26,6 +26,9 @@ private:
 	/*ターゲットのための回転*/
 	virtual void Rotate(const FInputActionValue& Value) override;
 	
+	/*入力値から回転情報を取得*/
+	FRotator GetRotatorByInput(FVector2D input) const;
+
 	/*現在のキャラクターの向きを元に円サイズを更新*/
 	void UpdateCircle(FVector2D direction);
 	
@@ -37,7 +40,7 @@ private:
 	
 private:
 	FCircleMoveCutterThrowTargetParam _throwTargetParam;
-	TFunction<void(const FCircleMoveCutterThrowParam&)> _throwCutterFunc = {};
+	TFunction<void(const FCircleMoveThrowParam&)> _throwCutterFunc = {};
 	
 	/*現在地からステージ中央へのベクトルとの角度差分*/
 	float _circleLineDirectionAngle = 0.f;
@@ -45,6 +48,12 @@ private:
 	/*現在地から円中央方向へのベクトル*/
 	FVector2D _toCenterVec = {};
 	
-	/*現在地からステージ中央方向へのベクトル*/
+	/*初期位置から円中央方向へのベクトル*/
 	FVector2D _initToCenterVec = {};
+	
+	/*移動限界ベクトル(右)*/
+	FVector2D _rightMaxVec = {};
+	
+	/*移動限界ベクトル(左)*/
+	FVector2D _leftMaxVec = {};
 };

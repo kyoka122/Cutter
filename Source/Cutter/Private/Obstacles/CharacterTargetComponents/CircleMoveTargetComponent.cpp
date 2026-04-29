@@ -3,14 +3,14 @@
 #include "CutterCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "InGame/Stage/StageShape.h"
-#include "Struct/CircleMoveCutterThrowParam.h"
+#include "Struct/CircleMoveThrowParam.h"
 
 UCircleMoveTargetComponent::UCircleMoveTargetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UCircleMoveTargetComponent::RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam, const TFunction<void(const FCircleMoveCutterThrowParam&)>& throwCutterFunc)
+void UCircleMoveTargetComponent::RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam, const TFunction<void(const FCircleMoveThrowParam&)>& throwCutterFunc)
 {
 	_throwTargetParam = throwTargetParam;
 	_throwCutterFunc = throwCutterFunc;
@@ -27,9 +27,7 @@ void UCircleMoveTargetComponent::Init()
 		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
 		return;
 	}
-	FVector2D pointOfTangency = IStageShape::Execute_GetFarPointOfTangency(
-		_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos);
-	
+	FVector2D pointOfTangency = IStageShape::Execute_GetFarPointOfTangency(_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos);
 	_toCenterVec = (pointOfTangency - _throwTargetParam.cutterPos) / 2;
 	_initToCenterVec = _toCenterVec;
 	
@@ -41,10 +39,9 @@ void UCircleMoveTargetComponent::Init()
 	//λ = (π - l / r) / 2
 	_circleLineDirectionAngle = (180 - _throwTargetParam.accuracy / radius) / 2;
 	
-	FRotationMatrix rotatorMatrix = FRotationMatrix(FRotator(0, _circleLineDirectionAngle, 0));
-	FVector newDirection = rotatorMatrix.TransformVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
-	FRotator actorRotator = newDirection.Rotation();
-	_owner->SetActorTransform(FTransform(actorRotator));
+	FRotator rotatorMatrix = FRotator(0, _circleLineDirectionAngle, 0);
+	FVector newDirection = rotatorMatrix.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
+	_owner->SetActorRotation(newDirection.Rotation());
 	
 	_owner->SetVisibilityMiniMap(true);
 	UpdatePaints(centerPos, radius);
@@ -65,21 +62,30 @@ void UCircleMoveTargetComponent::Rotate(const FInputActionValue& Value)
 		return;
 	}
 	
+	_owner->AddActorLocalRotation(GetRotatorByInput(MovementVector));
+	FRotator characterYawRotation = FRotator(0, _owner->GetActorRotation().Yaw, 0);
+	FVector characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
+	
+	UpdateCircle(FVector2D(characterForwardDirection));
+}
+
+FRotator UCircleMoveTargetComponent::GetRotatorByInput(FVector2D input) const
+{
 	float characterRotateYaw = _owner->GetActorRotation().Yaw;
 	FRotator characterYawRotation(0, _owner->GetActorRotation().Yaw, 0);
 	FVector characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
-
-	float value = Value.GetMagnitude() * _throwTargetParam.rotateSpeed;
+	
+	float value = input.Size() * _throwTargetParam.rotateSpeed;
 	int32 direction = 0;
 		
-	if (FMath::Abs(MovementVector.X) > FMath::Abs(MovementVector.Y))//MEMO: X,Yの入力に対し、値の大きい方を優先して処理する
+	if (FMath::Abs(input.X) > FMath::Abs(input.Y))//MEMO: X,Yの入力に対し、値の大きい方を優先して処理する
 	{
-		if (MovementVector.X > 0)
+		if (input.X > 0)
 		{
 			direction = characterForwardDirection.X >= 0 ? 1 : -1;
 			value = FMath::Min(FMath::Abs(90.f - characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
 		} 
-		else if (MovementVector.X < 0)
+		else if (input.X < 0)
 		{
 			direction = characterForwardDirection.X <= 0 ? 1 : -1;
 			value = FMath::Min(FMath::Abs(-90.f - characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
@@ -87,23 +93,20 @@ void UCircleMoveTargetComponent::Rotate(const FInputActionValue& Value)
 	}
 	else
 	{
-		if (MovementVector.Y > 0)
+		if (input.Y > 0)
 		{
 			direction = characterForwardDirection.Y <= 0 ? 1 : -1;
 			value = FMath::Min(FMath::Abs(characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
 		}
-		else if (MovementVector.Y < 0)
+		else if (input.Y < 0)
 		{
 			direction = characterForwardDirection.Y >= 0 ? 1 : -1;
 			value = FMath::Min(FMath::Abs(180.f - characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
 			value = FMath::Min(FMath::Abs(-180.f - characterRotateYaw), value);//左向きの時のみ、ActorRotation.Yowが-か+かどちらか分からないので、両方計算。
 		}
 	}
-	_owner->AddActorLocalRotation(FRotator(0.f, direction * value, 0.f));
-	characterYawRotation = FRotator(0, _owner->GetActorRotation().Yaw, 0);
-	characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
 	
-	UpdateCircle(FVector2D(characterForwardDirection));
+	return FRotator(0.f, direction * value, 0.f);
 }
 
 void UCircleMoveTargetComponent::UpdateCircle(FVector2D direction)
@@ -139,7 +142,7 @@ void UCircleMoveTargetComponent::UpdatePaints(FVector2D center, float radius) co
 void UCircleMoveTargetComponent::Throw(const FInputActionValue& Value)
 {
 	Super::Throw(Value);
-	FCircleMoveCutterThrowParam param;
+	FCircleMoveThrowParam param;
 	param.toStageCenterVec2D = _toCenterVec;
 	param.rotateDirection = _circleLineDirectionAngle >= 0 ? -1 : 1;
 	

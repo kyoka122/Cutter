@@ -6,7 +6,7 @@
 #include "InGame/Interface/Damageable.h"
 #include "InGame/Interface/ScoreTarget.h"
 #include "InGame/Stage/StageShape.h"
-#include "Obstacles/CharacterTargetComponents/Struct/CircleMoveCutterThrowParam.h"
+#include "Obstacles/CharacterTargetComponents/Struct/CircleMoveThrowParam.h"
 #include "Struct/CircleMoveCutterThrowTargetParam.h"
 
 void AFractalCircleMoveCutter::BeginPlay()
@@ -21,7 +21,6 @@ void AFractalCircleMoveCutter::BeginPlay()
 	InitTimeline(_ismComponent);
 	RegisterStaticMeshEvent(_ismComponent, [this](AActor* otherActor)
 	{
-		//OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});
@@ -92,32 +91,16 @@ void AFractalCircleMoveCutter::TransformCutterChildren(const FMatrix& parentMatr
 
 	for (int i = 0; i < _param.childCountPerLayer; i++)
 	{
-		FScaleMatrix s (FVector(_param.sizeFactor));
-		//FRotationMatrix r (FRotator(0.f, 0,0.f));
-		
+		FScaleMatrix sizeMatrix (FVector(_param.sizeFactor));
 		float sinValue, cosValue = 0.f;
 		FMath::SinCos(&sinValue, &cosValue, 2 * PI / _param.childCountPerLayer * i);
 		
-		FTranslationMatrix t (FVector(_param.distanceFromParent * sinValue, _param.distanceFromParent * cosValue, 0.f));
-		FMatrix childLocalMatrix = s * t;
+		FTranslationMatrix transformMatrix (FVector(_param.distanceFromParent * sinValue, _param.distanceFromParent * cosValue, 0.f));
+		FMatrix childLocalMatrix = sizeMatrix * transformMatrix;
 		FMatrix childMatrix = childLocalMatrix * parentMatrix;
 		_ismComponent->UpdateInstanceTransform(instanceIndex, FTransform(childMatrix), true, false, true);
 		instanceIndex++;
 		TransformCutterChildren(childMatrix, depth - 1, instanceIndex);
-	}
-}
-
-void AFractalCircleMoveCutter::OnOverlapBreakableActor(AActor* otherActor)
-{
-	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
-	{
-		return;
-	}
-	if (IBreakable* otherBreakable = Cast<IBreakable>(otherActor))
-	{
-		UE_LOG(LogCutter, Log, TEXT("Break %s by%s"), *GetName(), *otherActor->GetName());
-		otherBreakable->Break();
-		OnBreak();
 	}
 }
 
@@ -170,12 +153,12 @@ void AFractalCircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	throwTargetParam.segments = _param.segments;
 	throwTargetParam.stageShape = _stageShape;
 	
-	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveCutterThrowParam& param){Throw(param);});
+	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveThrowParam& param){Throw(param);});
 	rotateTargetComponent->RegisterComponent();
 	rotateTargetComponent->Init();
 }
 
-void AFractalCircleMoveCutter::Throw(const FCircleMoveCutterThrowParam& param)
+void AFractalCircleMoveCutter::Throw(const FCircleMoveThrowParam& param)
 {
 	UE_LOG(LogCutter, Log, TEXT("Throw %s"), *GetName());
 	_rotateDirection = param.rotateDirection;

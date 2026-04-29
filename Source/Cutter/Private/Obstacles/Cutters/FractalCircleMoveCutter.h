@@ -1,9 +1,12 @@
 ﻿#pragma once
+
 #include "CutterBase.h"
 #include "InGame/Interface/Breakable.h"
 #include "InGame/Interface/Throwable.h"
 #include "Struct/FractalCircleMoveCutterParam.h"
 #include "FractalCircleMoveCutter.generated.h"
+
+struct FCircleMoveThrowParam;
 
 UCLASS()
 class AFractalCircleMoveCutter : public ACutterBase, public IThrowable, public IBreakable
@@ -20,7 +23,7 @@ public:
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	
 	/*このアクタの位置を取得する*/
-	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
+	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -37,7 +40,7 @@ protected:
 
 private:
 	/*このカッターを投げる*/
-	void Throw(const FCircleMoveCutterThrowParam& param);
+	void Throw(const FCircleMoveThrowParam& param);
 	
 	/*毎Tick呼ぶことでTransformを更新する*/
 	void Translate(float deltaTime);
@@ -46,7 +49,6 @@ private:
 	FVector CalcParentPosition(float deltaTime);
 	FRotator CalcParentRotation(float deltaTime) const;
 	
-	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
 	void OnBreak();

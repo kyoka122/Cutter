@@ -1,9 +1,12 @@
 ﻿#pragma once
 
-#include "CircleMoveCutterThrowParam.generated.h"
+#include "CircleMoveThrowParam.generated.h"
 
+/*
+ * FCircleMoveTargetComponentで確定させたCutterパラメータ
+ */
 USTRUCT(BlueprintType)
-struct FCircleMoveCutterThrowParam
+struct FCircleMoveThrowParam
 {
 	GENERATED_BODY()
 	

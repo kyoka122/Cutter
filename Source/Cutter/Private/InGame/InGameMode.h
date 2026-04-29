@@ -54,7 +54,7 @@ protected:
 private:
 	void InstanceMember();
 	void InitParam();
-	void RegisterMiniMapToCharacter() const;
+	void RegisterCharacterParam() const;
 	void SetCursor() const;
 	FStageRowData* GetStageData(FName stageName) const;
 	TScriptInterface<IStageShape> GetStageShape() const;

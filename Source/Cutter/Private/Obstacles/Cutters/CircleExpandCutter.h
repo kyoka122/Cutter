@@ -42,7 +42,6 @@ private:
 	void CheckOutOfStage();
 	FVector CalcPosition(float deltaTime);
 	FQuat CalcRotation(float deltaTime) const;
-	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
 	void OnBreak();

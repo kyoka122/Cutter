@@ -2,6 +2,7 @@
 
 #include "StraightYoYoThrowTargetParam.generated.h"
 
+class IStageShape;
 /*
  * StraightYoYoを投げる時の指定情報
  */

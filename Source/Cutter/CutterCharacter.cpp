@@ -11,7 +11,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "InGame/Character/CutterBlower.h"
 #include "InGame/Interface/OverViewMiniMap.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -87,6 +89,9 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACutterCharacter::Look);
+		
+		//Blow
+		EnhancedInputComponent->BindAction(BlowAction, ETriggerEvent::Triggered, this, &ACutterCharacter::ThrowBlower);
 	}
 	else
 	{
@@ -147,6 +152,11 @@ void ACutterCharacter::RegisterMiniMap(const TScriptInterface<IOverViewMiniMap>&
 	_overViewCapture = overViewCapture;
 }
 
+void ACutterCharacter::RegisterStageShape(const TScriptInterface<IStageShape>& stageShape)
+{
+	_stageShape = stageShape;
+}
+
 void ACutterCharacter::SetVisibilityMiniMap(bool value) const
 {
 	if (_overViewMinimap)
@@ -163,6 +173,32 @@ void ACutterCharacter::UpdatePoints(const TArray<FVector2D>& points) const
 		_overViewMinimap->UpdateDrawLines(points, _overViewCapture->GetComponentLocation(), _overViewCapture->OrthoWidth);
 	}
 	else UE_LOG(LogTemp, Error, TEXT("_overViewMinimapがセットされていません"));
+}
+
+void ACutterCharacter::ThrowBlower()
+{
+	if (!IsValid(_blowerPrefab))
+	{
+		UE_LOG(LogTemp, Error, TEXT("_blowerPrefabがセットされていません"));
+		return;
+	}
+	
+	ACutterBlower* blower = GetWorld()->SpawnActorDeferred<ACutterBlower>(_blowerPrefab, FTransform::Identity);
+	if (IsValid(blower))
+	{
+		FCutterBlowParam param;
+		FVector forwardDirection = FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::X);
+		param.moveDirection = FVector2D(forwardDirection);
+		if (IsValid(_blowerPrefab))
+		{
+			param.stageShape = _stageShape;
+		}
+		else UE_LOG(LogTemp, Error, TEXT("_stageShapeがセットされていません"));
+		
+		blower->RegisterMoveParam(param);
+		UGameplayStatics::FinishSpawningActor(blower, FTransform(GetActorLocation()));
+	}
+	UE_LOG(LogTemp, Error, TEXT("CutterBlowerを生成できませんでした"));
 }
 
 USceneCaptureComponent2D* ACutterCharacter::GetOverViewCapture() const

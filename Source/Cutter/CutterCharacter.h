@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "InGame/InGameMode.h"
 #include "InGame/UIs/InGameUI.h"
 #include "Logging/LogMacros.h"
 #include "CutterCharacter.generated.h"
@@ -48,6 +47,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ThrowAction;
 	
+	/** Throw Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* BlowAction;
+	
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
@@ -76,6 +79,14 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	bool IsPlayingDamageAnimation();
 
+	/*カッターを吹き飛ばすためのアクタを投げる*/
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	void ThrowBlower();
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "アイテム")
+	TSubclassOf<ACutterBlower> _blowerPrefab;
+	
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnThrow();
@@ -83,6 +94,9 @@ public:
 	/*Minimapの情報を登録*/
 	void RegisterMiniMap(const TScriptInterface<IOverViewMiniMap>& overViewMinimap, USceneCaptureComponent2D* overViewCapture);
 	
+	/*ステージ形状情報を登録*/
+	void RegisterStageShape(const TScriptInterface<IStageShape>& stageShape);
+
 	/*MinimapのVisible切り替え(背景含む)*/
 	void SetVisibilityMiniMap(bool value) const;
 	
@@ -105,5 +119,6 @@ public:
 private:
 	UPROPERTY() TScriptInterface<IOverViewMiniMap> _overViewMinimap = {};
 	UPROPERTY() TObjectPtr<USceneCaptureComponent2D> _overViewCapture = {};
+	UPROPERTY() TScriptInterface<IStageShape> _stageShape = {};
 };
 

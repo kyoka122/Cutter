@@ -2,6 +2,9 @@
 
 #include "StraightYoYoThrowParam.generated.h"
 
+/*
+ * FStraightYoYoTargetComponentで確定させたCutterパラメータ
+ */
 USTRUCT(BlueprintType)
 struct FStraightYoYoThrowParam
 {

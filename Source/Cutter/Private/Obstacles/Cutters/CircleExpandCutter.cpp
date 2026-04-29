@@ -18,7 +18,6 @@ void ACircleExpandCutter::BeginPlay()
 	InitTimeline(_staticMeshComponent);
 	RegisterStaticMeshEvent(_staticMeshComponent, [this](AActor* otherActor)
 	{
-		//OnOverlapBreakableActor(otherActor);
 		OnOverlapScoreTargetActor(otherActor);
 		OnOverlapDamageableActor(otherActor);
 	});
@@ -80,20 +79,6 @@ FQuat ACircleExpandCutter::CalcRotation(float deltaTime) const
 	FQuat currentRotation = GetActorRotation().Quaternion();
 
 	return rotation * currentRotation;
-}
-
-void ACircleExpandCutter::OnOverlapBreakableActor(AActor* otherActor)
-{
-	if (this < otherActor)//MEMO: 同じタイプのオブジェクト同士の衝突=>衝突した際片方が判定するため
-	{
-		return;
-	}
-	if (IBreakable* otherBreakable = Cast<IBreakable>(otherActor))
-	{
-		UE_LOG(LogCutter, Log, TEXT("Break %s by%s"), *GetName(), *otherActor->GetName());
-		otherBreakable->Break();
-		OnBreak();
-	}
 }
 
 void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor) const

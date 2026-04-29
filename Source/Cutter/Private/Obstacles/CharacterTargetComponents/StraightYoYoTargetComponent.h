@@ -7,6 +7,7 @@
 #include "StraightYoYoTargetComponent.generated.h"
 
 struct FStraightYoYoThrowParam;
+
 /*
  * 360度回転できるターゲット用コンポーネント
  */

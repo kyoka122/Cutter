@@ -49,7 +49,6 @@ private:
 	void Translate(float deltaTime);
 	FVector CalcPosition(float deltaTime);
 	FRotator CalcRotation(float deltaTime) const;
-	void OnOverlapBreakableActor(AActor* otherActor);
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
 	void SetThrowTargetParam(const FStraightYoYoThrowParam& param);
