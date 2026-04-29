@@ -87,8 +87,9 @@ void UStraightYoYoTargetComponent::Rotate(const FInputActionValue& Value)
 			value = FMath::Min(FMath::Abs(-180.f - characterRotateYaw), value);//左向きの時のみ、ActorRotation.Yowが-か+かどちらか分からないので、両方計算。
 		}
 	}
+	//TODO: AddからSetRotationに直す
 	_owner->AddActorLocalRotation(FRotator(0.f, direction * value, 0.f));
-		
+	
 	characterYawRotation = FRotator(0, _owner->GetActorRotation().Yaw, 0);
 	characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
 	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(

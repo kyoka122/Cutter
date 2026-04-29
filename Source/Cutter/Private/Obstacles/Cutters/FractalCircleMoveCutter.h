@@ -19,8 +19,6 @@ public:
 	/*このカッターを投げる際のターゲットを行う*/
 	virtual void StartTargeting_Implementation(AActor* throwActor) override;
 	
-
-	
 	/*このアクタの位置を取得する*/
 	virtual FVector GetLocation_Implementation() const override { return GetActorLocation(); };
 
@@ -52,17 +50,20 @@ private:
 	void OnOverlapScoreTargetActor(AActor* otherActor) const;
 	void OnOverlapDamageableActor(AActor* otherActor) const;
 	void OnBreak();
-	void ResetTransformParam(FVector2D pointOfTangency, FVector2D toStageCenterVec2D);
+	void ResetTransformParam(FVector2D toStageCenterVec2D);
 	
 private:
 	/*基準値を中心に回転する際の半径*/
 	float _rotateRadius = 0.f;
 	
 	/*現在のステージに対する回転角度*/
-	float _currentAngle = 0.f;
+	float _currentRadius = 0.f;
 	
 	/*回転基準座標*/
 	FVector _rotateCenterPos = {};
+	
+	/*円回転の向き。 1 or -1*/
+	float _rotateDirection = 0.f;
 	
 	/*全子オブジェクトの総数を計算してキャッシュしておく用*/
 	int _totalInstanceCount = 0;

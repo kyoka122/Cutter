@@ -2,6 +2,7 @@
 
 #include "CircleMoveCutterThrowTargetParam.generated.h"
 
+class IStageShape;
 /*
  * CircleMoveCutterを投げる時の指定情報
  */
@@ -11,15 +12,23 @@ struct FCircleMoveCutterThrowTargetParam
 	GENERATED_BODY()
 
 public:
-	/*一番最初にCharacterが向くべき向き*/
+	/*投げる場所*/
 	UPROPERTY(BlueprintReadWrite)
-	FVector2D firstLookVec = {};
+	FVector2D cutterPos = {};
 	
-	/*回転最大角*/
+	/*ターゲット時の回転速度*/
 	UPROPERTY(BlueprintReadWrite)
-	FVector2D rightMaxVec = {};
+	float rotateSpeed = 0;
 	
-	/*回転最小角*/
+	/*ターゲット方向の精度。拡縮が緩やかになる*/
 	UPROPERTY(BlueprintReadWrite)
-	FVector2D leftMaxVec = {};
+	float accuracy = 0;
+	
+	/*ミニマップの円状の線をいくつの点で構成するか(値が大きいほど円が滑らかになる)*/
+	UPROPERTY(BlueprintReadWrite)
+	int32 segments = 0;
+	
+	/*ステージ情報*/
+	UPROPERTY(BlueprintReadWrite)
+	TScriptInterface<IStageShape> stageShape = {};
 };
