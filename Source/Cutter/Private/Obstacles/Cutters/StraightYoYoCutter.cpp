@@ -106,6 +106,7 @@ void AStraightYoYoCutter::StartTargeting_Implementation(AActor* throwActor)
 	straightYoYoThrowTargetParam.rotateSpeed = _param.targetRotateSpeed;
 	straightYoYoThrowTargetParam.cutterPos = FVector2D(currentPos);
 	straightYoYoThrowTargetParam.stageShape = _stageShape;
+	straightYoYoThrowTargetParam.looksTexture = _param.looksTexture;
 	
 	straightYoYoTargetComponent->RegisterParam(straightYoYoThrowTargetParam, [this](const FStraightYoYoThrowParam& param){Throw(param);});
 	straightYoYoTargetComponent->RegisterComponent();

@@ -90,6 +90,25 @@ void UInGameUI::DrawCutterPath(const FGeometry& geometry, FSlateWindowElementLis
 		true,_miniMapLineThickness);
 }
 
+void UInGameUI::SetVisibilityCutterLooksView(bool value)
+{
+	if (_cutterLooksOverlay)
+	{
+		ESlateVisibility visible = value ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+		_cutterLooksOverlay->SetVisibility(visible);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksOverlayがセットされていません"));
+}
+
+void UInGameUI::SetCutterImage(UTexture2D* texture)
+{
+	if (_cutterLooksImage)
+	{
+		_cutterLooksImage->SetBrushFromTexture(texture);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksImageがセットされていません"));
+}
+
 void UInGameUI::SetScore(int score, float deltaTime)
 {
 	if (_countAnimatedScore < score)

@@ -7,19 +7,21 @@
 void UTargetComponentBase::Init()
 {
 	CacheOwner();
-	check(_owner)
 	CacheArrowMesh();
-	check(_throwArrowMesh)
 	CacheOverViewCapture();
-	check(_overViewCapture)
 }
 
+//TODO: キャッシュを参照にして整える
 void UTargetComponentBase::CacheArrowMesh()
 {
 	TArray<UStaticMeshComponent*> targetArrowMeshes;
 	
+	if (!IsValid(_owner))
+	{
+		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
+		return;
+	}
 	//MEMO: コンポーネントのBPでの参照の取り方が分からないので全検索+タグ検索方式で。
-	check(_owner);
 	_owner->GetComponents<UStaticMeshComponent>(targetArrowMeshes);
 	if (targetArrowMeshes.IsEmpty() || !IsValid(targetArrowMeshes[0]))
 	{
@@ -41,15 +43,11 @@ void UTargetComponentBase::CacheArrowMesh()
 void UTargetComponentBase::CacheOwner()
 {
 	AActor* owner = GetOwner();
-	check(owner);
 	if (TObjectPtr<ACutterCharacter> cutterCharacter = Cast<ACutterCharacter>(owner))
 	{
 		_owner = cutterCharacter;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("コンポーネント登録先のがアクタがACutterCharacterではありません"));
-	}
+	else UE_LOG(LogTemp, Error, TEXT("コンポーネント登録先のがアクタがACutterCharacterではありません"));
 }
 
 void UTargetComponentBase::CacheOverViewCapture()
@@ -77,9 +75,7 @@ void UTargetComponentBase::RegisterInputComponent()
 	
 	_controller = _owner->Controller;
 	UInputAction* _throwAction = _owner->ThrowAction;
-	UInputAction* _moveAction = _owner->MoveAction;//TODO: nullチェック
-	check(_throwAction);
-	check(_moveAction);
+	UInputAction* _moveAction = _owner->MoveAction;
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(_owner->InputComponent))
 	{

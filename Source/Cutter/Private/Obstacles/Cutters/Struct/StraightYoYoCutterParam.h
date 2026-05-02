@@ -25,4 +25,8 @@ public:
 	/*ターゲット時の回転速度*/
 	UPROPERTY(EditAnywhere, Category = "ターゲット時パラメータ", meta = (DisplayPriority=2))
 	float targetRotateSpeed = 1.f;
+	
+	/*ターゲット時にUIに表示する画像*/
+	UPROPERTY(EditAnywhere, Category = "ターゲット時パラメータ", meta = (DisplayPriority=2))
+	TObjectPtr<UTexture2D> looksTexture;
 };

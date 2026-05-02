@@ -66,7 +66,7 @@ void AInGameMode::RegisterCharacterParam() const
 	{
 		if (IsValid(_inGameUI) && _inGameUI->Implements<UOverViewMiniMap>())
 		{
-			cutterCharacter->RegisterMiniMap(_inGameUI, GetOverViewCapture());
+			cutterCharacter->RegisterUIs(_inGameUI, GetOverViewCapture(), _inGameUI);
 		}
 		else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
 		

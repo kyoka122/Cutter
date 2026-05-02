@@ -8,6 +8,8 @@
 #include "Logging/LogMacros.h"
 #include "CutterCharacter.generated.h"
 
+class ACutterBlower;
+class ICutterLooksView;
 class IOverViewMiniMap;
 class USpringArmComponent;
 class UCameraComponent;
@@ -83,16 +85,21 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void ThrowBlower();
 	
+	/*UIに表示されているCutterの見た目を非表示にする*/
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	void SetInVisibleCutterLooksView() const;
+	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "アイテム")
-	TSubclassOf<ACutterBlower> _blowerPrefab;
+	UPROPERTY(EditAnywhere, Category = "アイテム")
+	TSubclassOf<ACutterBlower> _blowerPrefab = {};
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnThrow();
 
 	/*Minimapの情報を登録*/
-	void RegisterMiniMap(const TScriptInterface<IOverViewMiniMap>& overViewMinimap, USceneCaptureComponent2D* overViewCapture);
+	void RegisterUIs(const TScriptInterface<IOverViewMiniMap>& overViewMinimap, USceneCaptureComponent2D* overViewCapture, const
+	                     TScriptInterface<ICutterLooksView>& cutterLooksView);
 	
 	/*ステージ形状情報を登録*/
 	void RegisterStageShape(const TScriptInterface<IStageShape>& stageShape);
@@ -100,6 +107,9 @@ public:
 	/*MinimapのVisible切り替え(背景含む)*/
 	void SetVisibilityMiniMap(bool value) const;
 	
+	/*Cutterの見た目をUIに表示*/
+	void SetVisibleCutterLooksView(UTexture2D* texture) const;
+
 	/*Minimapに描画する線情報の更新*/
 	void UpdatePoints(const TArray<FVector2D>& points) const;
 	
@@ -118,6 +128,7 @@ public:
 	
 private:
 	UPROPERTY() TScriptInterface<IOverViewMiniMap> _overViewMinimap = {};
+	UPROPERTY() TScriptInterface<ICutterLooksView> _cutterLooksView = {};
 	UPROPERTY() TObjectPtr<USceneCaptureComponent2D> _overViewCapture = {};
 	UPROPERTY() TScriptInterface<IStageShape> _stageShape = {};
 };

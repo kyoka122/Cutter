@@ -31,4 +31,7 @@ public:
 	/*ステージ情報*/
 	UPROPERTY(BlueprintReadWrite)
 	TScriptInterface<IStageShape> stageShape = {};
+	
+	/*ターゲット時にUIに表示する画像*/
+	UPROPERTY() TObjectPtr<UTexture2D> looksTexture = {};
 };

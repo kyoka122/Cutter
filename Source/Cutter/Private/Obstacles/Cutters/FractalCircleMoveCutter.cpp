@@ -152,6 +152,7 @@ void AFractalCircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	throwTargetParam.accuracy = _param.targetAccuracy;
 	throwTargetParam.segments = _param.segments;
 	throwTargetParam.stageShape = _stageShape;
+	throwTargetParam.looksTexture = _param.looksTexture;
 	
 	rotateTargetComponent->RegisterParam(throwTargetParam, [this](const FCircleMoveThrowParam& param){Throw(param);});
 	rotateTargetComponent->RegisterComponent();

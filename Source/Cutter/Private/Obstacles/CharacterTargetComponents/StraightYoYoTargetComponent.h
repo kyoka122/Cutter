@@ -18,9 +18,10 @@ class CUTTER_API UStraightYoYoTargetComponent : public UTargetComponentBase
 
 public:
 	UStraightYoYoTargetComponent();
-	void RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam, TFunction<void(const FStraightYoYoThrowParam&)> throwFunc);
+	void RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam,
+		const TFunction<void(const FStraightYoYoThrowParam&)>& throwFunc);
 	virtual void Init() override;
-
+	
 private:
 	/*ターゲットのための回転*/
 	virtual void Rotate(const FInputActionValue& Value) override;

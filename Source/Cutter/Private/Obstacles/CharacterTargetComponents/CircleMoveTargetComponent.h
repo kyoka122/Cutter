@@ -18,10 +18,10 @@ class CUTTER_API UCircleMoveTargetComponent : public UTargetComponentBase
 
 public:
 	UCircleMoveTargetComponent();
-	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam, const TFunction<void(const FCircleMoveThrowParam&)>
-	                   & throwCutterFunc);
+	void RegisterParam(const FCircleMoveCutterThrowTargetParam& throwTargetParam,
+		const TFunction<void(const FCircleMoveThrowParam&)>& throwCutterFunc);
 	virtual void Init() override;
-
+	
 private:
 	/*ターゲットのための回転*/
 	virtual void Rotate(const FInputActionValue& Value) override;

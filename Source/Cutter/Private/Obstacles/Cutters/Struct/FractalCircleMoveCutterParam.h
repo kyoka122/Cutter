@@ -44,4 +44,8 @@ public:
 	/*ミニマップの円状の線をいくつの点で構成するか(値が大きいほど円が滑らかになる)*/
 	UPROPERTY(BlueprintReadWrite)
 	int32 segments = 50;
+	
+	/*ターゲット時にUIに表示する画像*/
+	UPROPERTY(EditAnywhere, Category = "ターゲット時パラメータ", meta = (DisplayPriority=2))
+	TObjectPtr<UTexture2D> looksTexture;
 };

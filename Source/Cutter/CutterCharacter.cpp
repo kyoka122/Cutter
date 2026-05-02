@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "InGame/Character/CutterBlower.h"
+#include "InGame/Interface/CutterLooksView.h"
 #include "InGame/Interface/OverViewMiniMap.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -146,10 +147,12 @@ void ACutterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ACutterCharacter::RegisterMiniMap(const TScriptInterface<IOverViewMiniMap>& overViewMinimap, USceneCaptureComponent2D* overViewCapture)
+void ACutterCharacter::RegisterUIs(const TScriptInterface<IOverViewMiniMap>& overViewMinimap,
+	USceneCaptureComponent2D* overViewCapture, const TScriptInterface<ICutterLooksView>& cutterLooksView)
 {
 	_overViewMinimap = overViewMinimap;
 	_overViewCapture = overViewCapture;
+	_cutterLooksView = cutterLooksView;
 }
 
 void ACutterCharacter::RegisterStageShape(const TScriptInterface<IStageShape>& stageShape)
@@ -166,6 +169,25 @@ void ACutterCharacter::SetVisibilityMiniMap(bool value) const
 	else UE_LOG(LogTemp, Error, TEXT("_overViewMinimapがセットされていません"));
 }
 
+void ACutterCharacter::SetVisibleCutterLooksView(UTexture2D* texture) const
+{
+	if (_cutterLooksView)
+	{
+		_cutterLooksView->SetCutterImage(texture);
+		_cutterLooksView->SetVisibilityCutterLooksView(true);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksがセットされていません"));
+}
+
+void ACutterCharacter::SetInVisibleCutterLooksView() const
+{
+	if (_cutterLooksView)
+	{
+		_cutterLooksView->SetVisibilityCutterLooksView(false);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksがセットされていません"));
+}
+
 void ACutterCharacter::UpdatePoints(const TArray<FVector2D>& points) const
 {
 	if (_overViewMinimap)
@@ -177,7 +199,7 @@ void ACutterCharacter::UpdatePoints(const TArray<FVector2D>& points) const
 
 void ACutterCharacter::ThrowBlower()
 {
-	if (!IsValid(_blowerPrefab))
+	if (!_blowerPrefab)
 	{
 		UE_LOG(LogTemp, Error, TEXT("_blowerPrefabがセットされていません"));
 		return;
@@ -189,16 +211,16 @@ void ACutterCharacter::ThrowBlower()
 		FCutterBlowParam param;
 		FVector forwardDirection = FRotationMatrix(GetActorRotation()).GetUnitAxis(EAxis::X);
 		param.moveDirection = FVector2D(forwardDirection);
-		if (IsValid(_blowerPrefab))
+		if (_stageShape)
 		{
 			param.stageShape = _stageShape;
 		}
 		else UE_LOG(LogTemp, Error, TEXT("_stageShapeがセットされていません"));
 		
 		blower->RegisterMoveParam(param);
-		UGameplayStatics::FinishSpawningActor(blower, FTransform(GetActorLocation()));
+		UGameplayStatics::FinishSpawningActor(blower, FTransform(GetActorLocation() + forwardDirection * 50.f));
 	}
-	UE_LOG(LogTemp, Error, TEXT("CutterBlowerを生成できませんでした"));
+	else UE_LOG(LogTemp, Error, TEXT("CutterBlowerを生成できませんでした"));
 }
 
 USceneCaptureComponent2D* ACutterCharacter::GetOverViewCapture() const

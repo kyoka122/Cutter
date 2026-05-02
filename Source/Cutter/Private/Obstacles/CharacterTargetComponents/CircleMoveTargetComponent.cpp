@@ -42,8 +42,9 @@ void UCircleMoveTargetComponent::Init()
 	FRotator rotatorMatrix = FRotator(0, _circleLineDirectionAngle, 0);
 	FVector newDirection = rotatorMatrix.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
 	_owner->SetActorRotation(newDirection.Rotation());
-	
 	_owner->SetVisibilityMiniMap(true);
+	_owner->SetVisibleCutterLooksView(_throwTargetParam.looksTexture);
+	
 	UpdatePaints(centerPos, radius);
 }
 

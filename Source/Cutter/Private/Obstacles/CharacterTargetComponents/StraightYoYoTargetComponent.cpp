@@ -10,7 +10,7 @@ UStraightYoYoTargetComponent::UStraightYoYoTargetComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UStraightYoYoTargetComponent::RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam, TFunction<void(const FStraightYoYoThrowParam&)> throwFunc)
+void UStraightYoYoTargetComponent::RegisterParam(const FStraightYoYoThrowTargetParam& throwTargetParam, const TFunction<void(const FStraightYoYoThrowParam&)>& throwFunc)
 {
 	_throwTargetParam = throwTargetParam;
 	_throwCutterFunc = throwFunc;
@@ -32,6 +32,7 @@ void UStraightYoYoTargetComponent::Init()
 	FRotator newActorRotator = FRotationMatrix::MakeFromX(FVector(currentTargetVec.X, currentTargetVec.Y, 0)).Rotator();
 	_owner->SetActorRotation(newActorRotator);
 	_owner->SetVisibilityMiniMap(true);
+	_owner->SetVisibleCutterLooksView(_throwTargetParam.looksTexture);
 	
 	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(
 		_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos, _throwTargetParam.firstLookVec);

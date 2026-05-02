@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "InGame/Interface/CutterLooksView.h"
 #include "InGame/Interface/OverViewMiniMap.h"
 #include "InGameUI.generated.h"
 
@@ -14,7 +15,7 @@ class UTextBlock;
  * インゲームで表示するUI全てを管理するクラス
  */
 UCLASS()
-class UInGameUI : public UUserWidget, public IOverViewMiniMap
+class UInGameUI : public UUserWidget, public IOverViewMiniMap, public ICutterLooksView
 {
 	GENERATED_BODY()
 	
@@ -39,6 +40,12 @@ public:
 	
 	/*MiniMapに指定の点を繋いだ線を描画する*/
 	void DrawCutterPath(const FGeometry& geometry, FSlateWindowElementList& outDrawElements, int32 layerId) const;
+
+	/*カッターイメージの表示表示非表示を切り替える*/
+	virtual void SetVisibilityCutterLooksView(bool value) override;
+	
+	/*Cutter画像をセットする*/
+	virtual void SetCutterImage(UTexture2D* texture) override;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -49,6 +56,12 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> _timeText = {};
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UImage> _cutterLooksImage = {};
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UOverlay> _cutterLooksOverlay = {};
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UImage> _miniMap = {};
