@@ -28,7 +28,7 @@ protected:
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "移動速度")
-	float moveSpeed;
+	float moveSpeed = 10.f;
 	
 private:
 	void Move(float deltaTime);

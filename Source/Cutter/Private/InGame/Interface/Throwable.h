@@ -26,12 +26,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
 	void StartTargeting(AActor* throwActor);
 	virtual void StartTargeting_Implementation(AActor* throwActor) = 0;
-	
-	/*投げる*/
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	// void Throw();
-	// virtual void Throw_Implementation() = 0;
-	
+
 	/*アクタの位置を取得する*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
 	FVector GetLocation();
