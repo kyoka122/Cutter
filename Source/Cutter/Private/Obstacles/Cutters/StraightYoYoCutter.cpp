@@ -45,7 +45,11 @@ FVector AStraightYoYoCutter::CalcPosition(float deltaTime)
 		_currentTime += 2 * UE_PI;
 	}
 	FVector2D newPos = _yoyoRadius2D * FMath::Sin(_param.radianFrequency * _currentTime + _offsetRad) + _yoyoCenterPos;
-	FVector stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
+	FVector stageCenterPos = FVector::ZeroVector;
+	if (_stageShape)
+	{
+		stageCenterPos = IStageShape::Execute_GetCenterPos(_stageShape.GetObject());
+	}
 	return FVector(newPos.X, newPos.Y, stageCenterPos.Z);
 }
 

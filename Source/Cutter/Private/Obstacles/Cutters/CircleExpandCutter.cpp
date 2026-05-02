@@ -32,11 +32,18 @@ void ACircleExpandCutter::Tick(float DeltaTime)
 
 void ACircleExpandCutter::CheckOutOfStage()
 {
+	if (!_stageShape)
+	{
+		UE_LOG(LogCutter, Error, TEXT("_stageShapeがnullです %s"), *GetName());
+		return;
+	}
+	
 	//MEMO: ステージ外に出たら寿命
 	if (!IStageShape::Execute_IsInStage(_stageShape.GetObject(), FVector2D(GetActorLocation())))
 	{
 		OnBreak();
 	}
+	else UE_LOG(LogCutter, Error, TEXT("IStageShape::Execute_IsInStageが実行できません %s"), *GetName());
 }
 
 void ACircleExpandCutter::ReStart()
@@ -58,12 +65,7 @@ void ACircleExpandCutter::Translate(float deltaTime)
 
 FVector ACircleExpandCutter::CalcPosition(float deltaTime)
 {
-	_currentAngle = FMath::Fmod(_currentAngle + _param.moveRate * deltaTime, 2 * UE_PI);//角度加算
-	if (_currentAngle < 0.0f)
-	{
-		_currentAngle += 2 * UE_PI;
-	}
-	
+	_currentAngle = _currentAngle + _param.moveRate * deltaTime;//角度加算
 	float r = _param.pitch * _currentAngle;//動径算出 r=aθ
 	float sinValue, cosValue = 0.f;
 	FMath::SinCos(&sinValue, &cosValue, _currentAngle);
