@@ -11,6 +11,7 @@
 class ACutterBlower;
 class ICutterLooksView;
 class IOverViewMiniMap;
+class IStageShape;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;

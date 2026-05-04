@@ -28,11 +28,14 @@ void ACutterBlower::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Move(DeltaTime);
 	
-	bool isInStage = IStageShape::Execute_IsInStage(_param.stageShape.GetObject(), FVector2D(GetActorLocation()));
-	if (!isInStage)
+	if (_param.stageShape)
 	{
-		OnBreak();
+		if (!IStageShape::Execute_IsInStage(_param.stageShape.GetObject(), FVector2D(GetActorLocation())))
+		{
+			OnBreak();
+		}
 	}
+	else UE_LOG(LogCutter, Error, TEXT("_param.stageShapeがnullです %s"), *GetName());
 }
 
 void ACutterBlower::RegisterMoveParam(const FCutterBlowParam& param)
