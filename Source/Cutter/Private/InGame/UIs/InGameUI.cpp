@@ -87,7 +87,8 @@ void UInGameUI::DrawCutterPath(const FGeometry& geometry, FSlateWindowElementLis
 		points,
 		ESlateDrawEffect::None,
 		FLinearColor::Red,
-		true,_miniMapLineThickness);
+		true,
+		_miniMapLineThickness);
 }
 
 void UInGameUI::SetVisibilityCutterLooksView(bool value)

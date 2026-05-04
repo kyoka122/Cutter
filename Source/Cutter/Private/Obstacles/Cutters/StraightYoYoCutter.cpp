@@ -44,6 +44,8 @@ FVector AStraightYoYoCutter::CalcPosition(float deltaTime)
 	{
 		_currentTime += 2 * UE_PI;
 	}
+	//x = A * sin(Tt + α)
+	//位相 = 半径 * sin(角振動数 * 時間 + 初期)
 	FVector2D newPos = _yoyoRadius2D * FMath::Sin(_param.radianFrequency * _currentTime + _offsetRad) + _yoyoCenterPos;
 	FVector stageCenterPos = FVector::ZeroVector;
 	if (_stageShape)
@@ -144,11 +146,13 @@ void AStraightYoYoCutter::SetThrowTargetParam(const FStraightYoYoThrowParam& par
 		_yoyoRadius2D = (intersectionData.point2 - _yoyoCenterPos);
 	}
 	
+	//MEMO: X軸、Y軸に平行な場合、同じ式ではoffsetを割り出せないので、条件分岐を行う。
+	//X軸に平行な時はXの差分からoffsetを割り出せる。Y軸と、それ以外の条件の場合はどちらでもいいので、Y軸差分から割り出す。
 	if (FMath::IsNearlyZero(_yoyoRadius2D.Y))
 	{
 		_offsetRad = FMath::Asin((currentPos.X - _yoyoCenterPos.X) / _yoyoRadius2D.X);
 	}
-	else if (FMath::IsNearlyZero(_yoyoRadius2D.X))
+	else
 	{
 		_offsetRad = FMath::Asin((currentPos.Y - _yoyoCenterPos.Y) / _yoyoRadius2D.Y);
 	}
