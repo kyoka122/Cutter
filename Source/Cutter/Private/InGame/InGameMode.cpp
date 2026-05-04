@@ -6,6 +6,7 @@
 #include "InGame/Uis/GameOverUI.h"
 #include "InGame/InGameState.h"
 #include "InGame/Interface/OverViewMiniMap.h"
+#include "InGame/Interface/CutterLooksView.h"
 #include "InGame/Uis/InGameUI.h"
 #include "Engine/LevelScriptActor.h"
 #include "Interface/StageProperty.h"
@@ -66,7 +67,11 @@ void AInGameMode::RegisterCharacterParam() const
 	{
 		if (IsValid(_inGameUI) && _inGameUI->Implements<UOverViewMiniMap>())
 		{
-			cutterCharacter->RegisterUIs(_inGameUI, GetOverViewCapture(), _inGameUI);
+			if (_inGameUI->Implements<UCutterLooksView>())
+			{
+				cutterCharacter->RegisterUIs(_inGameUI, GetOverViewCapture(), _inGameUI);
+			}
+			else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUCutterLooksViewにCastできませんでした。"));
 		}
 		else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
 		

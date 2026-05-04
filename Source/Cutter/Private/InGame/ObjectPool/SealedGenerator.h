@@ -2,10 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Obstacles/Sealeds/SealedBase.h"
 #include "Utility/PoolObjectGenerator.h"
 #include "SealedGenerator.generated.h"
-
-class ASealedBase;
 
 /*
  *レリックのGenerator。レリックの有効、無効化、初期化処理などを行う。

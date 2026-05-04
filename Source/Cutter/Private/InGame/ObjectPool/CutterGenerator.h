@@ -2,11 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Obstacles/Cutters/CutterBase.h"
 #include "Utility/PoolObjectGenerator.h"
 #include "CutterGenerator.generated.h"
 
 class IStageShape;
-class ACutterBase;
 
 /*
  *カッターのGenerator。レリックの有効、無効化、初期化処理などを行う。
