@@ -7,37 +7,7 @@
 void UTargetComponentBase::Init()
 {
 	CacheOwner();
-	CacheArrowMesh();
 	CacheOverViewCapture();
-}
-
-//TODO: キャッシュを参照にして整える
-void UTargetComponentBase::CacheArrowMesh()
-{
-	TArray<UStaticMeshComponent*> targetArrowMeshes;
-	
-	if (!IsValid(_owner))
-	{
-		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
-		return;
-	}
-	//MEMO: コンポーネントのBPでの参照の取り方が分からないので全検索+タグ検索方式で。
-	_owner->GetComponents<UStaticMeshComponent>(targetArrowMeshes);
-	if (targetArrowMeshes.IsEmpty() || !IsValid(targetArrowMeshes[0]))
-	{
-		UE_LOG(LogTemp, Error, TEXT("キャラクターに矢印のスタティックメッシュが設定されていません。"));
-		return;
-	}
-	TArray<UStaticMeshComponent*> throwTargetArrows = targetArrowMeshes.FilterByPredicate([](const UStaticMeshComponent* staticMesh)
-	{
-		return staticMesh->ComponentHasTag(TagDefine::ThrowArrow);
-	});
-	if (throwTargetArrows.Num() != 1)
-	{
-		UE_LOG(LogTemp, Error, TEXT("キャラクターに該当のタグがついたStaticMeshを1つだけにしてください。StaticMesh数: %d個。　タグ名: %s"), throwTargetArrows.Num(), *TagDefine::ThrowArrow.ToString());
-		return;
-	}
-	_throwArrowMesh = throwTargetArrows[0];
 }
 
 void UTargetComponentBase::CacheOwner()
@@ -55,16 +25,6 @@ void UTargetComponentBase::CacheOverViewCapture()
 	_overViewCapture = _owner->GetOverViewCapture();
 }
 
-void UTargetComponentBase::VisibleArrowMesh() const
-{
-	_throwArrowMesh->SetHiddenInGame(false);
-}
-
-void UTargetComponentBase::InVisibleArrowMesh() const
-{
-	_throwArrowMesh->SetHiddenInGame(true);
-}
-
 void UTargetComponentBase::RegisterInputComponent()
 {
 	if (!IsValid(_owner))
@@ -74,13 +34,14 @@ void UTargetComponentBase::RegisterInputComponent()
 	}
 	
 	_controller = _owner->Controller;
-	UInputAction* _throwAction = _owner->ThrowAction;
-	UInputAction* _moveAction = _owner->MoveAction;
+	UInputAction* throwAction = _owner->ThrowAction;
+	UInputAction* moveAction = _owner->MoveAction;
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(_owner->InputComponent))
 	{
-		EnhancedInputComponent->BindAction(_moveAction, ETriggerEvent::Triggered, this, &UTargetComponentBase::Rotate);
-		EnhancedInputComponent->BindAction(_throwAction, ETriggerEvent::Started, this, &UTargetComponentBase::Throw);
+		EnhancedInputComponent->BindAction(moveAction, ETriggerEvent::Started, this, &UTargetComponentBase::Rotate);
+		EnhancedInputComponent->BindAction(moveAction, ETriggerEvent::Triggered, this, &UTargetComponentBase::Rotate);
+		EnhancedInputComponent->BindAction(throwAction, ETriggerEvent::Started, this, &UTargetComponentBase::Throw);
 	}
 	else
 	{

@@ -20,7 +20,6 @@ void UCircleMoveTargetComponent::Init()
 {
 	Super::Init();
 	RegisterInputComponent();
-	VisibleArrowMesh();
 	
 	if (!IsValid(_owner))
 	{
@@ -39,9 +38,15 @@ void UCircleMoveTargetComponent::Init()
 	//λ = (π - l / r) / 2
 	_circleLineDirectionAngle = (180 - _throwTargetParam.accuracy / radius) / 2;
 	
-	FRotator rotatorMatrix = FRotator(0, _circleLineDirectionAngle, 0);
-	FVector newDirection = rotatorMatrix.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
-	_owner->SetActorRotation(newDirection.Rotation());
+	FRotator leftRotator = FRotator(0, _circleLineDirectionAngle, 0);
+	FVector leftMaxDirection = leftRotator.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
+	_leftMaxVec = leftMaxDirection;
+	
+	FRotator rightRotator = FRotator(0, -_circleLineDirectionAngle, 0);
+	FVector rightMaxDirection = rightRotator.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
+	_rightMaxVec = rightMaxDirection;
+	
+	_owner->SetActorRotation(leftMaxDirection.Rotation());
 	_owner->SetVisibilityMiniMap(true);
 	_owner->SetVisibleCutterLooksView(_throwTargetParam.looksTexture);
 	
@@ -63,51 +68,73 @@ void UCircleMoveTargetComponent::Rotate(const FInputActionValue& Value)
 		return;
 	}
 	
-	_owner->AddActorLocalRotation(GetRotatorByInput(MovementVector));
-	FRotator characterYawRotation = FRotator(0, _owner->GetActorRotation().Yaw, 0);
+	FRotator characterYawRotation(0, _owner->GetActorRotation().Yaw, 0);
 	FVector characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
+	
+	SetRotateDirectionByInput(MovementVector, characterForwardDirection);
+	_owner->SetActorRotation(GetRotatorByInput(MovementVector, characterForwardDirection));
+	characterYawRotation = FRotator(0, _owner->GetActorRotation().Yaw, 0);
+	characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
 	
 	UpdateCircle(FVector2D(characterForwardDirection));
 }
 
-FRotator UCircleMoveTargetComponent::GetRotatorByInput(FVector2D input) const
+void UCircleMoveTargetComponent::SetRotateDirectionByInput(FVector2D input, const FVector& characterForwardDirection)
 {
-	float characterRotateYaw = _owner->GetActorRotation().Yaw;
-	FRotator characterYawRotation(0, _owner->GetActorRotation().Yaw, 0);
-	FVector characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
-	
-	float value = input.Size() * _throwTargetParam.rotateSpeed;
-	int32 direction = 0;
-		
-	if (FMath::Abs(input.X) > FMath::Abs(input.Y))//MEMO: X,Yの入力に対し、値の大きい方を優先して処理する
+	if (input == FVector2D::Zero())
 	{
-		if (input.X > 0)
-		{
-			direction = characterForwardDirection.X >= 0 ? 1 : -1;
-			value = FMath::Min(FMath::Abs(90.f - characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
-		} 
-		else if (input.X < 0)
-		{
-			direction = characterForwardDirection.X <= 0 ? 1 : -1;
-			value = FMath::Min(FMath::Abs(-90.f - characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
-		}
-	}
-	else
-	{
-		if (input.Y > 0)
-		{
-			direction = characterForwardDirection.Y <= 0 ? 1 : -1;
-			value = FMath::Min(FMath::Abs(characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
-		}
-		else if (input.Y < 0)
-		{
-			direction = characterForwardDirection.Y >= 0 ? 1 : -1;
-			value = FMath::Min(FMath::Abs(180.f - characterRotateYaw), value);//回転の境界値に来た場合、移動量の制限を行う
-			value = FMath::Min(FMath::Abs(-180.f - characterRotateYaw), value);//左向きの時のみ、ActorRotation.Yowが-か+かどちらか分からないので、両方計算。
-		}
+		_currentRotateDirection = 0;
+		_currentInputDirection = FVector2D::Zero();
+		return;
 	}
 	
-	return FRotator(0.f, direction * value, 0.f);
+	FVector currentRotateConvergence;
+	FVector2D nextInputDirection;
+	
+	if (FMath::Abs(input.X) >= FMath::Abs(input.Y))//MEMO: X,Yの入力に対し、値の大きい方を優先して処理する
+	{
+		nextInputDirection = FVector2D(input.X, 0).GetSafeNormal();
+		currentRotateConvergence = input.X > 0 ? FVector::RightVector : FVector::LeftVector;
+	}else
+	{
+		nextInputDirection = FVector2D(0, input.Y).GetSafeNormal();
+		currentRotateConvergence = input.Y > 0 ? FVector::ForwardVector : FVector::BackwardVector;
+	}
+	
+	//MEMO: 入力最大値が変わらない場合、回転方向は変えない
+	if (_currentInputDirection == nextInputDirection)
+	{
+		return;
+	}
+	float crossProductZ = FVector::CrossProduct(currentRotateConvergence, characterForwardDirection).Z;
+	_currentRotateDirection = crossProductZ >= 0 ? -1 : 1;
+	_currentInputDirection = nextInputDirection;
+}
+
+FRotator UCircleMoveTargetComponent::GetRotatorByInput(FVector2D input, const FVector& characterForwardDirection)
+{
+	if (input == FVector2D::Zero())
+	{
+		return characterForwardDirection.Rotation();
+	}
+	
+	//1.回転目標の向きを計算
+	float value = (input * _currentInputDirection).Size() * _throwTargetParam.rotateSpeed;
+	FVector rotatedVector = FRotator(0, FMath::Abs(value) * _currentRotateDirection,0).RotateVector(characterForwardDirection);
+	
+	//2.回転の最大値に応じて、移動量の制限を行う
+	if (_currentRotateDirection == 1)
+	{
+		float rotatedCrossProductZ = FVector::CrossProduct(_leftMaxVec, rotatedVector).Z;
+		rotatedVector = (rotatedCrossProductZ >= 0 ? -1 : 1) != _currentRotateDirection ? _leftMaxVec : rotatedVector;
+	}
+	else if (_currentRotateDirection == -1)
+	{
+		float rotatedCrossProductZ = FVector::CrossProduct(_rightMaxVec, rotatedVector).Z;
+		rotatedVector = (rotatedCrossProductZ >= 0 ? -1 : 1) != _currentRotateDirection ? _rightMaxVec : rotatedVector;
+	}
+    	
+	return rotatedVector.Rotation();
 }
 
 void UCircleMoveTargetComponent::UpdateCircle(FVector2D direction)
@@ -116,6 +143,7 @@ void UCircleMoveTargetComponent::UpdateCircle(FVector2D direction)
 	int32 rotateDirection = FVector2D::CrossProduct(_initToCenterVec, direction) >= 0 ? 1 : -1;
 	float circleLineDirectionRad = rotateDirection * FMath::Acos(circleLineDirectionCos);
 	_circleLineDirectionAngle = circleLineDirectionRad * 180 / PI;//ラジアンから度に変換
+	
 	//θが現在の中心角の時、l(弧の長さ)が小さいほどより正確に接線を示すようになるため、lはキャラクターの向きの精度と言える
 	//rθ = l(弧の長さ)、(π - θ) / 2 = λ (現在地から中心へ向かうベクトルとl(弧)が成す2等辺三角形の内、θではない方)
 	//r = l/(π - 2 * λ)
@@ -154,7 +182,6 @@ void UCircleMoveTargetComponent::Throw(const FInputActionValue& Value)
 	else UE_LOG(LogTemp, Error, TEXT("_throwFuncがnullです。 %s"), *GetName());
 	
 	ReleaseInputComponent();
-	InVisibleArrowMesh();
 	if (IsValid(_owner))
 	{
 		_owner->SetVisibilityMiniMap(false);

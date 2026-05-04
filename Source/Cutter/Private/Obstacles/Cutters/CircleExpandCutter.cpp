@@ -43,7 +43,6 @@ void ACircleExpandCutter::CheckOutOfStage()
 	{
 		OnBreak();
 	}
-	else UE_LOG(LogCutter, Error, TEXT("IStageShape::Execute_IsInStageが実行できません %s"), *GetName());
 }
 
 void ACircleExpandCutter::ReStart()

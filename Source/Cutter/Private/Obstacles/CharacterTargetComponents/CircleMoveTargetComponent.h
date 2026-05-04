@@ -26,8 +26,11 @@ private:
 	/*ターゲットのための回転*/
 	virtual void Rotate(const FInputActionValue& Value) override;
 	
+	/*入力開始時に回転方向を設定する*/
+	virtual void SetRotateDirectionByInput(FVector2D input, const FVector& characterForwardDirection) override;
+
 	/*入力値から回転情報を取得*/
-	FRotator GetRotatorByInput(FVector2D input) const;
+	FRotator GetRotatorByInput(FVector2D input, const FVector& characterForwardDirection);
 
 	/*現在のキャラクターの向きを元に円サイズを更新*/
 	void UpdateCircle(FVector2D direction);
@@ -52,8 +55,14 @@ private:
 	FVector2D _initToCenterVec = {};
 	
 	/*移動限界ベクトル(右)*/
-	FVector2D _rightMaxVec = {};
+	FVector _rightMaxVec = {};
 	
 	/*移動限界ベクトル(左)*/
-	FVector2D _leftMaxVec = {};
+	FVector _leftMaxVec = {};
+	
+	/*現在の回転方向が収束するベクトル(+の回転方向なら1, -の回転方向なら-1)*/
+	int32 _currentRotateDirection = {};
+	
+	/*現在の回転方向が収束するベクトル(+の回転方向なら1, -の回転方向なら-1)*/
+	FVector2D _currentInputDirection = {};
 };

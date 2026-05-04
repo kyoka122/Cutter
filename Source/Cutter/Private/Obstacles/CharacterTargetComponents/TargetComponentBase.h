@@ -19,14 +19,12 @@ public:
 	
 protected:
 	virtual void Init();
-	void CacheArrowMesh();
 	void CacheOwner();
 	void CacheOverViewCapture();
-	void VisibleArrowMesh() const;
-	void InVisibleArrowMesh() const;
 	void RegisterInputComponent();
 	void ReleaseInputComponent() const;
 	virtual void Rotate(const FInputActionValue& Value){}
+	virtual void SetRotateDirectionByInput(FVector2D input, const FVector& characterForwardDirection){}
 	virtual void Throw(const FInputActionValue& Value){}
 	
 protected:

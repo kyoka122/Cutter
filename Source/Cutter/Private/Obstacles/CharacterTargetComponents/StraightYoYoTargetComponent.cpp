@@ -20,7 +20,6 @@ void UStraightYoYoTargetComponent::Init()
 {
 	Super::Init();
 	RegisterInputComponent();
-	VisibleArrowMesh();
 	
 	if (!IsValid(_owner))
 	{
@@ -112,7 +111,6 @@ void UStraightYoYoTargetComponent::Throw(const FInputActionValue& Value)
 	else UE_LOG(LogTemp, Error, TEXT("_throwFuncがnullです。 %s"), *GetName()); 
 	
 	ReleaseInputComponent();
-	InVisibleArrowMesh();
 	if (IsValid(_owner))
 	{
 		_owner->SetVisibilityMiniMap(false);
