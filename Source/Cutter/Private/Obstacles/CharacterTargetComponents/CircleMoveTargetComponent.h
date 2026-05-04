@@ -27,10 +27,10 @@ private:
 	virtual void Rotate(const FInputActionValue& Value) override;
 	
 	/*入力開始時に回転方向を設定する*/
-	virtual void SetRotateDirectionByInput(FVector2D input, const FVector& characterForwardDirection) override;
+	void SetRotateDirectionByInput(FVector2D inputVec, const FVector& characterForwardDirection);
 
 	/*入力値から回転情報を取得*/
-	FRotator GetRotatorByInput(FVector2D input, const FVector& characterForwardDirection);
+	FRotator GetRotatorByInput(FVector2D inputVec, const FVector& characterForwardDirection) const;
 
 	/*現在のキャラクターの向きを元に円サイズを更新*/
 	void UpdateCircle(FVector2D direction);

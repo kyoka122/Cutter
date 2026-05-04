@@ -24,7 +24,6 @@ protected:
 	void RegisterInputComponent();
 	void ReleaseInputComponent() const;
 	virtual void Rotate(const FInputActionValue& Value){}
-	virtual void SetRotateDirectionByInput(FVector2D input, const FVector& characterForwardDirection){}
 	virtual void Throw(const FInputActionValue& Value){}
 	
 protected:

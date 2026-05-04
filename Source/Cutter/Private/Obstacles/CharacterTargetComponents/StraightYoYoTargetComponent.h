@@ -25,11 +25,15 @@ public:
 private:
 	/*ターゲットのための回転*/
 	virtual void Rotate(const FInputActionValue& Value) override;
-	
+	void SetRotateDirectionByInput(FVector2D inputVec, const FVector& characterForwardDirection);
+
+	FRotator GetRotatorByInput(FVector2D inputVec, const FVector& characterForwardDirection) const;
 	/*引数の値が指定値になっていたらカッターを投げる（入力検知入り登録用関数）*/
 	virtual void Throw(const FInputActionValue& Value) override;
 	
 private:
 	TFunction<void(const FStraightYoYoThrowParam&)> _throwCutterFunc = {};
 	FStraightYoYoThrowTargetParam _throwTargetParam = {};
+	int32 currentRotateDirection = 0;
+	FVector2D _currentInputDirection = {};
 };

@@ -79,9 +79,9 @@ void UCircleMoveTargetComponent::Rotate(const FInputActionValue& Value)
 	UpdateCircle(FVector2D(characterForwardDirection));
 }
 
-void UCircleMoveTargetComponent::SetRotateDirectionByInput(FVector2D input, const FVector& characterForwardDirection)
+void UCircleMoveTargetComponent::SetRotateDirectionByInput(FVector2D inputVec, const FVector& characterForwardDirection)
 {
-	if (input == FVector2D::Zero())
+	if (inputVec == FVector2D::Zero())
 	{
 		_currentRotateDirection = 0;
 		_currentInputDirection = FVector2D::Zero();
@@ -91,14 +91,14 @@ void UCircleMoveTargetComponent::SetRotateDirectionByInput(FVector2D input, cons
 	FVector currentRotateConvergence;
 	FVector2D nextInputDirection;
 	
-	if (FMath::Abs(input.X) >= FMath::Abs(input.Y))//MEMO: X,Yの入力に対し、値の大きい方を優先して処理する
+	if (FMath::Abs(inputVec.X) >= FMath::Abs(inputVec.Y))//MEMO: X,Yの入力に対し、値の大きい方を優先して処理する
 	{
-		nextInputDirection = FVector2D(input.X, 0).GetSafeNormal();
-		currentRotateConvergence = input.X > 0 ? FVector::RightVector : FVector::LeftVector;
+		nextInputDirection = FVector2D(inputVec.X, 0).GetSafeNormal();
+		currentRotateConvergence = inputVec.X > 0 ? FVector::RightVector : FVector::LeftVector;
 	}else
 	{
-		nextInputDirection = FVector2D(0, input.Y).GetSafeNormal();
-		currentRotateConvergence = input.Y > 0 ? FVector::ForwardVector : FVector::BackwardVector;
+		nextInputDirection = FVector2D(0, inputVec.Y).GetSafeNormal();
+		currentRotateConvergence = inputVec.Y > 0 ? FVector::ForwardVector : FVector::BackwardVector;
 	}
 	
 	//MEMO: 入力最大値が変わらない場合、回転方向は変えない
@@ -111,15 +111,15 @@ void UCircleMoveTargetComponent::SetRotateDirectionByInput(FVector2D input, cons
 	_currentInputDirection = nextInputDirection;
 }
 
-FRotator UCircleMoveTargetComponent::GetRotatorByInput(FVector2D input, const FVector& characterForwardDirection)
+FRotator UCircleMoveTargetComponent::GetRotatorByInput(FVector2D inputVec, const FVector& characterForwardDirection) const
 {
-	if (input == FVector2D::Zero())
+	if (inputVec == FVector2D::Zero())
 	{
 		return characterForwardDirection.Rotation();
 	}
 	
 	//1.回転目標の向きを計算
-	float value = (input * _currentInputDirection).Size() * _throwTargetParam.rotateSpeed;
+	float value = (inputVec * _currentInputDirection).Size() * _throwTargetParam.rotateSpeed;
 	FVector rotatedVector = FRotator(0, FMath::Abs(value) * _currentRotateDirection,0).RotateVector(characterForwardDirection);
 	
 	//2.回転の最大値に応じて、移動量の制限を行う
