@@ -54,6 +54,12 @@ void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
 	FScoreRobbedParam param = {};
+	if (!isExecPlayer)
+	{
+		param.canRobScore = false;
+		return param;
+	}
+	
 	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
