@@ -171,3 +171,8 @@ void AInGameMode::SetObstaclesSpeed(float value)
 		obstacle->CustomTimeDilation = value;
 	}
 }
+
+void AInGameMode::SetLimitTimeSpeed(float value)
+{
+	CustomTimeDilation = value;
+}
