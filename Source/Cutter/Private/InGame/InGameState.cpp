@@ -2,7 +2,7 @@
 
 void AInGameState::AddScore(int value)
 {
-	score += value;
+	score = FMath::Max(0, score + value);
 }
 
 void AInGameState::ConsumeLimitTime(float value)
