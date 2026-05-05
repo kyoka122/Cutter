@@ -29,6 +29,10 @@ public:
 	/*今盤面に存在する全てのオブジェクトのスピードを遅くする*/
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void SetObstaclesSpeed(float value);
+	
+	/*制限時間の経過スピードを遅くする*/
+	UFUNCTION(BlueprintCallable, Category = "InGame")
+	void SetLimitTimeSpeed(float value);
 
 protected:
 	virtual void BeginPlay() override;
