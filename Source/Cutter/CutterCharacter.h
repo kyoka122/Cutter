@@ -91,7 +91,7 @@ protected:
 	void SetInVisibleCutterLooksView() const;
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "アイテム")
+	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TSubclassOf<ACutterBlower> _blowerPrefab = {};
 	
 public:
