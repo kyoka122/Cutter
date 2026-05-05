@@ -68,7 +68,7 @@ void AStraightYoYoCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
 	{
 		UE_LOG(LogCutter, Log, TEXT("AddScore %s by%s"), *GetName(), *otherActor->GetName());
 		FScoreRobbedParam robbedParam = IScoreTarget::Execute_RobbedScore(otherActor, false);
-		if (robbedParam.canRobScore)
+		if (!robbedParam.canRobScore)
 		{
 			return;
 		}
