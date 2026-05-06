@@ -66,5 +66,4 @@ FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
 	param.score = _param.Score;
 	TransformCutter();
 	return param;
-	
 }
