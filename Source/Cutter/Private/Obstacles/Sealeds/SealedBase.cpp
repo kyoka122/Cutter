@@ -13,6 +13,16 @@ ASealedBase::ASealedBase()
 	_moveEndAnimTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MoveEndAnimTimeline"));
 }
 
+void ASealedBase::ReStart()
+{
+	_canCollisionOtherObject = false;
+	_isPlayingMoveEndAnimation = false;
+	_lifeTime = GetParam()->LifeTime;
+	
+	SetActorEnableCollision(true);
+	PlayMoveStartAnimation();
+}
+
 void ASealedBase::RegisterReleaseFunc(const TFunction<void(ASealedBase* sealed)>& releaseFunc)
 {
 	_releaseFunc = releaseFunc;
@@ -37,6 +47,7 @@ void ASealedBase::InitTimeline(UStaticMeshComponent* staticMeshComponent)
 	alphaUpdater.BindUFunction(this, "HandleBlinkUpdate");
 	_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
 	_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
+	_originSizeCache = GetActorScale3D();
 }
 
 ACutterBase* ASealedBase::TransformCutter()
@@ -69,52 +80,58 @@ void ASealedBase::SetMeshAlphaColor(float value) const
 
 void ASealedBase::PlayMoveStartAnimation()
 {
-	check(IsValid(_moveStartAnimTimeline));
-	_originSizeCache = GetActorScale3D();
-	_moveStartAnimTimeline->SetTimelineLength(GetParam()->moveStartAnimationDuration);
+	if (IsValid(_moveStartAnimTimeline))
+	{
+		_moveStartAnimTimeline->SetTimelineLength(GetParam()->moveStartAnimationDuration);
 	
-	_moveStartAnimTimeline->PlayFromStart();
-	GetWorldTimerManager().SetTimer(
-		_startAnimationTimerHandle,
-		[this]{OnEndMoveStartAnimation();},
-		GetParam()->moveStartAnimationDuration,
-		false);
+		_moveStartAnimTimeline->PlayFromStart();
+		GetWorldTimerManager().SetTimer(
+			_startAnimationTimerHandle,
+			[this]{OnEndMoveStartAnimation();},
+			GetParam()->moveStartAnimationDuration,
+			false);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_moveStartAnimTimelineがnullです。"));
 }
 
 void ASealedBase::PlayMoveEndAnimation()
 {
-	check(IsValid(_moveEndAnimTimeline));
-	_moveStartAnimTimeline->SetTimelineLength(GetParam()->moveEndAnimationDuration);
-	
-	_moveEndAnimTimeline->PlayFromStart();
-	GetWorldTimerManager().SetTimer(
-		_endAnimationTimerHandle,
-		[this]{OnEndMoveEndAnimation();},
-		GetParam()->moveEndAnimationDuration,
-		false);
+	if (IsValid(_moveEndAnimTimeline))
+	{
+		_moveEndAnimTimeline->SetTimelineLength(GetParam()->moveEndAnimationDuration);
+		_moveEndAnimTimeline->PlayFromStart();
+		GetWorldTimerManager().SetTimer(
+			_endAnimationTimerHandle,
+			[this]{OnEndMoveEndAnimation();},
+			GetParam()->moveEndAnimationDuration,
+			false);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_moveEndAnimTimelineがnullです。"));
 }
 
 void ASealedBase::OnEndMoveStartAnimation()
 {
-	check(IsValid(_moveStartAnimTimeline));
-	HandleSizeUpUpdate(1);
-	_moveStartAnimTimeline->Stop();
+	if (IsValid(_moveStartAnimTimeline))
+	{
+		_moveStartAnimTimeline->Stop();
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_moveStartAnimTimelineがnullです。"));
+	
 	GetWorldTimerManager().ClearTimer(_startAnimationTimerHandle);
-	SetActorEnableCollision(true);
+	HandleSizeUpUpdate(1);
+	_canCollisionOtherObject = true;
 }
 
 void ASealedBase::OnEndMoveEndAnimation()
 {
-	check(IsValid(_moveStartAnimTimeline));
-	HandleBlinkUpdate(1);
-	_moveStartAnimTimeline->Stop();
-	_playingMoveEndAnimation = false;
-	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
-	if (_releaseFunc)
+	if (IsValid(_moveEndAnimTimeline))
 	{
-		_releaseFunc(this);
+		_moveEndAnimTimeline->Stop();
 	}
-	else UE_LOG(LogSealed, Error, TEXT("_releaseFuncがnullです。 %s"), *GetName());
+	else UE_LOG(LogSealed, Error, TEXT("_moveEndAnimTimelineがnullです。"));
+	
+	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
+	HandleBlinkUpdate(1);
 }
 
 void ASealedBase::HandleBlinkUpdate(float value) const
@@ -131,9 +148,10 @@ void ASealedBase::HandleSizeUpUpdate(float value)
 	SetActorScale3D(_originSizeCache * value);
 }
 
-void ASealedBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void ASealedBase::ClearAllAnimation()
 {
-	Super::EndPlay(EndPlayReason);
 	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
 	GetWorldTimerManager().ClearTimer(_startAnimationTimerHandle);
+	OnEndMoveStartAnimation();
+	OnEndMoveEndAnimation();
 }

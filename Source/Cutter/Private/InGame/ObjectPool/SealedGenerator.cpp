@@ -32,18 +32,23 @@ ASealedBase* ASealedGenerator::Generate()
 void ASealedGenerator::Activate(ASealedBase* sealed, const FTransform& transform)
 {
 	sealed->SetActorTransform(transform);
-	sealed->SetActorHiddenInGame(false);
+	Activate(sealed);
 }
 
 void ASealedGenerator::Activate(ASealedBase* sealed)
 {
 	sealed->SetActorHiddenInGame(false);
+	sealed->SetActorEnableCollision(true);
+	sealed->SetActorTickEnabled(true);
 }
 
 void ASealedGenerator::Deactivate(ASealedBase* sealed)
 {
 	SafeDeactivate(sealed);
-	sealed->SetMeshAlphaColor(1);//MEMO: Meshの取得処理を先にしておかないとDeactivate時にエラーになるため他のDeactivate処理と分ける
+	
+	//MEMO: Meshの取得処理を先にしておかないとDeactivate時にエラーになるためSafeDeactivate処理と分ける
+	sealed->SetMeshAlphaColor(1);
+	sealed->ClearAllAnimation();
 }
 
 void ASealedGenerator::SafeDeactivate(ASealedBase* sealed)

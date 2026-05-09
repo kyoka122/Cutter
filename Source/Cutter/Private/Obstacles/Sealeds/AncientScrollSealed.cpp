@@ -17,29 +17,26 @@ void AAncientScrollSealed::BeginPlay()
 		return;
 	}
 	InitTimeline(staticMeshComponent);
+	ReStart();
 }
 
 void AAncientScrollSealed::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (!_canCollisionOtherObject)
+	{
+		return;
+	}
 	CheckLifeTimeIsOver(DeltaSeconds);
-}
-
-void AAncientScrollSealed::ReStart()
-{
-	Super::ReStart();
-	PlayMoveStartAnimation();
-	SetActorTickEnabled(true);
-	_lifeTime = _param.LifeTime;
 }
 
 void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 {
 	_lifeTime -= deltaTime;
-	if (!_playingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
+	if (!_isPlayingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
 	{
 		PlayMoveEndAnimation();
-		_playingMoveEndAnimation = true;
+		_isPlayingMoveEndAnimation = true;
 	}
 	if (_lifeTime < 0.f)
 	{
@@ -53,16 +50,17 @@ void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
 
 FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
+	UE_LOG(LogSealed, Log, TEXT("RobbedScore　%s"), *GetName());
 	FScoreRobbedParam param = {};
-	if (!isExecPlayer)
+	if (!isExecPlayer || !_canCollisionOtherObject)
 	{
 		param.canRobScore = false;
 		return param;
 	}
 	
-	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
+	_canCollisionOtherObject = false;
 	UObject* cutterObject = Cast<UObject>(TransformCutter());
 	if (IThrowable* throwableCutter = Cast<IThrowable>(cutterObject))
 	{
@@ -70,4 +68,9 @@ FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPl
 		param.throwableCutter.SetInterface(throwableCutter);
 	}
 	return param;
+}
+
+void AAncientScrollSealed::OnEndMoveStartAnimation()
+{
+	Super::OnEndMoveStartAnimation();
 }

@@ -18,29 +18,26 @@ void ABambooSealed::BeginPlay()
 		return;
 	}
 	InitTimeline(staticMeshComponent);
+	ReStart();
 }
 
 void ABambooSealed::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!_canCollisionOtherObject)
+	{
+		return;
+	}
 	CheckLifeTimeIsOver(DeltaTime);
-}
-
-void ABambooSealed::ReStart()
-{
-	Super::ReStart();
-	PlayMoveStartAnimation();
-	SetActorTickEnabled(true);
-	_lifeTime = _param.LifeTime;
 }
 
 void ABambooSealed::CheckLifeTimeIsOver(float deltaTime)
 {
 	_lifeTime -= deltaTime;
-	if (!_playingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
+	if (!_isPlayingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
 	{
 		PlayMoveEndAnimation();
-		_playingMoveEndAnimation = true;
+		_isPlayingMoveEndAnimation = true;
 	}
 	if (_lifeTime < 0.f)
 	{
@@ -56,12 +53,11 @@ FScoreRobbedParam ABambooSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
 	UE_LOG(LogSealed, Log, TEXT("RobbedScore　%s"), *GetName());
 	FScoreRobbedParam param = {};
-	if (isExecPlayer)
+	if (isExecPlayer || !_canCollisionOtherObject)
 	{
 		param.canRobScore = false;
 		return param;
 	}
-	SetActorEnableCollision(false);
 	param.canRobScore = true;
 	param.score = _param.Score;
 	TransformCutter();

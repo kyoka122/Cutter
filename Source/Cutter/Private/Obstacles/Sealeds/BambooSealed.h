@@ -25,8 +25,7 @@ public:
 	
 	/*このオブジェクトからスコアを奪う*/
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
-	
-protected:
+
 	virtual FSealedBaseParam* GetParam() override { return &_param; }
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")

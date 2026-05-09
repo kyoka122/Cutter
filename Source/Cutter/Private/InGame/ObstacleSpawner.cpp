@@ -5,6 +5,7 @@
 #include "ObjectPool/CutterGenerator.h"
 #include "ObjectPool/SealedGenerator.h"
 #include "Obstacles/DataAsset/CutterListDataAsset.h"
+#include "Obstacles/Sealeds/Struct/SealedBaseParam.h"
 #include "TableRow/ObstacleSpawnData.h"
 #include "Utility/ObjectPool.h"
 
@@ -71,19 +72,13 @@ void AObstacleSpawner::Update(const AInGameState* inGameState)
 	}
 	FObstacleSpawnData* nextObstacleSpawnData = *_obstacleSpawnQueue.Peek();
 	
-	if (nextObstacleSpawnData->spawnTime <= leftTime)
-	{
-		FObstacleSpawnData* tmp;
-		_obstacleSpawnQueue.Dequeue(tmp);
-		SpawnInOrder(nextObstacleSpawnData);
-	}
-}
-
-void AObstacleSpawner::SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData)
-{
 	if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(TagDefine::CutterType)))
 	{
-		SpawnSealed(nextObstacleSpawnData);
+		if (TrySpawnCutterByTime(nextObstacleSpawnData, leftTime))
+		{
+			FObstacleSpawnData* tmp;
+			_obstacleSpawnQueue.Dequeue(tmp);
+		}
 	}
 	else
 	{
@@ -91,14 +86,24 @@ void AObstacleSpawner::SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnD
 	}
 }
 
-void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData)
+bool AObstacleSpawner::TrySpawnCutterByTime(const FObstacleSpawnData* nextObstacleSpawnData, const float leftTime)
 {
 	FCutterSetData* spawnPrefabSet = _cutterListDataAsset->prefabs.FindByPredicate([this, nextObstacleSpawnData](const FCutterSetData& cutterSet)
 	{
 		return cutterSet.type == nextObstacleSpawnData->type;
 	});
-	check(spawnPrefabSet);
 	
+	float anticTime = spawnPrefabSet->sealedModeActor->GetDefaultObject<ASealedBase>()->GetParam()->moveStartAnimationDuration;
+	if ((nextObstacleSpawnData->spawnTime - anticTime) <= leftTime)
+	{
+		SpawnSealed(nextObstacleSpawnData, spawnPrefabSet);
+		return true;
+	}
+	return false;
+}
+
+void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData, const FCutterSetData* spawnPrefabSet)
+{
 	FTransform transform;
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	
@@ -107,7 +112,6 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	
 	TObjectPtr<ASealedBase> sealed = sealedPool->Create(transform);
 	sealed->RegisterCutterSpawner(cutterPool);
-	
 	sealed->ReStart();
 }
 

@@ -20,13 +20,11 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	
-	/*生成時、オブジェクトプールから持ってくるため、ここで初期化する*/
-	virtual void ReStart() override;
-	
 	/*このオブジェクトからスコアを奪う*/
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
 	
-protected:
+	virtual void OnEndMoveStartAnimation() override;
+	
 	virtual FSealedBaseParam* GetParam() override { return &_param; }
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
@@ -38,7 +36,4 @@ protected:
 
 private:
 	void CheckLifeTimeIsOver(float deltaTime);
-	
-private:
-	float _lifeTime = 0.f;
 };

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Obstacles/Struct/CutterSetData.h"
 #include "Utility/ObjectPool.h"
 #include "ObstacleSpawner.generated.h"
 
@@ -36,10 +37,10 @@ protected:
 
 private:
 	/*登録されている順に時間になったら生成する*/
-	void SpawnInOrder(const FObstacleSpawnData* nextObstacleSpawnData);
+	bool TrySpawnCutterByTime(const FObstacleSpawnData* nextObstacleSpawnData, float leftTime);
 	void InitGenerator(const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc);
 	void RegisterSpawnData(const UDataTable* obstacleSpawnTable);
-	void SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData);
+	void SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnData, const FCutterSetData* spawnPrefabSet);
 
 private:
 	TMap<TSubclassOf<ACutterBase>, TSharedPtr<ObjectPool<ACutterBase>>> _cutterPools;
