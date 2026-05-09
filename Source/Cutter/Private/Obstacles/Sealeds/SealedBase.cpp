@@ -13,13 +13,26 @@ ASealedBase::ASealedBase()
 	_moveEndAnimTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MoveEndAnimTimeline"));
 }
 
+void ASealedBase::BeginPlay()
+{
+	Super::BeginPlay();
+	UStaticMeshComponent* staticMeshComponent = GetMainMesh();
+	if (!IsValid(staticMeshComponent))
+	{
+		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした:　%s"), *GetName());
+		return;
+	}
+	InitTimeline(staticMeshComponent);
+	ReStart();
+}
+
 void ASealedBase::ReStart()
 {
-	_canCollisionOtherObject = false;
+	_canOverlapOtherObject = false;
 	_isPlayingMoveEndAnimation = false;
 	_lifeTime = GetParam()->LifeTime;
 	
-	SetActorEnableCollision(true);
+	SetActiveOverlapComponent(true);
 	PlayMoveStartAnimation();
 }
 
@@ -48,6 +61,24 @@ void ASealedBase::InitTimeline(UStaticMeshComponent* staticMeshComponent)
 	_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
 	_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
 	_originSizeCache = GetActorScale3D();
+}
+
+void ASealedBase::CheckLifeTimeIsOver(float deltaTime)
+{
+	_lifeTime -= deltaTime;
+	if (!_isPlayingMoveEndAnimation && _lifeTime < GetParam()->moveEndAnimationDuration)
+	{
+		PlayMoveEndAnimation();
+		_isPlayingMoveEndAnimation = true;
+	}
+	if (_lifeTime < 0.f)
+	{
+		if (_releaseFunc)
+		{
+			_releaseFunc(this);
+		}
+		else UE_LOG(LogSealed, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
+	}
 }
 
 ACutterBase* ASealedBase::TransformCutter()
@@ -119,7 +150,8 @@ void ASealedBase::OnEndMoveStartAnimation()
 	
 	GetWorldTimerManager().ClearTimer(_startAnimationTimerHandle);
 	HandleSizeUpUpdate(1);
-	_canCollisionOtherObject = true;
+	SetActiveOverlapComponent(false);
+	_canOverlapOtherObject = true;
 }
 
 void ASealedBase::OnEndMoveEndAnimation()
@@ -146,6 +178,17 @@ void ASealedBase::HandleBlinkUpdate(float value) const
 void ASealedBase::HandleSizeUpUpdate(float value)
 {
 	SetActorScale3D(_originSizeCache * value);
+}
+
+void ASealedBase::SetActiveOverlapComponent(bool value)
+{
+	if (UStaticMeshComponent* collisionMesh = GetCollisionMesh())
+	{
+		ECollisionEnabled::Type type = value ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision;
+		collisionMesh->SetCollisionEnabled(type);
+		collisionMesh->SetVisibility(value);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("GetCollisionMesh()がnullです。 %s"), *GetName());
 }
 
 void ASealedBase::ClearAllAnimation()

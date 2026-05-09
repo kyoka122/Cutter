@@ -7,52 +7,21 @@ AAncientScrollSealed::AAncientScrollSealed()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AAncientScrollSealed::BeginPlay()
-{
-	Super::BeginPlay();
-	UStaticMeshComponent* staticMeshComponent = GetStaticMesh();
-	if (!IsValid(staticMeshComponent))
-	{
-		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした。"));
-		return;
-	}
-	InitTimeline(staticMeshComponent);
-	ReStart();
-}
-
 void AAncientScrollSealed::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (!_canCollisionOtherObject)
+	if (!_canOverlapOtherObject)
 	{
 		return;
 	}
 	CheckLifeTimeIsOver(DeltaSeconds);
 }
 
-void AAncientScrollSealed::CheckLifeTimeIsOver(float deltaTime)
-{
-	_lifeTime -= deltaTime;
-	if (!_isPlayingMoveEndAnimation && _lifeTime < _param.moveEndAnimationDuration)
-	{
-		PlayMoveEndAnimation();
-		_isPlayingMoveEndAnimation = true;
-	}
-	if (_lifeTime < 0.f)
-	{
-		if (_releaseFunc)
-		{
-			_releaseFunc(this);
-		}
-		else UE_LOG(LogSealed, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
-	}
-}
-
 FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
-	UE_LOG(LogSealed, Log, TEXT("RobbedScore　%s"), *GetName());
+	UE_LOG(LogSealed, Log, TEXT("RobbedScore:　%s"), *GetName());
 	FScoreRobbedParam param = {};
-	if (!isExecPlayer || !_canCollisionOtherObject)
+	if (!isExecPlayer || !_canOverlapOtherObject)
 	{
 		param.canRobScore = false;
 		return param;
@@ -60,7 +29,7 @@ FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPl
 	
 	param.canRobScore = true;
 	param.score = _param.Score;
-	_canCollisionOtherObject = false;
+	_canOverlapOtherObject = false;
 	UObject* cutterObject = Cast<UObject>(TransformCutter());
 	if (IThrowable* throwableCutter = Cast<IThrowable>(cutterObject))
 	{
@@ -68,9 +37,4 @@ FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPl
 		param.throwableCutter.SetInterface(throwableCutter);
 	}
 	return param;
-}
-
-void AAncientScrollSealed::OnEndMoveStartAnimation()
-{
-	Super::OnEndMoveStartAnimation();
 }
