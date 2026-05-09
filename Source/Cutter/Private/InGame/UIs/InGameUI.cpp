@@ -4,8 +4,11 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
+#include "Components/ScrollBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "InGame/InGameState.h"
+
+class UScrollBoxSlot;
 
 void UInGameUI::NativeConstruct()
 {
@@ -21,6 +24,38 @@ void UInGameUI::UpdateUI(const AInGameState* gameState, float deltaTime)
 	if(_countAnimatedScore != gameState->GetScore())
 	{
 		SetScore(gameState->GetScore(), deltaTime);
+	}
+}
+
+void UInGameUI::SetBlowerCount(int blowerCount)
+{
+	if (_currentSpawnedBlowerCount >= blowerCount)
+	{
+		int32 count = 0;
+		for (const auto& blowerImage : _blowerImages)
+		{
+			ESlateVisibility type = count < blowerCount ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+			blowerImage->SetVisibility(type);
+			count++;
+		}
+		return;
+	}
+	for (int i = 0; i < blowerCount - _currentSpawnedBlowerCount; ++i)
+	{
+		TObjectPtr<UUserWidget> image = CreateWidget<UUserWidget>(this, _blowerImage);
+		if (!image)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Widget作成に失敗"));
+			continue;
+		}
+		_blowerImages.Add(image);
+		TObjectPtr<UPanelSlot> panelSlot = _blowerImagesOverlay->AddChild(image);
+		TObjectPtr<UScrollBoxSlot> scrollBoxSlot = Cast<UScrollBoxSlot>(panelSlot);
+		if (IsValid(scrollBoxSlot))
+		{
+			scrollBoxSlot->SetPadding(0);//MEMO: もし大量に生成するようになってきたらPaddingの計算を行う
+		}
+		UE_LOG(LogTemp, Error, TEXT("scrollBoxSlotの生成に失敗しました levelName: %s"), *GetName());
 	}
 }
 
