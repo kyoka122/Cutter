@@ -48,18 +48,32 @@ void ASealedBase::RegisterCutterSpawner(const TSharedPtr<ObjectPool<ACutterBase>
 
 void ASealedBase::InitTimeline(UStaticMeshComponent* staticMeshComponent)
 {
-	check(IsValid(staticMeshComponent));
-	_dynamicMaterial = staticMeshComponent->CreateAndSetMaterialInstanceDynamic(0);
-	check(IsValid(_dynamicMaterial));
-	check(IsValid(_blinkCurve));
 	check(IsValid(_moveStartAnimTimeline));
+	check(IsValid(_moveEndAnimTimeline));
+	
+	_dynamicMaterial = staticMeshComponent->CreateAndSetMaterialInstanceDynamic(0);
+	if (!_dynamicMaterial)
+	{
+		UE_LOG(LogSealed, Error, TEXT("_dynamicMaterialがnullです。 %s"), *GetName());
+		return;
+	}
 	
 	FOnTimelineFloat sizeUpdater;
 	FOnTimelineFloat alphaUpdater;
 	sizeUpdater.BindUFunction(this, "HandleSizeUpUpdate");
 	alphaUpdater.BindUFunction(this, "HandleBlinkUpdate");
-	_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
-	_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
+	
+	if (_sizeUpCurve)
+	{
+		_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_sizeUpCurveがnullです。 %s"), *GetName());
+	
+	if (_blinkCurve)
+	{
+		_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_blinkCurveがnullです。 %s"), *GetName());
 	_originSizeCache = GetActorScale3D();
 }
 
