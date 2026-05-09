@@ -204,6 +204,11 @@ void ACutterCharacter::ThrowBlower()
 		UE_LOG(LogTemp, Error, TEXT("_blowerPrefabがセットされていません"));
 		return;
 	}
+	bool isPlayingAnimation = IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation();
+	if (isPlayingAnimation)
+	{
+		return;
+	}
 	
 	ACutterBlower* blower = GetWorld()->SpawnActorDeferred<ACutterBlower>(_blowerPrefab, FTransform::Identity);
 	if (IsValid(blower))
