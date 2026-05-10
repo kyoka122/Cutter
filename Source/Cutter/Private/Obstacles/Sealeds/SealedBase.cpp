@@ -13,6 +13,29 @@ ASealedBase::ASealedBase()
 	_moveEndAnimTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MoveEndAnimTimeline"));
 }
 
+void ASealedBase::BeginPlay()
+{
+	Super::BeginPlay();
+	UStaticMeshComponent* staticMeshComponent = GetMainMesh();
+	if (!IsValid(staticMeshComponent))
+	{
+		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした:　%s"), *GetName());
+		return;
+	}
+	InitTimeline(staticMeshComponent);
+	ReStart();
+}
+
+void ASealedBase::ReStart()
+{
+	_canOverlapOtherObject = false;
+	_isPlayingMoveEndAnimation = false;
+	_lifeTime = GetParam()->LifeTime;
+	
+	SetActiveOverlapComponent(true);
+	PlayMoveStartAnimation();
+}
+
 void ASealedBase::RegisterReleaseFunc(const TFunction<void(ASealedBase* sealed)>& releaseFunc)
 {
 	_releaseFunc = releaseFunc;
@@ -25,18 +48,51 @@ void ASealedBase::RegisterCutterSpawner(const TSharedPtr<ObjectPool<ACutterBase>
 
 void ASealedBase::InitTimeline(UStaticMeshComponent* staticMeshComponent)
 {
-	check(IsValid(staticMeshComponent));
-	_dynamicMaterial = staticMeshComponent->CreateAndSetMaterialInstanceDynamic(0);
-	check(IsValid(_dynamicMaterial));
-	check(IsValid(_blinkCurve));
 	check(IsValid(_moveStartAnimTimeline));
+	check(IsValid(_moveEndAnimTimeline));
+	
+	_dynamicMaterial = staticMeshComponent->CreateAndSetMaterialInstanceDynamic(0);
+	if (!_dynamicMaterial)
+	{
+		UE_LOG(LogSealed, Error, TEXT("_dynamicMaterialがnullです。 %s"), *GetName());
+		return;
+	}
 	
 	FOnTimelineFloat sizeUpdater;
 	FOnTimelineFloat alphaUpdater;
 	sizeUpdater.BindUFunction(this, "HandleSizeUpUpdate");
 	alphaUpdater.BindUFunction(this, "HandleBlinkUpdate");
-	_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
-	_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
+	
+	if (_sizeUpCurve)
+	{
+		_moveStartAnimTimeline->AddInterpFloat(_sizeUpCurve, sizeUpdater);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_sizeUpCurveがnullです。 %s"), *GetName());
+	
+	if (_blinkCurve)
+	{
+		_moveEndAnimTimeline->AddInterpFloat(_blinkCurve, alphaUpdater);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_blinkCurveがnullです。 %s"), *GetName());
+	_originSizeCache = GetActorScale3D();
+}
+
+void ASealedBase::CheckLifeTimeIsOver(float deltaTime)
+{
+	_lifeTime -= deltaTime;
+	if (!_isPlayingMoveEndAnimation && _lifeTime < GetParam()->moveEndAnimationDuration)
+	{
+		PlayMoveEndAnimation();
+		_isPlayingMoveEndAnimation = true;
+	}
+	if (_lifeTime < 0.f)
+	{
+		if (_releaseFunc)
+		{
+			_releaseFunc(this);
+		}
+		else UE_LOG(LogSealed, Error, TEXT("_releaseFunc 実行する関数がnullです %s"), *GetName());
+	}
 }
 
 ACutterBase* ASealedBase::TransformCutter()
@@ -69,52 +125,59 @@ void ASealedBase::SetMeshAlphaColor(float value) const
 
 void ASealedBase::PlayMoveStartAnimation()
 {
-	check(IsValid(_moveStartAnimTimeline));
-	_originSizeCache = GetActorScale3D();
-	_moveStartAnimTimeline->SetTimelineLength(GetParam()->moveStartAnimationDuration);
+	if (IsValid(_moveStartAnimTimeline))
+	{
+		_moveStartAnimTimeline->SetTimelineLength(GetParam()->moveStartAnimationDuration);
 	
-	_moveStartAnimTimeline->PlayFromStart();
-	GetWorldTimerManager().SetTimer(
-		_startAnimationTimerHandle,
-		[this]{OnEndMoveStartAnimation();},
-		GetParam()->moveStartAnimationDuration,
-		false);
+		_moveStartAnimTimeline->PlayFromStart();
+		GetWorldTimerManager().SetTimer(
+			_startAnimationTimerHandle,
+			[this]{OnEndMoveStartAnimation();},
+			GetParam()->moveStartAnimationDuration,
+			false);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_moveStartAnimTimelineがnullです。"));
 }
 
 void ASealedBase::PlayMoveEndAnimation()
 {
-	check(IsValid(_moveEndAnimTimeline));
-	_moveStartAnimTimeline->SetTimelineLength(GetParam()->moveEndAnimationDuration);
-	
-	_moveEndAnimTimeline->PlayFromStart();
-	GetWorldTimerManager().SetTimer(
-		_endAnimationTimerHandle,
-		[this]{OnEndMoveEndAnimation();},
-		GetParam()->moveEndAnimationDuration,
-		false);
+	if (IsValid(_moveEndAnimTimeline))
+	{
+		_moveEndAnimTimeline->SetTimelineLength(GetParam()->moveEndAnimationDuration);
+		_moveEndAnimTimeline->PlayFromStart();
+		GetWorldTimerManager().SetTimer(
+			_endAnimationTimerHandle,
+			[this]{OnEndMoveEndAnimation();},
+			GetParam()->moveEndAnimationDuration,
+			false);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_moveEndAnimTimelineがnullです。"));
 }
 
 void ASealedBase::OnEndMoveStartAnimation()
 {
-	check(IsValid(_moveStartAnimTimeline));
-	HandleSizeUpUpdate(1);
-	_moveStartAnimTimeline->Stop();
+	if (IsValid(_moveStartAnimTimeline))
+	{
+		_moveStartAnimTimeline->Stop();
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_moveStartAnimTimelineがnullです。"));
+	
 	GetWorldTimerManager().ClearTimer(_startAnimationTimerHandle);
-	SetActorEnableCollision(true);
+	HandleSizeUpUpdate(1);
+	SetActiveOverlapComponent(false);
+	_canOverlapOtherObject = true;
 }
 
 void ASealedBase::OnEndMoveEndAnimation()
 {
-	check(IsValid(_moveStartAnimTimeline));
-	HandleBlinkUpdate(1);
-	_moveStartAnimTimeline->Stop();
-	_playingMoveEndAnimation = false;
-	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
-	if (_releaseFunc)
+	if (IsValid(_moveEndAnimTimeline))
 	{
-		_releaseFunc(this);
+		_moveEndAnimTimeline->Stop();
 	}
-	else UE_LOG(LogSealed, Error, TEXT("_releaseFuncがnullです。 %s"), *GetName());
+	else UE_LOG(LogSealed, Error, TEXT("_moveEndAnimTimelineがnullです。"));
+	
+	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
+	HandleBlinkUpdate(1);
 }
 
 void ASealedBase::HandleBlinkUpdate(float value) const
@@ -131,9 +194,21 @@ void ASealedBase::HandleSizeUpUpdate(float value)
 	SetActorScale3D(_originSizeCache * value);
 }
 
-void ASealedBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void ASealedBase::SetActiveOverlapComponent(bool value)
 {
-	Super::EndPlay(EndPlayReason);
+	if (UStaticMeshComponent* collisionMesh = GetCollisionMesh())
+	{
+		ECollisionEnabled::Type type = value ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision;
+		collisionMesh->SetCollisionEnabled(type);
+		collisionMesh->SetVisibility(value);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("GetCollisionMesh()がnullです。 %s"), *GetName());
+}
+
+void ASealedBase::ClearAllAnimation()
+{
 	GetWorldTimerManager().ClearTimer(_endAnimationTimerHandle);
 	GetWorldTimerManager().ClearTimer(_startAnimationTimerHandle);
+	OnEndMoveStartAnimation();
+	OnEndMoveEndAnimation();
 }

@@ -20,8 +20,8 @@ class CUTTER_API ASealedBase : public AActor
 
 public:
 	ASealedBase();
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	virtual void ReStart(){}
+	virtual void ReStart();
+	virtual void BeginPlay() override;
 	
 	/*オブジェクトプールに戻す用の関数を登録する*/
 	void RegisterReleaseFunc(const TFunction<void(ASealedBase* sealed)>& releaseFunc);
@@ -32,6 +32,9 @@ public:
 	/*アニメーション用のタイムラインを初期化する*/
 	void InitTimeline(UStaticMeshComponent* staticMeshComponent);
 	
+	/*ライフタイムを監視し、時間に応じた処理を行う*/
+	void CheckLifeTimeIsOver(float deltaTime);
+
 	/*カッターに変形する（実際はこのアクタをReleaseしてカッターアクタを別途生成する）*/
 	ACutterBase* TransformCutter();
 	
@@ -44,15 +47,37 @@ public:
 	/*時間経過で消える前に再生されるアニメーションを実行する*/
 	void PlayMoveEndAnimation();
 
-protected:
 	/*このオブジェクトの可変パラメータ。override必須*/
 	virtual FSealedBaseParam* GetParam(){ return nullptr; }
 	
+	/*再生中のアニメーションがあったら終了する*/
+	void ClearAllAnimation();
+	
+protected:
+	/*アクティブ時に再生されるアニメーションが終了する際に呼ばれるコールバック*/
+	virtual void OnEndMoveStartAnimation();
+	
+	/*時間経過で消える前に再生されるアニメーションが終了する際に呼ばれるコールバック*/
+	virtual void OnEndMoveEndAnimation();
+	
+	UFUNCTION() void HandleBlinkUpdate(float value) const;
+	UFUNCTION() void HandleSizeUpUpdate(float value);
+	
+	/*衝突可能Componentの有効化切り替えを行う(見た目と衝突判定有無を変更)*/
+	void SetActiveOverlapComponent(bool value);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
+	UStaticMeshComponent* GetMainMesh();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
+	UStaticMeshComponent* GetCollisionMesh();
+
 protected:
 	float _lifeTime = 0.f;
 	FGameplayTag _type = {};
 	TFunction<void(ASealedBase* sealed)> _releaseFunc = {};
-	bool _playingMoveEndAnimation = false;
+	bool _isPlayingMoveEndAnimation = false;
+	bool _canOverlapOtherObject = false;
 	
 	/*カッター生成用のプール*/
 	TSharedPtr<ObjectPool<ACutterBase>> _cutterPool;
@@ -64,17 +89,7 @@ protected:
 	/*サイズアップアニメーション用カーブ情報*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UCurveFloat> _blinkCurve;
-
-private:
-	/*アクティブ時に再生されるアニメーションが終了する際に呼ばれるコールバック*/
-	void OnEndMoveStartAnimation();
 	
-	/*時間経過で消える前に再生されるアニメーションが終了する際に呼ばれるコールバック*/
-	void OnEndMoveEndAnimation();
-	
-	UFUNCTION() void HandleBlinkUpdate(float value) const;
-	UFUNCTION() void HandleSizeUpUpdate(float value);
-
 private:
 	FTimerHandle _startAnimationTimerHandle = {};
 	FTimerHandle _endAnimationTimerHandle = {};

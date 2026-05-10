@@ -1,11 +1,17 @@
 #include "InGame/UIs/InGameUI.h"
 
+#include <string>
+
 #include "Application/CutterFormat.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
+#include "Components/ScrollBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "InGame/InGameState.h"
+
+class UScrollBoxSlot;
 
 void UInGameUI::NativeConstruct()
 {
@@ -18,10 +24,51 @@ void UInGameUI::NativeConstruct()
 void UInGameUI::UpdateUI(const AInGameState* gameState, float deltaTime)
 {
 	SetTime(gameState->GetLimitTime());
+	SetBlowerCount(gameState->GetBlowerCount());
 	if(_countAnimatedScore != gameState->GetScore())
 	{
 		SetScore(gameState->GetScore(), deltaTime);
 	}
+}
+
+void UInGameUI::SetBlowerCount(int32 blowerCount)
+{
+	ESlateVisibility textVisibilityType = blowerCount > 0 ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+	_blowerCountText->SetVisibility(textVisibilityType);
+	_blowerCountText->SetText(FText::AsNumber(blowerCount));
+	
+	if (_currentSpawnedBlowerCount >= blowerCount)
+	{
+		int32 count = 0;
+		for (const auto& blowerImage : _blowerImages)
+		{
+			ESlateVisibility imageVisibilityType = count < blowerCount ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+			blowerImage->SetVisibility(imageVisibilityType);
+			count++;
+		}
+		return;
+	}
+	for (int i = _currentSpawnedBlowerCount; i < blowerCount; ++i)
+	{
+		TObjectPtr<UUserWidget> image = CreateWidget<UUserWidget>(this, _blowerImage);
+		if (!image)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Widget作成に失敗"));
+			continue;
+		}
+		_blowerImages.Add(image);
+		TObjectPtr<UOverlaySlot> overlaySlot = _blowerImagesOverlay->AddChildToOverlay(image);
+		if (IsValid(overlaySlot))
+		{
+			overlaySlot->SetPadding(FMargin(i*50,0,0,0));//MEMO: もし大量に生成するようになってきたらPaddingの計算を行う
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("scrollBoxSlotの生成に失敗しました levelName: %s"), *GetName());
+			return;
+		}
+	}
+	_currentSpawnedBlowerCount = blowerCount;
 }
 
 void UInGameUI::SetVisibilityMiniMap(bool value)

@@ -26,6 +26,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void AddScore(int value);
 	
+	/*ブロワー消費*/
+	UFUNCTION(BlueprintCallable, Category = "InGame")
+	bool TryConsumeBlower();
+
 	/*今盤面に存在する全てのオブジェクトのスピードを遅くする*/
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void SetObstaclesSpeed(float value);

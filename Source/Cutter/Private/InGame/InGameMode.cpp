@@ -57,6 +57,7 @@ void AInGameMode::InitParam()
 	});
 	_inGameState->SetInitLimitTime(stageRowData->limitTime);
 	_inGameState->SetLimitTime(stageRowData->limitTime);
+	_inGameState->SetBlowerCount(stageRowData->blowerCount);
 }
 
 void AInGameMode::RegisterCharacterParam() const
@@ -162,6 +163,16 @@ void AInGameMode::AddScore(int value)
 	{
 		_inGameState->AddScore(value);
 	}
+}
+
+bool AInGameMode::TryConsumeBlower()
+{
+	if (_inGameState->GetBlowerCount() > 0)
+	{
+		_inGameState->ConsumeBlower();
+		return true;
+	}
+	return false;
 }
 
 void AInGameMode::SetObstaclesSpeed(float value)

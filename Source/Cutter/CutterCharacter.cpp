@@ -90,9 +90,6 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACutterCharacter::Look);
-		
-		//Blow
-		EnhancedInputComponent->BindAction(BlowAction, ETriggerEvent::Triggered, this, &ACutterCharacter::ThrowBlower);
 	}
 	else
 	{
@@ -202,6 +199,11 @@ void ACutterCharacter::ThrowBlower()
 	if (!_blowerPrefab)
 	{
 		UE_LOG(LogTemp, Error, TEXT("_blowerPrefabがセットされていません"));
+		return;
+	}
+	bool isPlayingAnimation = IsPlayingThrowStartAnimation()||IsPlayingThrowAnimation()||IsPlayingDamageAnimation();
+	if (isPlayingAnimation)
+	{
 		return;
 	}
 	

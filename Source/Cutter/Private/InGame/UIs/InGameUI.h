@@ -23,6 +23,9 @@ public:
 	/*表示コンテンツの更新*/
 	void UpdateUI(const AInGameState* gameState, float deltaTime);
 	
+	/*ブロワーのアイコン表示数更新*/
+	void SetBlowerCount(int blowerCount);
+
 	/*Miniマップの表示、非表示*/
 	virtual void SetVisibilityMiniMap(bool value) override;
 	
@@ -58,6 +61,12 @@ protected:
 	TObjectPtr<UTextBlock> _timeText = {};
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UTextBlock> _blowerCountText = {};
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UOverlay> _blowerImagesOverlay = {};
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UImage> _cutterLooksImage = {};
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -74,6 +83,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "UI設定")
 	float _miniMapLineThickness = 2;
+	
+	UPROPERTY(EditAnywhere, Category = "UI設定")
+	TSubclassOf<UUserWidget> _blowerImage = {};
 
 private:
 	void SetScore(int score, float deltaTime);
@@ -82,6 +94,8 @@ private:
 private:
 	float _countAnimatedScore = 0;//MEMO: スコアのカウントアニメーション実装のため、現在表示している数値をキャッシュしておく
 	float _time = 0;
+	int32 _currentSpawnedBlowerCount = 0;
 	
 	TArray<FVector2D> _points = {};
+	TArray<TObjectPtr<UUserWidget>> _blowerImages = {};
 };

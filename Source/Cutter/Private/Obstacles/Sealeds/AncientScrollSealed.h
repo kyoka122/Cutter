@@ -17,28 +17,13 @@ class CUTTER_API AAncientScrollSealed : public ASealedBase, public IScoreTarget
 
 public:
 	AAncientScrollSealed();
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	
-	/*生成時、オブジェクトプールから持ってくるため、ここで初期化する*/
-	virtual void ReStart() override;
-	
+	virtual void Tick(float DeltaTime) override;
+
 	/*このオブジェクトからスコアを奪う*/
 	virtual FScoreRobbedParam RobbedScore_Implementation(bool isExecPlayer) override;
-	
-protected:
 	virtual FSealedBaseParam* GetParam() override { return &_param; }
-	
-	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
-	UStaticMeshComponent* GetStaticMesh();
 	
 protected:
 	UPROPERTY(EditAnywhere, meta=(ShowOnlyInnerProperties))
 	FSealedBaseParam _param = {};
-
-private:
-	void CheckLifeTimeIsOver(float deltaTime);
-	
-private:
-	float _lifeTime = 0.f;
 };

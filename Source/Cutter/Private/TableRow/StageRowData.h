@@ -26,5 +26,8 @@ public:
 	float limitTime = {};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 blowerCount = {};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UDataTable> obstacleSpawnData = {};
 };
