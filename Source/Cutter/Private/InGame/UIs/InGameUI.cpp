@@ -1,9 +1,12 @@
 #include "InGame/UIs/InGameUI.h"
 
+#include <string>
+
 #include "Application/CutterFormat.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Components/ScrollBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "InGame/InGameState.h"
@@ -21,26 +24,31 @@ void UInGameUI::NativeConstruct()
 void UInGameUI::UpdateUI(const AInGameState* gameState, float deltaTime)
 {
 	SetTime(gameState->GetLimitTime());
+	SetBlowerCount(gameState->GetBlowerCount());
 	if(_countAnimatedScore != gameState->GetScore())
 	{
 		SetScore(gameState->GetScore(), deltaTime);
 	}
 }
 
-void UInGameUI::SetBlowerCount(int blowerCount)
+void UInGameUI::SetBlowerCount(int32 blowerCount)
 {
+	ESlateVisibility textVisibilityType = blowerCount > 0 ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+	_blowerCountText->SetVisibility(textVisibilityType);
+	_blowerCountText->SetText(FText::AsNumber(blowerCount));
+	
 	if (_currentSpawnedBlowerCount >= blowerCount)
 	{
 		int32 count = 0;
 		for (const auto& blowerImage : _blowerImages)
 		{
-			ESlateVisibility type = count < blowerCount ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
-			blowerImage->SetVisibility(type);
+			ESlateVisibility imageVisibilityType = count < blowerCount ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+			blowerImage->SetVisibility(imageVisibilityType);
 			count++;
 		}
 		return;
 	}
-	for (int i = 0; i < blowerCount - _currentSpawnedBlowerCount; ++i)
+	for (int i = _currentSpawnedBlowerCount; i < blowerCount; ++i)
 	{
 		TObjectPtr<UUserWidget> image = CreateWidget<UUserWidget>(this, _blowerImage);
 		if (!image)
@@ -49,14 +57,18 @@ void UInGameUI::SetBlowerCount(int blowerCount)
 			continue;
 		}
 		_blowerImages.Add(image);
-		TObjectPtr<UPanelSlot> panelSlot = _blowerImagesOverlay->AddChild(image);
-		TObjectPtr<UScrollBoxSlot> scrollBoxSlot = Cast<UScrollBoxSlot>(panelSlot);
-		if (IsValid(scrollBoxSlot))
+		TObjectPtr<UOverlaySlot> overlaySlot = _blowerImagesOverlay->AddChildToOverlay(image);
+		if (IsValid(overlaySlot))
 		{
-			scrollBoxSlot->SetPadding(0);//MEMO: もし大量に生成するようになってきたらPaddingの計算を行う
+			overlaySlot->SetPadding(FMargin(i*50,0,0,0));//MEMO: もし大量に生成するようになってきたらPaddingの計算を行う
 		}
-		UE_LOG(LogTemp, Error, TEXT("scrollBoxSlotの生成に失敗しました levelName: %s"), *GetName());
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("scrollBoxSlotの生成に失敗しました levelName: %s"), *GetName());
+			return;
+		}
 	}
+	_currentSpawnedBlowerCount = blowerCount;
 }
 
 void UInGameUI::SetVisibilityMiniMap(bool value)

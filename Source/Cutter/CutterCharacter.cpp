@@ -90,9 +90,6 @@ void ACutterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACutterCharacter::Look);
-		
-		//Blow
-		EnhancedInputComponent->BindAction(BlowAction, ETriggerEvent::Triggered, this, &ACutterCharacter::ThrowBlower);
 	}
 	else
 	{
