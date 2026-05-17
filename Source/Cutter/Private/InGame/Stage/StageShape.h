@@ -37,10 +37,10 @@ public:
 	
 	/*指定位置を通る円かつ、ステージ外にはみ出さずに一番大きく描ける内接円の接点座標*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Stage")
-	FVector2D GetFarPointOfTangency(FVector2D oppositePoint);
+	FVector2D GetMaxSizeCircleCenterPos(FVector2D oppositePoint);
 	
-	/*指定位置を通る円かつ、ステージ外にはみ出さずに一番大きく描ける内接円の接点座標*/
-	virtual FVector2D GetFarPointOfTangency_Implementation(FVector2D oppositePoint) = 0;
+	/*指定位置を通る円かつ、ステージ外にはみ出さずに一番大きく描ける内接円の座標*/
+	virtual FVector2D GetMaxSizeCircleCenterPos_Implementation(FVector2D oppositePoint) = 0;
 	
 	
 	/*ステージの中心点*/

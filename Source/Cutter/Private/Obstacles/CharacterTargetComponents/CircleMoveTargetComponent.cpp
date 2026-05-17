@@ -26,12 +26,12 @@ void UCircleMoveTargetComponent::Init()
 		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
 		return;
 	}
-	FVector2D pointOfTangency = IStageShape::Execute_GetFarPointOfTangency(_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos);
-	_toCenterVec = (pointOfTangency - _throwTargetParam.cutterPos) / 2;
+	FVector2D circleCenterPos = IStageShape::Execute_GetMaxSizeCircleCenterPos(_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos);
+	_toCenterVec = (circleCenterPos - _throwTargetParam.cutterPos);
 	_initToCenterVec = _toCenterVec;
-	
+	UE_LOG(LogTemp, Log, TEXT("_toCenterVec: %s"), *_toCenterVec.ToString());
+	UE_LOG(LogTemp, Log, TEXT("*circleCenterPos: %s"), *circleCenterPos.ToString());
 	float radius = _toCenterVec.Size();
-	FVector2D centerPos = (pointOfTangency + _throwTargetParam.cutterPos) / 2;//円の端点2つ同士の中点から回転の中心点導出
 	
 	//θが現在の中心角。l(弧の長さ)が大きいほど拡縮が緩やかになる
 	//rθ = l(弧の長さ)、(π - θ) / 2 = λ (現在地から中心へ向かうベクトルとl(弧)が成す2等辺三角形の内、θではない方)
@@ -50,7 +50,7 @@ void UCircleMoveTargetComponent::Init()
 	_owner->SetVisibilityMiniMap(true);
 	_owner->SetVisibleCutterLooksView(_throwTargetParam.looksTexture);
 	
-	UpdatePaints(centerPos, radius);
+	UpdatePaints(circleCenterPos, radius);
 }
 
 void UCircleMoveTargetComponent::Rotate(const FInputActionValue& Value)

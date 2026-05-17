@@ -42,7 +42,7 @@ FIntersectionData ACircleStage::GetInterSections_Implementation(FVector2D viaPoi
 	return intersectionData;
 }
 
-FVector2D ACircleStage::GetFarPointOfTangency_Implementation(FVector2D oppositePoint)
+FVector2D ACircleStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppositePoint)
 {
 	FVector2D oppositePointToStageCenterVec2D = FVector2D(Execute_GetCenterPos(this)) - oppositePoint;
 	float oppositePointToStageCenterDistance = oppositePointToStageCenterVec2D.Length();
