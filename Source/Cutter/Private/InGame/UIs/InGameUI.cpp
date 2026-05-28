@@ -1,7 +1,6 @@
 #include "InGame/UIs/InGameUI.h"
 
-#include <string>
-
+#include "MinimapUI.h"
 #include "Application/CutterFormat.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
@@ -64,7 +63,7 @@ void UInGameUI::SetBlowerCount(int32 blowerCount)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("scrollBoxSlotの生成に失敗しました levelName: %s"), *GetName());
+			UE_LOG(LogTemp, Error, TEXT("scrollBoxSlotの生成に失敗しました。 %s"), *GetName());
 			return;
 		}
 	}
@@ -73,69 +72,27 @@ void UInGameUI::SetBlowerCount(int32 blowerCount)
 
 void UInGameUI::SetVisibilityMiniMap(bool value)
 {
-	if (!_miniMapOverlay)
+	if (_miniMapOverlay)
 	{
-		UE_LOG(LogTemp, Error, TEXT("_miniMapが見つかりませんでした。"));
-		return;
+		ESlateVisibility visible = value ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+		_miniMapOverlay->SetVisibility(visible);
 	}
-	ESlateVisibility visible = value ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
-	_miniMapOverlay->SetVisibility(visible);
+	else UE_LOG(LogTemp, Error, TEXT("_miniMapOverlayが見つかりませんでした。 %s"), *GetName());
+	
+	if (_miniMap)
+	{
+		_miniMap->SetParentVisible(value);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_miniMapが見つかりませんでした。 %s"), *GetName());
 }
 
 void UInGameUI::UpdateDrawLines(const TArray<FVector2D>& points, FVector cameraPos, float cameraOrthoWidth)
 {
-	_points.Reset();//メモリを保持したまま要素数0に
-	_points.Reserve(points.Num());
-	for (const auto& point : points)
-	{
-		FVector2D normalizedPoint = (point - FVector2D(cameraPos)) / cameraOrthoWidth;//clippingに変換
-		FVector2D widgetPoint(normalizedPoint.Y + 0.5f, -normalizedPoint.X + 0.5f);//Widgetの座標系に変換
-		_points.Add(widgetPoint);
-	}
-}
-
-int32 UInGameUI::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect,
-	FSlateWindowElementList& OutDrawElements, int LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
-{
-	int32 layerId = Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-	if (_points.Num() <= 0 || !_miniMapOverlay->IsVisible())
-	{
-		return layerId;
-	}
 	if (_miniMap)
 	{
-		FGeometry MiniMapGeometry = _miniMap->GetCachedGeometry();
-		FGeometry RelativeMiniMapGeometry = AllottedGeometry.MakeChild(
-			MiniMapGeometry.GetLocalSize(),
-			FSlateLayoutTransform(AllottedGeometry.AbsoluteToLocal(MiniMapGeometry.GetAbsolutePosition()))
-			);
-		
-		DrawCutterPath(RelativeMiniMapGeometry, OutDrawElements, layerId + 1);
+		_miniMap->UpdateDrawLines(points, cameraPos, cameraOrthoWidth);
 	}
 	else UE_LOG(LogTemp, Error, TEXT("_miniMapが見つかりませんでした。"));
-	
-	return layerId;
-}
-
-void UInGameUI::DrawCutterPath(const FGeometry& geometry, FSlateWindowElementList& outDrawElements, int32 layerId) const
-{
-	FVector2D localSize = geometry.GetLocalSize();
-	TArray<FVector2D> points;
-	points.Reserve(_points.Num());
-	for (auto point : _points)
-	{
-		//UE_LOG(LogTemp, Log, TEXT("point * localSize: %s"), *(point * localSize).ToString());
-		points.Add(point * localSize);//X,Yが逆になる
-	}
-	
-	FSlateDrawElement::MakeLines(outDrawElements,
-		layerId,
-		geometry.ToPaintGeometry(),
-		points,
-		ESlateDrawEffect::None,
-		FLinearColor::Red,
-		true,
-		_miniMapLineThickness);
 }
 
 void UInGameUI::SetVisibilityCutterLooksView(bool value)
