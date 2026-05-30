@@ -37,10 +37,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "ターゲット時パラメータ", meta = (DisplayPriority=2))
 	float targetRotateSpeed = 1.f;
 	
-	/*ターゲット方向の精度。拡縮が緩やかになる*/
-	UPROPERTY(EditAnywhere, Category = "ターゲット時パラメータ", meta = (DisplayPriority=2))
-	float targetAccuracy = 10000.f;
-	
 	/*ミニマップの円状の線をいくつの点で構成するか(値が大きいほど円が滑らかになる)*/
 	UPROPERTY(BlueprintReadWrite)
 	int32 segments = 50;

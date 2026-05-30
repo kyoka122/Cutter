@@ -20,10 +20,6 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	float rotateSpeed = 0;
 	
-	/*ターゲット方向の精度。拡縮が緩やかになる*/
-	UPROPERTY(BlueprintReadWrite)
-	float accuracy = 0;
-	
 	/*ミニマップの円状の線をいくつの点で構成するか(値が大きいほど円が滑らかになる)*/
 	UPROPERTY(BlueprintReadWrite)
 	int32 segments = 0;

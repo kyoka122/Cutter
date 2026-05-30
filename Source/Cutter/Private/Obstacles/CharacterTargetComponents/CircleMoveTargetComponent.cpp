@@ -26,31 +26,28 @@ void UCircleMoveTargetComponent::Init()
 		UE_LOG(LogTemp, Error, TEXT("_ownerがnullです。 %s"), *GetName());
 		return;
 	}
+	//内接円の最大サイズを求める（円の基本情報の取得も）
 	FVector2D circleCenterPos = IStageShape::Execute_GetMaxSizeCircleCenterPos(_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos);
-	_toCenterVec = (circleCenterPos - _throwTargetParam.cutterPos);
-	_initToCenterVec = _toCenterVec;
-	UE_LOG(LogTemp, Log, TEXT("_toCenterVec: %s"), *_toCenterVec.ToString());
-	UE_LOG(LogTemp, Log, TEXT("*circleCenterPos: %s"), *circleCenterPos.ToString());
-	float radius = _toCenterVec.Size();
+	FVector2D toCenterVec = circleCenterPos - _throwTargetParam.cutterPos;
+	_initToCenterVec = toCenterVec;
+	_maxRadius = toCenterVec.Size();
+	_currentCircleLineRadius = _maxRadius;
 	
-	//θが現在の中心角。l(弧の長さ)が大きいほど拡縮が緩やかになる
-	//rθ = l(弧の長さ)、(π - θ) / 2 = λ (現在地から中心へ向かうベクトルとl(弧)が成す2等辺三角形の内、θではない方)
-	//λ = (π - l / r) / 2
-	_circleLineDirectionAngle = (180 - _throwTargetParam.accuracy / radius) / 2;
-	
-	FRotator leftRotator = FRotator(0, _circleLineDirectionAngle, 0);
+	//プレイヤーの回転角度の最大値を左右それぞれで求める
+	FRotator leftRotator = FRotator(0, 90, 0);
 	FVector leftMaxDirection = leftRotator.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
 	_leftMaxVec = leftMaxDirection;
 	
-	FRotator rightRotator = FRotator(0, -_circleLineDirectionAngle, 0);
+	FRotator rightRotator = FRotator(0, -90, 0);
 	FVector rightMaxDirection = rightRotator.RotateVector(FVector(_initToCenterVec.X, _initToCenterVec.Y, 0));
 	_rightMaxVec = rightMaxDirection;
 	
+	//プレイヤーの向きを左の最大角にセット
 	_owner->SetActorRotation(leftMaxDirection.Rotation());
 	_owner->SetVisibilityMiniMap(true);
 	_owner->SetVisibleCutterLooksView(_throwTargetParam.looksTexture);
 	
-	UpdatePaints(circleCenterPos, radius);
+	UpdatePaints(circleCenterPos, _currentCircleLineRadius);
 }
 
 void UCircleMoveTargetComponent::Rotate(const FInputActionValue& Value)
@@ -140,18 +137,15 @@ FRotator UCircleMoveTargetComponent::GetRotatorByInput(FVector2D inputVec, const
 void UCircleMoveTargetComponent::UpdateCircle(FVector2D direction)
 {
 	float circleLineDirectionCos = FVector2D::DotProduct(_initToCenterVec, direction) / (_initToCenterVec.Size() * direction.Size());//内積と辺の長さから角度割り出し
-	int32 rotateDirection = FVector2D::CrossProduct(_initToCenterVec, direction) >= 0 ? 1 : -1;
-	float circleLineDirectionRad = rotateDirection * FMath::Acos(circleLineDirectionCos);
-	_circleLineDirectionAngle = circleLineDirectionRad * 180 / PI;//ラジアンから度に変換
+	_rotateDirection = FVector2D::CrossProduct(_initToCenterVec, direction) >= 0 ? 1 : -1;
+	float circleLineDirectionAngle = FMath::Acos(circleLineDirectionCos) * 180 / PI;//cos値から角度を求める (ラジアンから度に変換)
+
+	//MEMO: 最大半径 / 90 * 現在の角度 =>回転割合(0 ~ 90度における)
+	_currentCircleLineRadius = _maxRadius / 90 * circleLineDirectionAngle;
+	FVector2D toCenterVec = _initToCenterVec.GetSafeNormal() * _currentCircleLineRadius;
 	
-	//θが現在の中心角の時、l(弧の長さ)が小さいほどより正確に接線を示すようになるため、lはキャラクターの向きの精度と言える
-	//rθ = l(弧の長さ)、(π - θ) / 2 = λ (現在地から中心へ向かうベクトルとl(弧)が成す2等辺三角形の内、θではない方)
-	//r = l/(π - 2 * λ)
-	float radius = _throwTargetParam.accuracy/(180 - 2 * FMath::Abs(_circleLineDirectionAngle));
-	_toCenterVec = _initToCenterVec.GetSafeNormal() * radius;
-	
-	FVector2D centerPos = _throwTargetParam.cutterPos + _toCenterVec.GetSafeNormal() * radius;//円の端点2つ同士の中点から回転の中心点導出
-	UpdatePaints(centerPos, radius);
+	FVector2D centerPos = _throwTargetParam.cutterPos + toCenterVec;//円の端点2つ同士の中点から回転の中心点導出
+	UpdatePaints(centerPos, _currentCircleLineRadius);
 }
 
 void UCircleMoveTargetComponent::UpdatePaints(FVector2D center, float radius) const
@@ -172,9 +166,8 @@ void UCircleMoveTargetComponent::Throw(const FInputActionValue& Value)
 {
 	Super::Throw(Value);
 	FCircleMoveThrowParam param;
-	param.toStageCenterVec2D = _toCenterVec;
-	param.rotateDirection = _circleLineDirectionAngle >= 0 ? -1 : 1;
-	
+	param.toStageCenterVec2D = _initToCenterVec.GetSafeNormal() * _currentCircleLineRadius;
+	param.rotateDirection = _rotateDirection >= 0 ? -1 : 1;
 	if (_throwCutterFunc)
 	{
 		_throwCutterFunc(param);

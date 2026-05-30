@@ -5,7 +5,7 @@
 #include "StageShape.generated.h"
 
 /**
- * 
+ * ステージの情報をまとめたインターフェース
  */
 UINTERFACE(MinimalAPI, Blueprintable)
 class UStageShape : public UInterface
@@ -43,8 +43,13 @@ public:
 	virtual FVector2D GetMaxSizeCircleCenterPos_Implementation(FVector2D oppositePoint) = 0;
 	
 	
+	
 	/*ステージの中心点*/
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stage")
 	FVector GetCenterPos();
+	
+	/*ステージの半径*/
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stage")
+	float GetRadius();
 	
 };

@@ -35,6 +35,5 @@ private:
 	std::pair<bool, FVector2D> GetPointOfTangency(FVector2D point, FVector2D stageEdge1, FVector2D stageEdge2);
 	
 	/*point2よりpoint1の方がoppositePointとより離れている場合true, 近い場合falseを返す*/
-	bool CompareFarPoint(std::pair<bool, FVector2D> point1, std::pair<bool, FVector2D> point2,
-	                     FVector2D oppositePoint);
+	bool CompareFarPoint(std::pair<bool, FVector2D> point1, std::pair<bool, FVector2D> point2,FVector2D oppositePoint);
 };

@@ -104,7 +104,6 @@ void ACircleMoveCutter::StartTargeting_Implementation(AActor* throwActor)
 	FCircleMoveCutterThrowTargetParam throwTargetParam;
 	throwTargetParam.rotateSpeed = _param.targetRotateSpeed;
 	throwTargetParam.cutterPos = currentPos2D;
-	throwTargetParam.accuracy = _param.targetAccuracy;
 	throwTargetParam.segments = _param.segments;
 	throwTargetParam.stageShape = _stageShape;
 	throwTargetParam.looksTexture = _param.looksTexture;
@@ -133,6 +132,7 @@ void ACircleMoveCutter::ResetTransformParam(FVector2D toStageCenterVec2D)
 	FVector2D rotateCenterPos2D = (pointOfTangency + currentPos2D) / 2;//円の端点2つ同士の中点から回転の中心点導出
 	_rotateCenterPos = FVector(rotateCenterPos2D.X, rotateCenterPos2D.Y, IStageShape::Execute_GetCenterPos(_stageShape.GetObject()).Z);
 	_currentRadius = FMath::Acos(FVector2D::DotProduct(FVector2D::UnitX(),-toStageCenterVec2D.GetSafeNormal()));//ベクトル同士の角度 = Acos(ベクトルの内積/各辺の大きさの積)
+	_currentRadius *= FVector2D::CrossProduct(FVector2D::UnitX(),-toStageCenterVec2D.GetSafeNormal()) > 0 ? 1 : -1;//cosだと回転方向が出せないので、別途外積で計算
 }
 
 void ACircleMoveCutter::OnBreak()

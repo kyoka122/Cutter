@@ -45,11 +45,13 @@ private:
 	FCircleMoveCutterThrowTargetParam _throwTargetParam;
 	TFunction<void(const FCircleMoveThrowParam&)> _throwCutterFunc = {};
 	
-	/*現在地からステージ中央へのベクトルとの角度差分*/
-	float _circleLineDirectionAngle = 0.f;
 	
-	/*現在地から円中央方向へのベクトル*/
-	FVector2D _toCenterVec = {};
+	float _currentCircleLineRadius = 0.f;
+	
+	/*円を最大の大きさで描いた時の半径*/
+	float _maxRadius = 0.f;
+	
+	int32 _rotateDirection = 0;
 	
 	/*初期位置から円中央方向へのベクトル*/
 	FVector2D _initToCenterVec = {};

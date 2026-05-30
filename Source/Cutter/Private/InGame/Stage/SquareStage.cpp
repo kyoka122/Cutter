@@ -70,28 +70,24 @@ FVector2D ASquareStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppos
 	//正方形であれば90°で問題ないので↓は必要ない
 	if (underIsFar && rightIsFar)
 	{
-		UE_LOG(LogTemp, Log, TEXT("under, right"));
 		firstLine = FVector2D(0, edge.Min.Y - edge.Max.Y);//under
 		secondLine = FVector2D(edge.Max.X - edge.Min.X, 0);//right
 		intersection = FVector2D(edge.Min.X, edge.Max.Y);
 	}
 	else if (underIsFar && !rightIsFar)
 	{
-		UE_LOG(LogTemp, Log, TEXT("under, left"));
 		firstLine = FVector2D(0, edge.Max.Y - edge.Min.Y);//under
 		secondLine = FVector2D(edge.Max.X - edge.Min.X, 0);//left
 		intersection = FVector2D(edge.Min.X, edge.Min.Y);
 	}
 	else if (!underIsFar && rightIsFar)
 	{
-		UE_LOG(LogTemp, Log, TEXT("upper, right"));
 		firstLine = FVector2D(0, edge.Min.Y - edge.Max.Y);//upper
 		secondLine = FVector2D(edge.Min.X - edge.Max.X, 0);//right
 		intersection = FVector2D(edge.Max.X, edge.Max.Y);
 	}
 	else if (!underIsFar && !rightIsFar)
 	{
-		UE_LOG(LogTemp, Log, TEXT("upper, left"));
 		firstLine = FVector2D(0, edge.Max.Y - edge.Min.Y);//upper
 		secondLine = FVector2D(edge.Min.X - edge.Max.X, 0);//left
 		intersection = FVector2D(edge.Max.X, edge.Min.Y);
