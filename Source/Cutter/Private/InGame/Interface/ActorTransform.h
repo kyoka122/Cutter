@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "CoreMinimal.h"
 #include "ActorTransform.generated.h"
 
 /**
@@ -19,6 +20,5 @@ class CUTTER_API IActorTransform
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InGame")
-	FVector GetLocation();
+	virtual FVector GetLocation() = 0;
 };

@@ -234,3 +234,8 @@ USceneCaptureComponent2D* ACutterCharacter::GetOverViewCapture() const
 	UE_LOG(LogTemp, Error, TEXT("_overViewCaptureがセットされていません"));
 	return nullptr;
 }
+
+FVector ACutterCharacter::GetLocation()
+{
+	return GetActorLocation();
+}

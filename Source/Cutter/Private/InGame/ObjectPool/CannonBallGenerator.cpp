@@ -11,6 +11,7 @@ void ACannonBallGenerator::RegisterGeneratePrefab(TSubclassOf<ACannonBall> prefa
 void ACannonBallGenerator::RegisterParam(const TFunction<void(int)>& scoreAddFunc, const TFunction<void(ACannonBall* cannonBall)>& releaseFunc
 	, const TScriptInterface<IActorTransform>& playerTransform)
 {
+	check(playerTransform)
 	_scoreAddFunc = scoreAddFunc;
 	_releaseFunc = releaseFunc;
 	_playerTransform = playerTransform;
@@ -25,6 +26,7 @@ ACannonBall* ACannonBallGenerator::Generate()
 		UGameplayStatics::FinishSpawningActor(cannonBall, FTransform::Identity);
 		cannonBall->SetActorTickEnabled(false);//MEMO: Spawn後にTickが始まってしまうので、再度OFF
 		cannonBall->RegisterReleaseFunc(_releaseFunc);
+		cannonBall->RegisterPlayerLocation(_playerTransform);
 		return cannonBall;
 	}
 	UE_LOG(LogTemp, Error, TEXT("オブジェクトを生成できませんでした。 Generator: cannonGenerator"));

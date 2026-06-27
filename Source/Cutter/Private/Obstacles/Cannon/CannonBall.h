@@ -26,6 +26,9 @@ public:
 	/*オブジェクトプールに戻す用の関数を登録する*/
 	void RegisterReleaseFunc(const TFunction<void(ACannonBall* cannonBall)>& releaseFunc);
 	
+	/*砲台を片づけるに関数を登録する*/
+	void RegisterReleaseCannonFunc(const TFunction<void()>& cannonReleaseFunc);
+	
 	/*プレイヤーの位置情報取得用クラスを登録する*/
 	void RegisterPlayerLocation(const TScriptInterface<IActorTransform>& playerTransform);
 	
@@ -38,6 +41,9 @@ public:
 	/*再生中のアニメーションがあったら終了する*/
 	void ClearAllAnimation();
 	
+	/*オブジェクトプールに戻す*/
+	void Release();
+
 protected:
 	/*アクティブ時に再生されるアニメーションが終了する際に呼ばれるコールバック*/
 	virtual void OnEndMoveStartAnimation();
@@ -46,9 +52,6 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
 	UStaticMeshComponent* GetMainMesh();
-	
-	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
-	UStaticMeshComponent* GetCollisionMesh();
 
 protected:
 	/*サイズアップアニメーション用カーブ情報*/
@@ -62,7 +65,7 @@ protected:
 	int32 damage = 100;
 	
 	UPROPERTY(EditAnywhere, Category = "大砲の設定")
-	FVector gravity = FVector(0, -9.81f, 0);
+	FVector gravity = FVector(0, 0, -9.81f);
 	
 	UPROPERTY(EditAnywhere, Category = "大砲軌道の設定")
 	float maxHeight = 300.f;
@@ -72,9 +75,11 @@ protected:
 	
 private:
 	TFunction<void(ACannonBall* cannonBall)> _releaseFunc = {};
+	TFunction<void()> _cannonReleaseFunc = {};
 	FTimerHandle _startAnimationTimerHandle = {};
 	
 	FVector initVelocity = {};
+	FVector initPos = {};
 	float _currentTime = 0.f;
 	
 	/*サイズ変更アニメーションをかける時のための、元サイズのキャッシュ*/

@@ -113,7 +113,9 @@ public:
 	
 	/*Minimapを映しているカメラ(CaptureComponent)　の情報を取得*/
 	USceneCaptureComponent2D* GetOverViewCapture() const;
-
+	
+	virtual FVector GetLocation() override;
+	
 protected:
 	virtual void NotifyControllerChanged() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

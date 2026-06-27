@@ -48,10 +48,11 @@ private:
 	void SpawnCannonBall();
 	
 	/*砲台と砲弾を解放する*/
-	void Release(ACannonBall* cannonBall);
+	void Release();
 
 private:
-	float _targetTime = 0.f;
+	float _leftTime = 0.f;
+	bool _isFired = false;
 	
 	/*プレイヤーの居場所を取得できる*/
 	UPROPERTY() TScriptInterface<IActorTransform> _playerTransform = {};

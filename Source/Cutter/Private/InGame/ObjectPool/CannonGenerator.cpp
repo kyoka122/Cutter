@@ -26,6 +26,7 @@ ACannon* ACannonGenerator::Generate()
 		UGameplayStatics::FinishSpawningActor(cannon, FTransform::Identity);
 		cannon->SetActorTickEnabled(false);//MEMO: Spawn後にTickが始まってしまうので、再度OFF
 		cannon->RegisterReleaseFunc(_releaseFunc);
+		cannon->RegisterPlayerLocation(_playerTransform);
 		return cannon;
 	}
 	UE_LOG(LogTemp, Error, TEXT("オブジェクトを生成できませんでした。 Generator: cannonGenerator"));

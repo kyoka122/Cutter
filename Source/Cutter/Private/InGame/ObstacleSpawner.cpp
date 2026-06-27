@@ -1,5 +1,6 @@
 ﻿#include "ObstacleSpawner.h"
 
+#include "Cutter.h"
 #include "InGameState.h"
 #include "Application/TagDefine.h"
 #include "ObjectPool/CannonBallGenerator.h"
@@ -153,6 +154,7 @@ bool AObstacleSpawner::TrySpawnCannonByTime(const FObstacleSpawnData* nextObstac
 
 void AObstacleSpawner::SpawnCannon(const FObstacleSpawnData* nextObstacleSpawnData) const
 {
+	UE_LOG(LogCannon, Log, TEXT("SpawnCannont()"));
 	FTransform transform;
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	

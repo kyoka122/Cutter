@@ -17,8 +17,13 @@ void ACannon::BeginPlay()
 
 void ACannon::Tick(float DeltaTime)
 {
-	_targetTime -= -DeltaTime;
-	if (_targetTime <= 0.f)
+	if (_isFired)
+	{
+		return;
+	}
+	UE_LOG(LogCannon, Log, TEXT("_targetTime: %f"), _leftTime);
+	_leftTime -= DeltaTime;
+	if (_leftTime <= 0.f)
 	{
 		SpawnCannonBall();
 	}
@@ -26,8 +31,10 @@ void ACannon::Tick(float DeltaTime)
 
 void ACannon::ReStart()
 {
-	_targetTime = targetTime;
+	_leftTime = targetTime;
+	_isFired = false;
 	SetActorTickEnabled(true);
+	SetActorHiddenInGame(false);
 }
 
 void ACannon::RegisterReleaseFunc(const TFunction<void(ACannon* cannon)>& releaseFunc)
@@ -47,22 +54,18 @@ void ACannon::RegisterPlayerLocation(const TScriptInterface<IActorTransform>& pl
 
 void ACannon::SpawnCannonBall()
 {
+	_isFired = true;
 	if (_cannonBallPool)
 	{
 		ACannonBall* cannonBall = _cannonBallPool->Create(GetActorTransform());
-		cannonBall->RegisterReleaseFunc([this](ACannonBall* cannonBall){Release(cannonBall);});
-		cannonBall->RegisterPlayerLocation(_playerTransform);
+		cannonBall->RegisterReleaseCannonFunc([this]{Release();});
 		cannonBall->ReStart();
 	}
 	else UE_LOG(LogSealed, Error, TEXT("_cannonBallPoolがnullです。 %s"), *GetName());
 }
 
-void ACannon::Release(ACannonBall* cannonBall)
+void ACannon::Release()
 {
-	if (_cannonBallPool)
-	{
-		_cannonBallPool->Release(cannonBall);
-	}
 	if (_releaseFunc)
 	{
 		_releaseFunc(this);

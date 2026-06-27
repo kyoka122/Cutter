@@ -20,29 +20,45 @@ void ACannonBall::BeginPlay()
 		return;
 	}
 	InitTimeline(staticMeshComponent);
-	ReStart();
 }
 
 void ACannonBall::Tick(float DeltaTime)
 {
+	UE_LOG(LogCannon, Log, TEXT("_currentTime: %f"),_currentTime);
 	_currentTime += DeltaTime;
-	FVector newPos = initVelocity * _currentTime - gravity * FMath::Pow(_currentTime, 2) / 2;
+	FVector newPos = initPos + initVelocity * _currentTime + gravity * FMath::Pow(_currentTime, 2) / 2;
 	SetActorLocation(newPos);
+	
+	if (_currentTime > duration + 3.f)//MEMO: 一旦、目的地についたあと3秒後に消えるようにする
+	{
+		Release();
+	}
 }
 
 void ACannonBall::ReStart()
 {
-	PlayMoveStartAnimation();
+	_currentTime = 0.0f;
+	initPos = GetActorLocation();
 	
-	float initVelocityY = FMath::Sqrt(-2 * gravity.Y * maxHeight);
-	FVector destination = _playerTransform->GetLocation();
-	initVelocity = FVector(destination.X / duration, initVelocityY, destination.Z / duration);
+	//MEMO: 最大maxHeightまで打ちあがって、durationの秒数をかけてプレイヤーに衝突する
+	float initVelocityZ = 4 * maxHeight / duration;
+	gravity.Z = - 8 * maxHeight / FMath::Pow(duration, 2);
+	FVector moveVec = _playerTransform->GetLocation() - initPos;
+	initVelocity = FVector(moveVec.X / duration, moveVec.Y / duration, initVelocityZ);
+	
 	SetActorTickEnabled(true);
+	SetActorHiddenInGame(false);
+	PlayMoveStartAnimation();
 }
 
 void ACannonBall::RegisterReleaseFunc(const TFunction<void(ACannonBall* cannonBall)>& releaseFunc)
 {
 	_releaseFunc = releaseFunc;
+}
+
+void ACannonBall::RegisterReleaseCannonFunc(const TFunction<void()>& cannonReleaseFunc)
+{
+	_cannonReleaseFunc = cannonReleaseFunc;
 }
 
 void ACannonBall::RegisterPlayerLocation(const TScriptInterface<IActorTransform>& playerTransform)
@@ -109,10 +125,25 @@ void ACannonBall::HandleSizeUpUpdate(float value)
 void ACannonBall::ClearAllAnimation()
 {
 	GetWorldTimerManager().ClearTimer(_startAnimationTimerHandle);
-	OnEndMoveStartAnimation();
+}
+
+void ACannonBall::Release()
+{
+	if (_cannonReleaseFunc)
+	{
+		_cannonReleaseFunc();
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_cannonReleaseFuncがnullです。 %s"), *GetName());
+	
+	if (_releaseFunc)
+	{
+		_releaseFunc(this);
+	}
+	else UE_LOG(LogSealed, Error, TEXT("_releaseFuncがnullです。 %s"), *GetName());
 }
 
 void ACannonBall::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+	ClearAllAnimation();
 }
