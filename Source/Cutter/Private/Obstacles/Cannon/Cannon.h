@@ -36,7 +36,7 @@ public:
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "砲台設定")
-	float targetTime = 10;
+	float targetTime = 5;
 	
 	/*カッター生成用のプール*/
 	TSharedPtr<ObjectPool<ACannonBall>> _cannonBallPool;

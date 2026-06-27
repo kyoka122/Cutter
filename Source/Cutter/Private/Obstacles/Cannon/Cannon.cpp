@@ -21,7 +21,6 @@ void ACannon::Tick(float DeltaTime)
 	{
 		return;
 	}
-	UE_LOG(LogCannon, Log, TEXT("_targetTime: %f"), _leftTime);
 	_leftTime -= DeltaTime;
 	if (_leftTime <= 0.f)
 	{

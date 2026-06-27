@@ -24,7 +24,6 @@ void ACannonBall::BeginPlay()
 
 void ACannonBall::Tick(float DeltaTime)
 {
-	UE_LOG(LogCannon, Log, TEXT("_currentTime: %f"),_currentTime);
 	_currentTime += DeltaTime;
 	FVector newPos = initPos + initVelocity * _currentTime + gravity * FMath::Pow(_currentTime, 2) / 2;
 	SetActorLocation(newPos);

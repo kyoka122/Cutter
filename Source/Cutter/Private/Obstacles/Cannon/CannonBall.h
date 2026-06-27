@@ -64,9 +64,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "大砲の設定")
 	int32 damage = 100;
 	
-	UPROPERTY(EditAnywhere, Category = "大砲の設定")
-	FVector gravity = FVector(0, 0, -9.81f);
-	
 	UPROPERTY(EditAnywhere, Category = "大砲軌道の設定")
 	float maxHeight = 300.f;
 	
@@ -80,6 +77,7 @@ private:
 	
 	FVector initVelocity = {};
 	FVector initPos = {};
+	FVector gravity = {};
 	float _currentTime = 0.f;
 	
 	/*サイズ変更アニメーションをかける時のための、元サイズのキャッシュ*/
