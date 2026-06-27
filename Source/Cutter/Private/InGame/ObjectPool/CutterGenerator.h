@@ -9,7 +9,7 @@
 class IStageShape;
 
 /*
- *カッターのGenerator。レリックの有効、無効化、初期化処理などを行う。
+ *カッターのGenerator。レリックの有効、無効化、初期化処理なども行う。
  */
 UCLASS(BlueprintType)
 class CUTTER_API ACutterGenerator : public AActor, public PoolObjectGenerator<ACutterBase>

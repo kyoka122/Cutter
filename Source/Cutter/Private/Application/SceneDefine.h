@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "LevelMoveContext.h"
 
 /**
@@ -38,6 +37,3 @@ private:
 		};
 	}
 };
-
-FName SceneDefine::Title = "Title";
-FName SceneDefine::StageSelect = "StageSelect";

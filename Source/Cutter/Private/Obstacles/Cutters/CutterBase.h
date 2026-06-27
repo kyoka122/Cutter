@@ -50,7 +50,6 @@ protected:
 	/*自身が投げられた直後に呼ばれる。演出などを実装する用*/
 	UFUNCTION(BlueprintCallable, Category = "Cutter")
 	void OnThrown(){}
-	
 
 protected:
 	OverlapFunc _overlapFunc = {};

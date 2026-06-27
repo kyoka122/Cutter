@@ -85,7 +85,7 @@ void ASealedBase::CheckLifeTimeIsOver(float deltaTime)
 		PlayMoveEndAnimation();
 		_isPlayingMoveEndAnimation = true;
 	}
-	if (_lifeTime < 0.f)
+	if (_lifeTime <= 0.f)
 	{
 		if (_releaseFunc)
 		{

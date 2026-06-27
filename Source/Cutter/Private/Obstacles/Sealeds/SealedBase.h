@@ -86,7 +86,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UCurveFloat> _sizeUpCurve;
 	
-	/*サイズアップアニメーション用カーブ情報*/
+	/*点滅アニメーション用カーブ情報*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UCurveFloat> _blinkCurve;
 	

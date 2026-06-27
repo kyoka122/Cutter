@@ -77,7 +77,9 @@ protected:
 private:
 	void SetScore(int score, float deltaTime);
 	void SetTime(float limitTime) const;
-	
+	void SetVisibilityAlertView(bool value);
+	void SetAlertTransform(FVector2D pos);
+
 private:
 	float _countAnimatedScore = 0;//MEMO: スコアのカウントアニメーション実装のため、現在表示している数値をキャッシュしておく
 	float _time = 0;

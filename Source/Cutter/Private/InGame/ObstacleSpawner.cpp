@@ -2,8 +2,12 @@
 
 #include "InGameState.h"
 #include "Application/TagDefine.h"
+#include "ObjectPool/CannonGenerator.h"
 #include "ObjectPool/CutterGenerator.h"
 #include "ObjectPool/SealedGenerator.h"
+#include "Obstacles/Cannon/Cannon.h"
+#include "Obstacles/Cannon/Struct/CannonData.h"
+#include "Obstacles/DataAsset/CannonListDataAsset.h"
 #include "Obstacles/DataAsset/CutterListDataAsset.h"
 #include "Obstacles/Sealeds/Struct/SealedBaseParam.h"
 #include "TableRow/ObstacleSpawnData.h"
@@ -43,7 +47,13 @@ void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageS
 			sealedGenerator->RegisterParam([sealedPool](ASealedBase* sealed){sealedPool->Release(sealed);});
 			_sealedPools.Add(setData.sealedModeActor, sealedPool);
 		}
-	} 
+	}
+	
+	ACannonGenerator* cannonGenerator = GetWorld()->SpawnActor<ACannonGenerator>(ACannonGenerator::StaticClass());
+	cannonGenerator->RegisterGeneratePrefab(_cannonListDataAsset->prefab.cannonActor);
+	auto cannonPool = MakeShared<ObjectPool<ACannon>>(cannonGenerator);
+	cannonGenerator->RegisterParam(scoreAddFunc, [cannonPool](ACannon* cannon){cannonPool->Release(cannon);});
+	_cannonPool = cannonPool;
 }
 
 void AObstacleSpawner::RegisterSpawnData(const UDataTable* obstacleSpawnTable)
@@ -72,6 +82,7 @@ void AObstacleSpawner::Update(const AInGameState* inGameState)
 	}
 	FObstacleSpawnData* nextObstacleSpawnData = *_obstacleSpawnQueue.Peek();
 	
+	//TODO: ここの処理を基準にクラス化する
 	if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(TagDefine::CutterType)))
 	{
 		if (TrySpawnCutterByTime(nextObstacleSpawnData, leftTime))
@@ -80,9 +91,13 @@ void AObstacleSpawner::Update(const AInGameState* inGameState)
 			_obstacleSpawnQueue.Dequeue(tmp);
 		}
 	}
-	else
+	else if (nextObstacleSpawnData->type.MatchesTag(FGameplayTag::RequestGameplayTag(TagDefine::CannonType)))
 	{
-		//TODO: 他のオブジェクトを作り始めたら追加
+		if (TrySpawnCannonByTime(nextObstacleSpawnData, leftTime))
+		{
+			FObstacleSpawnData* tmp;
+			_obstacleSpawnQueue.Dequeue(tmp);
+		}
 	}
 }
 
@@ -115,6 +130,25 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	sealed->ReStart();
 }
 
+bool AObstacleSpawner::TrySpawnCannonByTime(const FObstacleSpawnData* nextObstacleSpawnData, const float leftTime)
+{
+	if (nextObstacleSpawnData->spawnTime <= leftTime)
+	{
+		SpawnCannon(nextObstacleSpawnData);
+		return true;
+	}
+	return false;
+}
+
+void AObstacleSpawner::SpawnCannon(const FObstacleSpawnData* nextObstacleSpawnData)
+{
+	FTransform transform;
+	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
+	
+	TObjectPtr<ACannon> cannon = _cannonPool->Create(transform);
+	cannon->ReStart();
+}
+
 TArray<AActor*> AObstacleSpawner::GetCurrentUsingObstacles()
 {
 	TArray<AActor*> usingObstacles;
@@ -128,6 +162,8 @@ TArray<AActor*> AObstacleSpawner::GetCurrentUsingObstacles()
 	{
 		usingObstacles.Append(sealedPool.Value->GetCurrentUsingObject());
 	}
+	
+	usingObstacles.Append(_cannonPool->GetCurrentUsingObject());
 	
 	return usingObstacles;
 }

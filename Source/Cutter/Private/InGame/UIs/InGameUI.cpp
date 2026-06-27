@@ -133,3 +133,21 @@ void UInGameUI::SetTime(float limitTime) const
 	FText&& formattedTime = CutterFormat::ConvertTimeText(limitTime);
 	_timeText->SetText(formattedTime);
 }
+
+void UInGameUI::SetVisibilityAlertView(bool value)
+{
+	if (_cutterLooksOverlay)
+	{
+		ESlateVisibility visible = value ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
+		_cutterLooksOverlay->SetVisibility(visible);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksOverlayがセットされていません"));
+}
+
+void UInGameUI::SetAlertTransform(FVector2D pos)
+{
+	if (_cutterLooksImage)
+	{
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksImageがセットされていません"));
+}

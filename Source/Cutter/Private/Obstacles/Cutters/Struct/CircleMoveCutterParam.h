@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "CutterBaseParam.h"
-#include "Engine/DataAsset.h"
 #include "CircleMoveCutterParam.generated.h"
 
 /**
