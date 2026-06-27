@@ -2,6 +2,7 @@
 
 #include "InGameState.h"
 #include "Application/TagDefine.h"
+#include "ObjectPool/CannonBallGenerator.h"
 #include "ObjectPool/CannonGenerator.h"
 #include "ObjectPool/CutterGenerator.h"
 #include "ObjectPool/SealedGenerator.h"
@@ -13,18 +14,22 @@
 #include "TableRow/ObstacleSpawnData.h"
 #include "Utility/ObjectPool.h"
 
+class ACannonBallGenerator;
+
 AObstacleSpawner::AObstacleSpawner()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AObstacleSpawner::Init(const UDataTable* obstacleSpawnTable, const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc)
+void AObstacleSpawner::Init(const UDataTable* obstacleSpawnTable, const TScriptInterface<IStageShape>& stageShape,
+	const TFunction<void(int)>& scoreAddFunc, const TScriptInterface<IActorTransform>& playerTransform)
 {
-	InitGenerator(stageShape, scoreAddFunc);
+	InitGenerator(stageShape, scoreAddFunc, playerTransform);
 	RegisterSpawnData(obstacleSpawnTable);
 }
 
-void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc)
+void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc,
+	const TScriptInterface<IActorTransform>& playerTransform)
 {
 	for (auto& setData : _cutterListDataAsset->prefabs)
 	{
@@ -48,12 +53,18 @@ void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageS
 			_sealedPools.Add(setData.sealedModeActor, sealedPool);
 		}
 	}
-	
+	check(playerTransform)
 	ACannonGenerator* cannonGenerator = GetWorld()->SpawnActor<ACannonGenerator>(ACannonGenerator::StaticClass());
 	cannonGenerator->RegisterGeneratePrefab(_cannonListDataAsset->prefab.cannonActor);
 	auto cannonPool = MakeShared<ObjectPool<ACannon>>(cannonGenerator);
-	cannonGenerator->RegisterParam(scoreAddFunc, [cannonPool](ACannon* cannon){cannonPool->Release(cannon);});
+	cannonGenerator->RegisterParam(scoreAddFunc, [cannonPool](ACannon* cannon){cannonPool->Release(cannon);}, playerTransform);
 	_cannonPool = cannonPool;
+	
+	ACannonBallGenerator* cannonBallGenerator = GetWorld()->SpawnActor<ACannonBallGenerator>(ACannonBallGenerator::StaticClass());
+	cannonBallGenerator->RegisterGeneratePrefab(_cannonListDataAsset->prefab.cannonBallActor);
+	auto cannonBallPool = MakeShared<ObjectPool<ACannonBall>>(cannonBallGenerator);
+	cannonBallGenerator->RegisterParam(scoreAddFunc, [cannonBallPool](ACannonBall* cannonBall){cannonBallPool->Release(cannonBall);}, playerTransform);
+	_cannonBallPool = cannonBallPool;
 }
 
 void AObstacleSpawner::RegisterSpawnData(const UDataTable* obstacleSpawnTable)
@@ -130,7 +141,7 @@ void AObstacleSpawner::SpawnSealed(const FObstacleSpawnData* nextObstacleSpawnDa
 	sealed->ReStart();
 }
 
-bool AObstacleSpawner::TrySpawnCannonByTime(const FObstacleSpawnData* nextObstacleSpawnData, const float leftTime)
+bool AObstacleSpawner::TrySpawnCannonByTime(const FObstacleSpawnData* nextObstacleSpawnData, const float leftTime) const
 {
 	if (nextObstacleSpawnData->spawnTime <= leftTime)
 	{
@@ -140,12 +151,13 @@ bool AObstacleSpawner::TrySpawnCannonByTime(const FObstacleSpawnData* nextObstac
 	return false;
 }
 
-void AObstacleSpawner::SpawnCannon(const FObstacleSpawnData* nextObstacleSpawnData)
+void AObstacleSpawner::SpawnCannon(const FObstacleSpawnData* nextObstacleSpawnData) const
 {
 	FTransform transform;
 	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
 	
 	TObjectPtr<ACannon> cannon = _cannonPool->Create(transform);
+	cannon->RegisterCannonBallSpawner(_cannonBallPool);
 	cannon->ReStart();
 }
 

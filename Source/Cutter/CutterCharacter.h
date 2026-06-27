@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InGame/UIs/InGameUI.h"
+#include "InGame/Interface/ActorTransform.h"
 #include "Logging/LogMacros.h"
 #include "CutterCharacter.generated.h"
 
@@ -21,7 +22,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class ACutterCharacter : public ACharacter
+class ACutterCharacter : public ACharacter, public IActorTransform
 {
 	GENERATED_BODY()
 

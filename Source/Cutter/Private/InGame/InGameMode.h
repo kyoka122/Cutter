@@ -3,6 +3,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "InGameMode.generated.h"
 
+class ACutterCharacter;
 struct FStageRowData;
 class IStageShape;
 class UWidgetHelper;
@@ -61,6 +62,7 @@ protected:
 	
 private:
 	void InstanceMember();
+	void CachePlayer();
 	void InitParam();
 	void RegisterCharacterParam() const;
 	void SetCursor() const;
@@ -74,6 +76,7 @@ private:
 	UPROPERTY() TObjectPtr<UWidgetHelper> _widgetHelper = {};
 	UPROPERTY() TObjectPtr<UInGameUI> _inGameUI = {};
 	UPROPERTY() TObjectPtr<UGameOverUI> _gameOverUI = {};
+	UPROPERTY() TObjectPtr<ACutterCharacter> _player = {};
 	bool _isActiveGameOverUI = false;
 };
 

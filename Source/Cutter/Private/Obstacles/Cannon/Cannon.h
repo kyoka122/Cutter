@@ -35,10 +35,6 @@ public:
 	void RegisterPlayerLocation(const TScriptInterface<IActorTransform>& playerTransform);
 	
 protected:
-	/*アクティブ時に再生されるアニメーションの再生時間*/
-	UPROPERTY(EditAnywhere, Category = "砲台設定")
-	float moveStartAnimationDuration = 2;
-	
 	UPROPERTY(EditAnywhere, Category = "砲台設定")
 	float targetTime = 10;
 	

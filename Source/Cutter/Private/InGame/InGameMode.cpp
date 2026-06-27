@@ -25,6 +25,7 @@ void AInGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	InstanceMember();
+	CachePlayer();
 	InitParam();
 	RegisterCharacterParam();
 	SetCursor();
@@ -42,6 +43,17 @@ void AInGameMode::InstanceMember()
 	_inGameUI = _widgetHelper->View<UInGameUI>(_inGameUIClass);
 }
 
+void AInGameMode::CachePlayer()
+{
+	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	
+	if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(character))
+	{
+		_player = cutterCharacter;
+	}
+	else UE_LOG(LogTemp, Error, TEXT("PlayerCharacterをCutterCharacterにCastできませんでした。"));
+}
+
 void AInGameMode::InitParam()
 {
 	FName currentLevel = FName(UKismetSystemLibrary::GetDisplayName(GetWorld()));
@@ -51,10 +63,11 @@ void AInGameMode::InitParam()
 	TScriptInterface<IStageShape> stageEnvironmentParamRowData = GetStageShape();
 	check(stageEnvironmentParamRowData);
 	
-	_obstacleSpawner->Init(stageRowData->obstacleSpawnData, stageEnvironmentParamRowData, [this](int score)
-	{
-		AddScore(score);
-	});
+	_obstacleSpawner->Init(
+		stageRowData->obstacleSpawnData,
+		stageEnvironmentParamRowData,
+		[this](int score){AddScore(score);},
+		_player);
 	_inGameState->SetInitLimitTime(stageRowData->limitTime);
 	_inGameState->SetLimitTime(stageRowData->limitTime);
 	_inGameState->SetBlowerCount(stageRowData->blowerCount);
@@ -62,26 +75,21 @@ void AInGameMode::InitParam()
 
 void AInGameMode::RegisterCharacterParam() const
 {
-	ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	
-	if (ACutterCharacter* cutterCharacter = Cast<ACutterCharacter>(character))
+	if (IsValid(_player))
 	{
 		if (IsValid(_inGameUI) && _inGameUI->Implements<UOverViewMiniMap>())
 		{
 			if (_inGameUI->Implements<UCutterLooksView>())
 			{
-				cutterCharacter->RegisterUIs(_inGameUI, GetOverViewCapture(), _inGameUI);
+				_player->RegisterUIs(_inGameUI, GetOverViewCapture(), _inGameUI);
 			}
 			else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUCutterLooksViewにCastできませんでした。"));
 		}
 		else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUOverViewMiniMapにCastできませんでした。"));
 		
-		cutterCharacter->RegisterStageShape(GetStageShape());
+		_player->RegisterStageShape(GetStageShape());
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("PlayerCharacterをCutterCharacterにCastできませんでした。"));
-	}
+	else UE_LOG(LogTemp, Error, TEXT("_playerがnullでした。"));
 }
 
 void AInGameMode::SetCursor() const

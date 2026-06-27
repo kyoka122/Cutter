@@ -8,10 +8,12 @@ void ACannonGenerator::RegisterGeneratePrefab(TSubclassOf<ACannon> prefab)
 	_prefab = prefab;
 }
 
-void ACannonGenerator::RegisterParam(const TFunction<void(int)>& scoreAddFunc, const TFunction<void(ACannon* cannon)>& releaseFunc)
+void ACannonGenerator::RegisterParam(const TFunction<void(int)>& scoreAddFunc, const TFunction<void(ACannon* cannon)>& releaseFunc
+	, const TScriptInterface<IActorTransform>& playerTransform)
 {
 	_scoreAddFunc = scoreAddFunc;
 	_releaseFunc = releaseFunc;
+	_playerTransform = playerTransform;
 }
 
 ACannon* ACannonGenerator::Generate()

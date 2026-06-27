@@ -16,4 +16,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ACannon> cannonActor = {};
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ACannonBall> cannonBallActor = {};
 };
