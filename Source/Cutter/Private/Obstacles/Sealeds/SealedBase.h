@@ -53,6 +53,9 @@ public:
 	/*再生中のアニメーションがあったら終了する*/
 	void ClearAllAnimation();
 	
+	/*タグ取得*/
+	FGameplayTag GetTag() const { return _tag; }
+	
 protected:
 	/*アクティブ時に再生されるアニメーションが終了する際に呼ばれるコールバック*/
 	virtual void OnEndMoveStartAnimation();
@@ -74,7 +77,6 @@ protected:
 
 protected:
 	float _lifeTime = 0.f;
-	FGameplayTag _type = {};
 	TFunction<void(ASealedBase* sealed)> _releaseFunc = {};
 	bool _isPlayingMoveEndAnimation = false;
 	bool _canOverlapOtherObject = false;
@@ -89,6 +91,10 @@ protected:
 	/*点滅アニメーション用カーブ情報*/
 	UPROPERTY(EditAnywhere, Category = "参照設定")
 	TObjectPtr<UCurveFloat> _blinkCurve;
+	
+	/*このアクタの種類を示すタグ情報*/
+	UPROPERTY(EditAnywhere, Category = "タグ設定", meta=(Categories = "SealedType"))
+	FGameplayTag _tag;
 	
 private:
 	FTimerHandle _startAnimationTimerHandle = {};

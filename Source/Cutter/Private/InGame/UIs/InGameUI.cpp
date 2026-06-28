@@ -86,11 +86,20 @@ void UInGameUI::SetVisibilityMiniMap(bool value)
 	else UE_LOG(LogTemp, Error, TEXT("_miniMapが見つかりませんでした。 %s"), *GetName());
 }
 
-void UInGameUI::UpdateDrawLines(const TArray<FVector2D>& points, FVector cameraPos, float cameraOrthoWidth)
+void UInGameUI::UpdateLine(const TArray<FVector2D>& linePoints, FVector cameraPos, float cameraOrthoWidth)
 {
 	if (_miniMap)
 	{
-		_miniMap->UpdateDrawLines(points, cameraPos, cameraOrthoWidth);
+		_miniMap->UpdateDrawLines(linePoints, cameraPos, cameraOrthoWidth);
+	}
+	else UE_LOG(LogTemp, Error, TEXT("_miniMapが見つかりませんでした。"));
+}
+
+void UInGameUI::UpdateBambooIcon(const TArray<FVector2D>& bambooIconPoints, FVector cameraPos, float cameraOrthoWidth)
+{
+	if (_miniMap)
+	{
+		_miniMap->UpdateBambooPoints(bambooIconPoints, cameraPos, cameraOrthoWidth);
 	}
 	else UE_LOG(LogTemp, Error, TEXT("_miniMapが見つかりませんでした。"));
 }
@@ -132,22 +141,4 @@ void UInGameUI::SetTime(float limitTime) const
 {
 	FText&& formattedTime = CutterFormat::ConvertTimeText(limitTime);
 	_timeText->SetText(formattedTime);
-}
-
-void UInGameUI::SetVisibilityAlertView(bool value)
-{
-	if (_cutterLooksOverlay)
-	{
-		ESlateVisibility visible = value ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
-		_cutterLooksOverlay->SetVisibility(visible);
-	}
-	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksOverlayがセットされていません"));
-}
-
-void UInGameUI::SetAlertTransform(FVector2D pos)
-{
-	if (_cutterLooksImage)
-	{
-	}
-	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksImageがセットされていません"));
 }

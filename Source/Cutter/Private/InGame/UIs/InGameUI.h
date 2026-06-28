@@ -30,8 +30,11 @@ public:
 	/*Miniマップの表示、非表示*/
 	virtual void SetVisibilityMiniMap(bool value) override;
 	
-	/*描画する線情報を登録する*/
-	virtual void UpdateDrawLines(const TArray<FVector2D>& points, FVector cameraPos, float cameraOrthoWidth) override;
+	/*MiniMapに軌道情報を描画する*/
+	virtual void UpdateLine(const TArray<FVector2D>& linePoints, FVector cameraPos, float cameraOrthoWidth) override;
+	
+	/*MiniMapにアイコン情報を描画する*/
+	virtual void UpdateBambooIcon(const TArray<FVector2D>& bambooIconPoints, FVector cameraPos, float cameraOrthoWidth) override;
 
 	/*カッターイメージの表示表示非表示を切り替える*/
 	virtual void SetVisibilityCutterLooksView(bool value) override;
@@ -77,8 +80,6 @@ protected:
 private:
 	void SetScore(int score, float deltaTime);
 	void SetTime(float limitTime) const;
-	void SetVisibilityAlertView(bool value);
-	void SetAlertTransform(FVector2D pos);
 
 private:
 	float _countAnimatedScore = 0;//MEMO: スコアのカウントアニメーション実装のため、現在表示している数値をキャッシュしておく

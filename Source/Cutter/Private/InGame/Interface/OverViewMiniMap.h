@@ -22,6 +22,9 @@ public:
 	/*MiniMapの表示非表示を切り替える*/
 	virtual void SetVisibilityMiniMap(bool value) = 0;
 	
-	/*MiniMapに指定の線を描画する*/
-	virtual void UpdateDrawLines(const TArray<FVector2D>& points, FVector cameraPos, float cameraOrthoWidth) = 0;
+	/*MiniMapにCutterの軌道情報を描画する*/
+	virtual void UpdateLine(const TArray<FVector2D>& linePoints, FVector cameraPos, float cameraOrthoWidth) = 0;
+	
+	/*MiniMapにアイコン情報を描画する*/
+	virtual void UpdateBambooIcon(const TArray<FVector2D>& bambooIconPoints, FVector cameraPos, float cameraOrthoWidth) = 0;
 };

@@ -71,6 +71,7 @@ void AInGameMode::InitParam()
 	_inGameState->SetInitLimitTime(stageRowData->limitTime);
 	_inGameState->SetLimitTime(stageRowData->limitTime);
 	_inGameState->SetBlowerCount(stageRowData->blowerCount);
+	SetOverViewCapture();
 }
 
 void AInGameMode::RegisterCharacterParam() const
@@ -81,7 +82,7 @@ void AInGameMode::RegisterCharacterParam() const
 		{
 			if (_inGameUI->Implements<UCutterLooksView>())
 			{
-				_player->RegisterUIs(_inGameUI, GetOverViewCapture(), _inGameUI);
+				_player->RegisterUIs(_inGameUI, _overViewCapture, _inGameUI);
 			}
 			else UE_LOG(LogTemp, Error, TEXT("_inGameUIをUCutterLooksViewにCastできませんでした。"));
 		}
@@ -103,7 +104,7 @@ void AInGameMode::SetCursor() const
 	}
 }
 
-FStageRowData* AInGameMode::GetStageData(FName stageName) const//TODO: Factory作る
+FStageRowData* AInGameMode::GetStageData(FName stageName) const
 {
 	FString contextString = FString::Printf(TEXT("StageList読み込み失敗: "));
 	TArray<FStageRowData*> stageRows;
@@ -124,7 +125,7 @@ FStageRowData* AInGameMode::GetStageData(FName stageName) const//TODO: Factory�
 	return nullptr;
 }
 
-TScriptInterface<IStageShape> AInGameMode::GetStageShape() const//TODO: Factory作る
+TScriptInterface<IStageShape> AInGameMode::GetStageShape() const
 {
 	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
 	if (levelScriptActor->Implements<UStageProperty>())
@@ -136,16 +137,14 @@ TScriptInterface<IStageShape> AInGameMode::GetStageShape() const//TODO: Factory�
 	return nullptr;
 }
 
-USceneCaptureComponent2D* AInGameMode::GetOverViewCapture() const//TODO: Factory作る
+void AInGameMode::SetOverViewCapture()
 {
 	ALevelScriptActor* levelScriptActor = GetWorld()->GetLevelScriptActor();
 	if (levelScriptActor->Implements<UStageProperty>())
 	{
-		USceneCaptureComponent2D* overViewCapture = IStageProperty::Execute_GetOverViewCapture(levelScriptActor);
-		return overViewCapture;
+		_overViewCapture = IStageProperty::Execute_GetOverViewCapture(levelScriptActor);
 	}
-	UE_LOG(LogTemp, Error, TEXT("GetOverViewCamera()がレベルブループリントに実装されていません"));
-	return nullptr;
+	else UE_LOG(LogTemp, Error, TEXT("GetOverViewCamera()がレベルブループリントに実装されていません"));
 }
 
 void AInGameMode::Tick(const float deltaTime)
@@ -189,6 +188,16 @@ void AInGameMode::SetObstaclesSpeed(float value)
 	{
 		obstacle->CustomTimeDilation = value;
 	}
+}
+
+void AInGameMode::UpdateMinimap()
+{
+	TArray<FVector2D> points;
+	for (auto& bamboo : _obstacleSpawner->GetCurrentUsingBamboos())
+	{
+		points.Add(FVector2D(bamboo->GetActorLocation()));
+	}
+	_inGameUI->UpdateBambooIcon(points, _overViewCapture->GetComponentLocation(), _overViewCapture->OrthoWidth);
 }
 
 void AInGameMode::SetLimitTimeSpeed(float value)

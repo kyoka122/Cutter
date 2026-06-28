@@ -18,7 +18,6 @@ void ACannonGenerator::RegisterParam(const TFunction<void(int)>& scoreAddFunc, c
 
 ACannon* ACannonGenerator::Generate()
 {
-	check(_prefab);
 	ACannon* cannon = GetWorld()->SpawnActorDeferred<ACannon>(_prefab, FTransform::Identity);
 	if (IsValid(cannon))
 	{

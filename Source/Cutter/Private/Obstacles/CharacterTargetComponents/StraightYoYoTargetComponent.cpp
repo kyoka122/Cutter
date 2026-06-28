@@ -35,7 +35,7 @@ void UStraightYoYoTargetComponent::Init()
 	
 	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(
 		_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos, _throwTargetParam.firstLookVec);
-	_owner->UpdatePoints({intersectionData.point1, intersectionData.point2});
+	_owner->UpdateLine({intersectionData.point1, intersectionData.point2});
 }
 
 void UStraightYoYoTargetComponent::Rotate(const FInputActionValue& Value)
@@ -67,7 +67,7 @@ void UStraightYoYoTargetComponent::Rotate(const FInputActionValue& Value)
 	characterForwardDirection = FRotationMatrix(characterYawRotation).GetUnitAxis(EAxis::X);
 	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(
 		_throwTargetParam.stageShape.GetObject(), _throwTargetParam.cutterPos, FVector2D(characterForwardDirection));
-	_owner->UpdatePoints({intersectionData.point1, intersectionData.point2});
+	_owner->UpdateLine({intersectionData.point1, intersectionData.point2});
 }
 
 void UStraightYoYoTargetComponent::SetRotateDirectionByInput(FVector2D inputVec, const FVector& characterForwardDirection)

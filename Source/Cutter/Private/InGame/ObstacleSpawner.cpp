@@ -1,8 +1,8 @@
 ﻿#include "ObstacleSpawner.h"
 
-#include "Cutter.h"
 #include "InGameState.h"
 #include "Application/TagDefine.h"
+#include "Interface/ActorTransform.h"
 #include "ObjectPool/CannonBallGenerator.h"
 #include "ObjectPool/CannonGenerator.h"
 #include "ObjectPool/CutterGenerator.h"
@@ -32,6 +32,7 @@ void AObstacleSpawner::Init(const UDataTable* obstacleSpawnTable, const TScriptI
 void AObstacleSpawner::InitGenerator(const TScriptInterface<IStageShape>& stageShape, const TFunction<void(int)>& scoreAddFunc,
 	const TScriptInterface<IActorTransform>& playerTransform)
 {
+	_playerTransform = playerTransform;
 	for (auto& setData : _cutterListDataAsset->prefabs)
 	{
 		if (!_cutterPools.Contains(setData.cutterModeActor))
@@ -154,9 +155,8 @@ bool AObstacleSpawner::TrySpawnCannonByTime(const FObstacleSpawnData* nextObstac
 
 void AObstacleSpawner::SpawnCannon(const FObstacleSpawnData* nextObstacleSpawnData) const
 {
-	UE_LOG(LogCannon, Log, TEXT("SpawnCannont()"));
 	FTransform transform;
-	transform.SetLocation(nextObstacleSpawnData->spawnPosition);
+	transform.SetLocation(nextObstacleSpawnData->spawnPosition + FVector::UpVector * _playerTransform->GetLocation());
 	
 	TObjectPtr<ACannon> cannon = _cannonPool->Create(transform);
 	cannon->RegisterCannonBallSpawner(_cannonBallPool);
@@ -178,6 +178,29 @@ TArray<AActor*> AObstacleSpawner::GetCurrentUsingObstacles()
 	}
 	
 	usingObstacles.Append(_cannonPool->GetCurrentUsingObject());
+	
+	return usingObstacles;
+}
+
+TArray<AActor*> AObstacleSpawner::GetCurrentUsingBamboos()
+{
+	TArray<AActor*> usingObstacles;
+	usingObstacles.Reserve( _sealedPools.Num());
+	
+	FCutterSetData* bambooPrefabSet = _cutterListDataAsset->prefabs.FindByPredicate([this](const FCutterSetData& cutterSet)
+	{
+		FGameplayTag tag = cutterSet.sealedModeActor->GetDefaultObject<ASealedBase>()->GetTag();
+		return tag.MatchesTag(FGameplayTag::RequestGameplayTag(TagDefine::Bamboo));
+	});
+	
+	if (bambooPrefabSet)
+	{
+		if (_sealedPools.Contains(bambooPrefabSet->sealedModeActor))
+		{
+			usingObstacles.Append(_sealedPools[bambooPrefabSet->sealedModeActor]->GetCurrentUsingObject());
+		}
+	}else UE_LOG(LogTemp, Error, TEXT("bambooPrefabSetがnullです。"));
+	
 	
 	return usingObstacles;
 }

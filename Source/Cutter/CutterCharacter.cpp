@@ -185,11 +185,11 @@ void ACutterCharacter::SetInVisibleCutterLooksView() const
 	else UE_LOG(LogTemp, Error, TEXT("_cutterLooksがセットされていません"));
 }
 
-void ACutterCharacter::UpdatePoints(const TArray<FVector2D>& points) const
+void ACutterCharacter::UpdateLine(const TArray<FVector2D>& linePoints) const
 {
 	if (_overViewMinimap)
 	{
-		_overViewMinimap->UpdateDrawLines(points, _overViewCapture->GetComponentLocation(), _overViewCapture->OrthoWidth);
+		_overViewMinimap->UpdateLine(linePoints, _overViewCapture->GetComponentLocation(), _overViewCapture->OrthoWidth);
 	}
 	else UE_LOG(LogTemp, Error, TEXT("_overViewMinimapがセットされていません"));
 }

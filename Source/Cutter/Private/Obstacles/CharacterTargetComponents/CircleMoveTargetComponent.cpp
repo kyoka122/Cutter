@@ -159,7 +159,7 @@ void UCircleMoveTargetComponent::UpdatePaints(FVector2D center, float radius) co
 		FVector2D vec(FMath::Cos(radian), FMath::Sin(radian));
 		points.Add(center + vec * radius);
 	}
-	_owner->UpdatePoints(points);
+	_owner->UpdateLine(points);
 }
 
 void UCircleMoveTargetComponent::Throw(const FInputActionValue& Value)

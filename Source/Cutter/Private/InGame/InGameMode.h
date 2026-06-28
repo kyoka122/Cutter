@@ -35,6 +35,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void SetObstaclesSpeed(float value);
 	
+	/*MiniMapを更新する*/
+	UFUNCTION(BlueprintCallable, Category = "InGame")
+	void UpdateMinimap();
+
 	/*制限時間の経過スピードを遅くする*/
 	UFUNCTION(BlueprintCallable, Category = "InGame")
 	void SetLimitTimeSpeed(float value);
@@ -68,7 +72,7 @@ private:
 	void SetCursor() const;
 	FStageRowData* GetStageData(FName stageName) const;
 	TScriptInterface<IStageShape> GetStageShape() const;
-	USceneCaptureComponent2D* GetOverViewCapture() const;
+	void SetOverViewCapture();
 
 private:
 	UPROPERTY() TObjectPtr<AInGameState> _inGameState = {};
@@ -77,6 +81,7 @@ private:
 	UPROPERTY() TObjectPtr<UInGameUI> _inGameUI = {};
 	UPROPERTY() TObjectPtr<UGameOverUI> _gameOverUI = {};
 	UPROPERTY() TObjectPtr<ACutterCharacter> _player = {};
+	UPROPERTY() TObjectPtr<USceneCaptureComponent2D> _overViewCapture = {};
 	bool _isActiveGameOverUI = false;
 };
 

@@ -108,8 +108,8 @@ public:
 	/*Cutterの見た目をUIに表示*/
 	void SetVisibleCutterLooksView(UTexture2D* texture) const;
 
-	/*Minimapに描画する線情報の更新*/
-	void UpdatePoints(const TArray<FVector2D>& points) const;
+	/*Minimapに描画する各種情報の更新*/
+	void UpdateLine(const TArray<FVector2D>& linePoints) const;
 	
 	/*Minimapを映しているカメラ(CaptureComponent)　の情報を取得*/
 	USceneCaptureComponent2D* GetOverViewCapture() const;

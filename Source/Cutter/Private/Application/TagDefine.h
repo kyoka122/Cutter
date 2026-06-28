@@ -10,4 +10,5 @@ public:
 	static FName ThrowArrow;
 	static FName Camera;
 	static FName CannonType;
+	static FName Bamboo;
 };
