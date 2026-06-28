@@ -62,7 +62,6 @@ void UMinimapUI::DrawBambooImage(const FGeometry& geometry, FSlateWindowElementL
 	FSlateBrush iconBrush;
 	iconBrush.SetResourceObject(_bambooIcon);
 	iconBrush.ImageSize = _bambooIconSize;
-	iconBrush.ImageType = ESlateBrushImageType::Linear;
 	FVector2D localSize = geometry.GetLocalSize();
 	
 	for (auto point : _bambooPoints)
