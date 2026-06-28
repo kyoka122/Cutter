@@ -28,7 +28,7 @@ void ACannonBall::Tick(float DeltaTime)
 	FVector newPos = initPos + initVelocity * _currentTime + gravity * FMath::Pow(_currentTime, 2) / 2;
 	SetActorLocation(newPos);
 	
-	if (_currentTime > duration + 3.f)//MEMO: 一旦、目的地についたあと3秒後に消えるようにする
+	if (_currentTime > duration + 1.5f)//MEMO: 一旦、目的地についたあと1.5秒後に消えるようにする
 	{
 		Release();
 	}

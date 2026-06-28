@@ -12,7 +12,6 @@ ACannon::ACannon()
 void ACannon::BeginPlay()
 {
 	Super::BeginPlay();
-	ReStart();
 }
 
 void ACannon::Tick(float DeltaTime)
@@ -22,6 +21,7 @@ void ACannon::Tick(float DeltaTime)
 		return;
 	}
 	_leftTime -= DeltaTime;
+	SetTowardsPlayer();
 	if (_leftTime <= 0.f)
 	{
 		SpawnCannonBall();
@@ -32,6 +32,7 @@ void ACannon::ReStart()
 {
 	_leftTime = targetTime;
 	_isFired = false;
+	SetTowardsPlayer();
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 }
@@ -49,6 +50,12 @@ void ACannon::RegisterCannonBallSpawner(const TSharedPtr<ObjectPool<ACannonBall>
 void ACannon::RegisterPlayerLocation(const TScriptInterface<IActorTransform>& playerTransform)
 {
 	_playerTransform = playerTransform;
+}
+
+void ACannon::SetTowardsPlayer()
+{
+	FVector toPlayerDirection = _playerTransform->GetLocation() - GetActorLocation();
+	SetActorRotation(toPlayerDirection.Rotation());
 }
 
 void ACannon::SpawnCannonBall()

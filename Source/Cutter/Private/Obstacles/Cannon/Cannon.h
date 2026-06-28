@@ -34,6 +34,9 @@ public:
 	/*プレイヤーの位置情報取得用クラスを登録する*/
 	void RegisterPlayerLocation(const TScriptInterface<IActorTransform>& playerTransform);
 	
+	/*プレイヤーの方向に向く*/
+	void SetTowardsPlayer();
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "砲台設定")
 	float targetTime = 5;
