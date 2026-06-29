@@ -48,5 +48,5 @@ FVector2D ACircleStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppos
 	float oppositePointToStageCenterDistance = oppositePointToStageCenterVec2D.Length();
 	oppositePointToStageCenterVec2D.Normalize();
 	float oppositePointToPointOfTangencyDistance = GetRadius() + oppositePointToStageCenterDistance;//指定座標から接点までの距離
-	return oppositePoint + oppositePointToStageCenterVec2D * oppositePointToPointOfTangencyDistance;//指定座標 + 方向ベクトル * 接点までの距離
+	return oppositePoint + oppositePointToStageCenterVec2D * oppositePointToPointOfTangencyDistance / 2;//指定座標 + 方向ベクトル * 接点までの距離の半分
 }

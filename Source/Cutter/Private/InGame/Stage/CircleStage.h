@@ -21,4 +21,8 @@ public:
 	/*指定位置を通る円かつ、ステージ外にはみ出さずに一番大きく描ける内接円の接点座標*/
 	virtual FVector2D GetMaxSizeCircleCenterPos_Implementation(FVector2D oppositePoint) override;
 	
+protected:
+	/*ステージの半径*/
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stage")
+	float GetRadius();
 };

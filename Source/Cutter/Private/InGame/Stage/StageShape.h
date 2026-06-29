@@ -48,8 +48,4 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stage")
 	FVector GetCenterPos();
 	
-	/*ステージの半径*/
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Stage")
-	float GetRadius();
-	
 };
