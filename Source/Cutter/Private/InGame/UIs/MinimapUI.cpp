@@ -67,6 +67,7 @@ void UMinimapUI::DrawBambooImage(const FGeometry& geometry, FSlateWindowElementL
 	for (auto point : _bambooPoints)
 	{
 		point *= localSize;
+		point -= iconBrush.ImageSize * 0.5;
 		FSlateDrawElement::MakeBox(outDrawElements,
 		layerId,
 		geometry.ToPaintGeometry(iconBrush.ImageSize, FSlateLayoutTransform(point)),

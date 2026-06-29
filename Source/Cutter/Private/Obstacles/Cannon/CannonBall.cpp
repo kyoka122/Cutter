@@ -72,7 +72,6 @@ void ACannonBall::RegisterPlayerLocation(const TScriptInterface<IActorTransform>
 void ACannonBall::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogCannon, Log, TEXT("11.AddDamage %s by%s"), *GetName(), *OtherActor->GetName());
 	if (OtherActor && OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
 	{
 		UE_LOG(LogCannon, Log, TEXT("AddDamage %s by%s"), *GetName(), *OtherActor->GetName());
