@@ -50,7 +50,7 @@ protected:
 	
 	UFUNCTION() void HandleSizeUpUpdate(float value);
 	
-	UFUNCTION(BlueprintImplementableEvent, Category = "Sealed")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Cannon")
 	UStaticMeshComponent* GetMainMesh();
 
 protected:
@@ -69,6 +69,10 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "大砲軌道の設定")
 	float duration = 3.f;
+	
+private:
+	UFUNCTION() virtual void OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 private:
 	TFunction<void(ACannonBall* cannonBall)> _releaseFunc = {};

@@ -3,6 +3,7 @@
 #include "Cutter.h"
 #include "Components/TimelineComponent.h"
 #include "InGame/Interface/ActorTransform.h"
+#include "InGame/Interface/Damageable.h"
 
 ACannonBall::ACannonBall()
 {
@@ -19,6 +20,8 @@ void ACannonBall::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("_staticMeshComponentが取得できませんでした:　%s"), *GetName());
 		return;
 	}
+	staticMeshComponent->RegisterComponent();
+	staticMeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ACannonBall::OnBeginOverlapEvent);
 	InitTimeline(staticMeshComponent);
 }
 
@@ -47,6 +50,7 @@ void ACannonBall::ReStart()
 	
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
 	PlayMoveStartAnimation();
 }
 
@@ -63,6 +67,18 @@ void ACannonBall::RegisterReleaseCannonFunc(const TFunction<void()>& cannonRelea
 void ACannonBall::RegisterPlayerLocation(const TScriptInterface<IActorTransform>& playerTransform)
 {
 	_playerTransform = playerTransform;
+}
+
+void ACannonBall::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogCannon, Log, TEXT("11.AddDamage %s by%s"), *GetName(), *OtherActor->GetName());
+	if (OtherActor && OtherActor->GetClass()->ImplementsInterface(UDamageable::StaticClass()))
+	{
+		UE_LOG(LogCannon, Log, TEXT("AddDamage %s by%s"), *GetName(), *OtherActor->GetName());
+		IDamageable::Execute_Damage(OtherActor, damage, GetActorLocation());
+		Release();
+	}
 }
 
 void ACannonBall::InitTimeline(UStaticMeshComponent* staticMeshComponent)
