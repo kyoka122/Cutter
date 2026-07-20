@@ -11,7 +11,7 @@ FIntersectionData ACircleStage::GetInterSections_Implementation(FVector2D viaPoi
 	FIntersectionData intersectionData;
 	FVector2D centerPos2D = FVector2D(Execute_GetCenterPos(this));
 	//MEMO:
-	//a+tb = p, |p-c| = rの連立方程式  |a-c+tb| = r の解を求める
+	//a+tb = p, |p-o| = rの連立方程式  |a-o+tb| = r の解を求める
 	// => viaPoint + t*vec = d, |d-c| = GetRadius()の連立方程式  |viaPoint - GetCenterPos() + t*vec| = GetRadius() の解を求める
 	float a = FMath::Square(vec.Length());
 	float b = 2 * FVector2D::DotProduct(viaPoint - centerPos2D,vec);
