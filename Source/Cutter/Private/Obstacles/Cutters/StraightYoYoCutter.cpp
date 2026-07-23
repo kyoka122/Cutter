@@ -135,16 +135,7 @@ void AStraightYoYoCutter::SetThrowTargetParam(const FStraightYoYoThrowParam& par
 	
 	FIntersectionData intersectionData = IStageShape::Execute_GetInterSections(_stageShape.GetObject(), currentPos, FVector2D(param.moveVec));
 	_yoyoCenterPos = (intersectionData.point1 + intersectionData.point2) / 2;//中点
-	
-	float point1Product = FVector2D::DotProduct(param.moveVec, intersectionData.point1 - currentPos);
-	if (point1Product > 0)//だいたい同じ方向を向いている（誤差90°以内）
-	{
-		_yoyoRadius2D = (intersectionData.point1 - _yoyoCenterPos);
-	}
-	else
-	{
-		_yoyoRadius2D = (intersectionData.point2 - _yoyoCenterPos);
-	}
+	_yoyoRadius2D = intersectionData.point1 - _yoyoCenterPos;
 	
 	//MEMO: X軸、Y軸に平行な場合、同じ式ではoffsetを割り出せないので、条件分岐を行う。
 	//X軸に平行な時はXの差分からoffsetを割り出せる。Y軸と、それ以外の条件の場合はどちらでもいいので、Y軸差分から割り出す。
