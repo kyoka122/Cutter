@@ -50,7 +50,6 @@ FIntersectionData ASquareStage::GetInterSections_Implementation(FVector2D point,
 
 FVector2D ASquareStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppositePoint)
 {
-	UE_LOG(LogTemp, Log, TEXT("--------------------------------------------"));
 	FBox2D edge = FBox2D(GetEdgeMin(),GetEdgeMax());//TODO: FBox2DをFVector2Dを4つに直す
 	TArray<FVector2D> centerPositions;
 	
@@ -65,41 +64,17 @@ FVector2D ASquareStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppos
 	FVector2D leftForwardPos = FVector2D(edge.Max.X, edge.Min.Y);
 	
 	//正方形であれば90°で問題ないので↓は必要ない
-	//under x right
-	centerPositions.Append(GetCircleCenterPos(
-		FVector2D(0, edge.Min.Y - edge.Max.Y), 
-		FVector2D(edge.Max.X - edge.Min.X, 0), 
-		FVector2D(edge.Min.X, edge.Max.Y),
-		oppositePoint));
+	centerPositions.Append(GetCircleCenterPos(toLeftVec, toForwardVec, rightBackPos, oppositePoint));
+	centerPositions.Append(GetCircleCenterPos(toRightVec, toForwardVec, leftBackPos, oppositePoint));
+	centerPositions.Append(GetCircleCenterPos(toLeftVec, toBackVec, rightForwardPos, oppositePoint));
+	centerPositions.Append(GetCircleCenterPos(toRightVec, toBackVec, leftForwardPos, oppositePoint));
 	
-	//under x right
-	centerPositions.Append(GetCircleCenterPos(
-		FVector2D(0, edge.Max.Y - edge.Min.Y),
-		FVector2D(edge.Max.X - edge.Min.X, 0),
-		FVector2D(edge.Min.X, edge.Min.Y),
-		oppositePoint));
-	
-	//upper x right
-	centerPositions.Append(GetCircleCenterPos(
-		FVector2D(0, edge.Min.Y - edge.Max.Y),
-		FVector2D(edge.Min.X - edge.Max.X, 0),
-		FVector2D(edge.Max.X, edge.Max.Y),
-		oppositePoint));
-	
-	//upper x left
-	centerPositions.Append(GetCircleCenterPos(
-		FVector2D(0, edge.Max.Y - edge.Min.Y),
-		FVector2D(edge.Min.X - edge.Max.X, 0),
-		FVector2D(edge.Max.X, edge.Min.Y),
-		oppositePoint));
-	
-	
-	FVector2D maxCenterPoint = {};
+	FVector2D maxCenterPoint = oppositePoint;
 	float maxRadius = 0.f;
 	for (FVector2D point : centerPositions)
 	{
-		UE_LOG(LogTemp, Log, TEXT("point: %s"), *point.ToString());
 		float radius = (point - oppositePoint).Length();
+		
 		//円の半径が、円の中心と各ステージの辺までの距離より大きければ(=円がステージを飛び出ていたら) 除外する
 		if (radius > GetMinDistance(point, rightBackPos, leftBackPos) ||
 			radius > GetMinDistance(point, leftBackPos, leftForwardPos) ||
@@ -108,8 +83,6 @@ FVector2D ASquareStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppos
 		{
 			continue;
 		}
-		
-		UE_LOG(LogTemp, Log, TEXT("results: %s"), *point.ToString());
 		if (radius > maxRadius)
 		{
 			maxRadius = radius;
@@ -150,10 +123,6 @@ TArray<FVector2D> ASquareStage::GetCircleCenterPos(FVector2D firstLineVec, FVect
 	{
 		float r1 = (-b + FMath::Sqrt(d)) / 2 / a;
 		float r2 = (-b - FMath::Sqrt(d)) / 2 / a;
-		UE_LOG(LogTemp, Log, TEXT("r1: %f"), r1);
-		UE_LOG(LogTemp, Log, TEXT(" %s"), *(intersection + twoLineCenterVec * r1 / FMath::Sin(twoLineHalfRadian)).ToString());
-		UE_LOG(LogTemp, Log, TEXT("r2: %f"), r2);
-		UE_LOG(LogTemp, Log, TEXT(" %s"), *(intersection + twoLineCenterVec * r2 / FMath::Sin(twoLineHalfRadian)).ToString());
 		results.Add(intersection + twoLineCenterVec * r1 / FMath::Sin(twoLineHalfRadian));
 		results.Add(intersection + twoLineCenterVec * r2 / FMath::Sin(twoLineHalfRadian));
 	}
@@ -178,7 +147,6 @@ float ASquareStage::GetMinDistance(FVector2D point, FVector2D stageEdge1, FVecto
 		return 0;//直線の上に点がある場合
 	}
 	
-	UE_LOG(LogTemp, Log, TEXT("  distance: %f"),  FMath::Abs(cross)/(stageEdge2 - stageEdge1).Length());
 	return FMath::Abs(cross)/(stageEdge2 - stageEdge1).Length();
 }
 
