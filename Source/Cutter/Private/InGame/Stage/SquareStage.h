@@ -31,7 +31,7 @@ private:
 	/*stageEdge1,2を結ぶ線分との交点情報*/
 	std::pair<bool, FVector2D> GetInterSection(FVector2D point, FVector2D vec, FVector2D stageEdge1, FVector2D stageEdge2);
 	
-	FVector2D GetCircleCenterPos(FVector2D firstLine, FVector2D secondLine, FVector2D intersection, FVector2D oppositePoint);
+	TArray<FVector2D> GetCircleCenterPos(FVector2D firstLine, FVector2D secondLine, FVector2D intersection, FVector2D oppositePoint);
 	
 	/* このステージで描ける最大の円の半径 */
 	float GetMaxRadius();
