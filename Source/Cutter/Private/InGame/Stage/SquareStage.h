@@ -31,9 +31,8 @@ private:
 	/*stageEdge1,2を結ぶ線分との交点情報*/
 	std::pair<bool, FVector2D> GetInterSection(FVector2D point, FVector2D vec, FVector2D stageEdge1, FVector2D stageEdge2);
 	
-	/*pointを通り、stageEdge1,2を結ぶ線分に接する内接円情報*/
-	std::pair<bool, FVector2D> GetPointOfTangency(FVector2D point, FVector2D stageEdge1, FVector2D stageEdge2);
+	FVector2D GetCircleCenterPos(FVector2D firstLine, FVector2D secondLine, FVector2D intersection, FVector2D oppositePoint);
 	
-	/*point2よりpoint1の方がoppositePointとより離れている場合true, 近い場合falseを返す*/
-	bool CompareFarPoint(std::pair<bool, FVector2D> point1, std::pair<bool, FVector2D> point2,FVector2D oppositePoint);
+	/* このステージで描ける最大の円の半径 */
+	float GetMaxRadius();
 };

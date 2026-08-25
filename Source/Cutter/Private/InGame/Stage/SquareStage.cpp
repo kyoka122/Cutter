@@ -50,49 +50,65 @@ FIntersectionData ASquareStage::GetInterSections_Implementation(FVector2D point,
 
 FVector2D ASquareStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppositePoint)
 {
+	UE_LOG(LogTemp, Log, TEXT("--------------------------------------------"));
 	FBox2D edge = FBox2D(GetEdgeMin(),GetEdgeMax());//TODO: FBox2DをFVector2Dを4つに直す
-	
-	TArray<std::pair<bool, FVector2D>> results;
-	std::pair<bool, FVector2D> under = GetPointOfTangency(oppositePoint, FVector2D(edge.Min.X, edge.Min.Y), FVector2D(edge.Min.X, edge.Max.Y));//→
-	std::pair<bool, FVector2D> right = GetPointOfTangency(oppositePoint, FVector2D(edge.Min.X, edge.Max.Y), FVector2D(edge.Max.X, edge.Max.Y));//↑
-	std::pair<bool, FVector2D> upper = GetPointOfTangency(oppositePoint, FVector2D(edge.Max.X, edge.Max.Y), FVector2D(edge.Max.X, edge.Min.Y));//←
-	std::pair<bool, FVector2D> left = GetPointOfTangency(oppositePoint, FVector2D(edge.Max.X, edge.Min.Y), FVector2D(edge.Min.X, edge.Min.Y));//↓
-	
-	//□のどの二辺を選ぶと一番大きな円を描けるか取得
-	bool underIsFar = CompareFarPoint(under, upper, oppositePoint);
-	bool rightIsFar = CompareFarPoint(right, left, oppositePoint);
-	
-	//選ばれた二辺の情報をキャッシュ
-	FVector2D firstLine;
-	FVector2D secondLine;
-	FVector2D intersection;
+	TArray<FVector2D> centerPositions;
 	
 	//正方形であれば90°で問題ないので↓は必要ない
-	if (underIsFar && rightIsFar)
-	{
-		firstLine = FVector2D(0, edge.Min.Y - edge.Max.Y);//under
-		secondLine = FVector2D(edge.Max.X - edge.Min.X, 0);//right
-		intersection = FVector2D(edge.Min.X, edge.Max.Y);
-	}
-	else if (underIsFar && !rightIsFar)
-	{
-		firstLine = FVector2D(0, edge.Max.Y - edge.Min.Y);//under
-		secondLine = FVector2D(edge.Max.X - edge.Min.X, 0);//left
-		intersection = FVector2D(edge.Min.X, edge.Min.Y);
-	}
-	else if (!underIsFar && rightIsFar)
-	{
-		firstLine = FVector2D(0, edge.Min.Y - edge.Max.Y);//upper
-		secondLine = FVector2D(edge.Min.X - edge.Max.X, 0);//right
-		intersection = FVector2D(edge.Max.X, edge.Max.Y);
-	}
-	else if (!underIsFar && !rightIsFar)
-	{
-		firstLine = FVector2D(0, edge.Max.Y - edge.Min.Y);//upper
-		secondLine = FVector2D(edge.Min.X - edge.Max.X, 0);//left
-		intersection = FVector2D(edge.Max.X, edge.Min.Y);
-	}
+	//under x right
+	centerPositions.Add(GetCircleCenterPos(
+		FVector2D(0, edge.Min.Y - edge.Max.Y), 
+		FVector2D(edge.Max.X - edge.Min.X, 0), 
+		FVector2D(edge.Min.X, edge.Max.Y),
+		oppositePoint));
 	
+	//under x right
+	centerPositions.Add(GetCircleCenterPos(
+		FVector2D(0, edge.Max.Y - edge.Min.Y),
+		FVector2D(edge.Max.X - edge.Min.X, 0),
+		FVector2D(edge.Min.X, edge.Min.Y),
+		oppositePoint));
+	
+	//upper x right
+	centerPositions.Add(GetCircleCenterPos(
+		FVector2D(0, edge.Min.Y - edge.Max.Y),
+		FVector2D(edge.Min.X - edge.Max.X, 0),
+		FVector2D(edge.Max.X, edge.Max.Y),
+		oppositePoint));
+	
+	//upper x left
+	centerPositions.Add(GetCircleCenterPos(
+		FVector2D(0, edge.Max.Y - edge.Min.Y),
+		FVector2D(edge.Min.X - edge.Max.X, 0),
+		FVector2D(edge.Max.X, edge.Min.Y),
+		oppositePoint));
+	
+	float radius = GetMaxRadius();
+	for (FVector2D point : centerPositions)
+	{
+		//それぞれの円がこのステージの最大サイズの円を超えていたら除外する
+		if ((point - oppositePoint).Length() > radius)
+		{
+			centerPositions.Remove(point);
+		}
+	}
+	for (FVector2D point : centerPositions)
+	{
+		UE_LOG(LogTemp, Log, TEXT("point: %s"), *point.ToString());
+	}
+	return FMath::Max(centerPositions);
+}
+
+float ASquareStage::GetMaxRadius()
+{
+	FBox2D edge = FBox2D(GetEdgeMin(),GetEdgeMax());
+	float xLength = FMath::Abs(edge.Max.X - edge.Min.X);
+	float yLength = FMath::Abs(edge.Max.Y - edge.Min.Y);
+	return FMath::Max(xLength/2, yLength/2);
+}
+
+FVector2D ASquareStage::GetCircleCenterPos(FVector2D firstLine, FVector2D secondLine, FVector2D intersection, FVector2D oppositePoint)
+{
 	//「1. rの長さと、二辺の交点～円の中心までの関係性」と、「2. oppositePoint～円の中心までの距離の関係性」を　元に連立方程式を解く
 	// oppositePointをP, 二辺の交点をQ、円の中心をOとすると...
 	
@@ -108,22 +124,26 @@ FVector2D ASquareStage::GetMaxSizeCircleCenterPos_Implementation(FVector2D oppos
 	
 	float d = FMath::Square(b) - 4 * a * c;
 	float r;
-	 if (d > 0)
-	 {
-	 	float r1 = (-b + FMath::Sqrt(d)) / 2 / a;
-	 	float r2 = (-b - FMath::Sqrt(d)) / 2 / a;
-	 	r = r1 <= r2 ? r1 : r2;
-	 }
-	 else if (d < 0)
-	 {
-	 	return oppositePoint;
-	 }
-	 else
-	 {
-	 	r = -b / 2 / a;
+	UE_LOG(LogTemp, Log, TEXT("d: %f"), d);
+	if (d > 0)
+	{
+		float r1 = (-b + FMath::Sqrt(d)) / 2 / a;
+		float r2 = (-b - FMath::Sqrt(d)) / 2 / a;
+		UE_LOG(LogTemp, Log, TEXT("r1: %f"), r1);
+		UE_LOG(LogTemp, Log, TEXT("r2: %f"), r2);
+		r = r1 <= r2 ? r1 : r2;
 	}
-	 return intersection + twoLineCenterVec * r / FMath::Sin(twoLineHalfRadian);
+	else if (d < 0)
+	{
+		return oppositePoint;
+	}
+	else
+	{
+		r = -b / 2 / a;
+	}
+	return intersection + twoLineCenterVec * r / FMath::Sin(twoLineHalfRadian);
 }
+
 
 std::pair<bool, FVector2D> ASquareStage::GetInterSection(FVector2D point, FVector2D vec, FVector2D stageEdge1, FVector2D stageEdge2)
 {
@@ -148,44 +168,4 @@ std::pair<bool, FVector2D> ASquareStage::GetInterSection(FVector2D point, FVecto
 		result.second = stageEdge1 + t * (stageEdge2 - stageEdge1);
 	}
 	return result;
-}
-
-std::pair<bool, FVector2D> ASquareStage::GetPointOfTangency(FVector2D point, FVector2D stageEdge1, FVector2D stageEdge2)
-{
-	std::pair result = {false, FVector2D(0.0f, 0.0f)};
-	
-	FVector2D stageLine = stageEdge2 - stageEdge1;
-	FVector2D pointToStageEdge1 = stageEdge1 - point;
-	
-	//MEMO:  FVector2.DotProduct (pointToStageEdge1 + t * stageLine , stageLine) = 0 （直交する）をtに関して解く
-	float t = - (pointToStageEdge1.X * stageLine.X + pointToStageEdge1.Y * stageLine.Y) / (stageLine.X * stageLine.X + stageLine.Y * stageLine.Y);
-	
-	if (t >= 0 && t <= 1)
-	{
-		result.first = true;
-		result.second = stageEdge1 + t * stageLine;
-	}
-	return result;
-}
-
-bool ASquareStage::CompareFarPoint(std::pair<bool, FVector2D> point1, std::pair<bool, FVector2D> point2, FVector2D oppositePoint)
-{
-	//二辺のうち有効でないものがあった場合の処理
-	if (!point1.first)
-	{
-		UE_LOG(LogTemp, Log, TEXT("交点のない辺がありました。: %s, point位置: %s"), *point1.second.ToString(), *oppositePoint.ToString());
-		return false;//point2を有効とみなす
-	}
-	if (!point2.first)
-	{
-		UE_LOG(LogTemp, Log, TEXT("交点のない辺がありました。: %s, point位置: %s"), *point2.second.ToString(), *oppositePoint.ToString());
-		return true;//point1を有効とみなす
-	}
-	
-	//遠い方の点を返す
-	if ((point1.second - oppositePoint).Length() < (point2.second - oppositePoint).Length())
-	{
-		return false;
-	}
-	return true;
 }
