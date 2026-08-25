@@ -86,7 +86,6 @@ void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
 {
 	if (otherActor && otherActor->GetClass()->ImplementsInterface(UScoreTarget::StaticClass()))
 	{
-		UE_LOG(LogCutter, Log, TEXT("AddScore %s by%s"), *GetName(), *otherActor->GetName());
 		FScoreRobbedParam robbedParam = IScoreTarget::Execute_RobbedScore(otherActor, false);
 		if (!robbedParam.canRobScore)
 		{
@@ -94,6 +93,7 @@ void ACircleExpandCutter::OnOverlapScoreTargetActor(AActor* otherActor) const
 		}
 		if (_scoreAddFunc)
 		{
+			UE_LOG(LogCutter, Log, TEXT("AddScore %s by%s"), *GetName(), *otherActor->GetName());
 			_scoreAddFunc(robbedParam.score);
 		}
 		else UE_LOG(LogCutter, Error, TEXT("_scoreAddFunc 実行する関数がnullです %s"), *GetName());

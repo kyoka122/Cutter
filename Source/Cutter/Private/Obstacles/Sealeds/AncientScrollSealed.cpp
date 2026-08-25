@@ -19,7 +19,6 @@ void AAncientScrollSealed::Tick(float DeltaSeconds)
 
 FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPlayer)
 {
-	UE_LOG(LogSealed, Log, TEXT("RobbedScore:　%s"), *GetName());
 	FScoreRobbedParam param = {};
 	if (!isExecPlayer || !_canOverlapOtherObject)
 	{
@@ -27,6 +26,7 @@ FScoreRobbedParam AAncientScrollSealed::RobbedScore_Implementation(bool isExecPl
 		return param;
 	}
 	
+	UE_LOG(LogSealed, Log, TEXT("RobbedScore:　%s"), *GetName());
 	param.canRobScore = true;
 	param.score = _param.Score;
 	_canOverlapOtherObject = false;
